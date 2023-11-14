@@ -1,0 +1,17 @@
+server:
+  port: 8081
+keycloak:
+  realm: atts
+  url: http://localhost:8080
+  client-id: atts-application
+  client-secret: FFlMb8jBCCLvGmOnTraBu1jPaA72c3WG
+spring:
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          jwk-set-uri: ${keycloak.url}/realms/${keycloak.realm}/protocol/openid-connect/certs
+  datasource:
+    url: jdbc:mysql://localhost:3306/atts
+    username: atts
+    password: atts
