@@ -50,7 +50,8 @@ public class AuthProviderImpl implements AuthProvider {
 
     UserRepresentation user = new UserRepresentation();
     user.setUsername(registrationUser.getUsername());
-//        user.setEmail(password);
+    user.setEmail(user.getEmail());
+    user.setEnabled(true);
     user.setCredentials(Collections.singletonList(credentialRepresentation));
 
     Response response = usersResource.create(user);
@@ -61,7 +62,6 @@ public class AuthProviderImpl implements AuthProvider {
         throw new RuntimeException(response.getStatusInfo().getReasonPhrase());
       }
     }
-
 
     String userId = CreatedResponseUtil.getCreatedId(response);
     UserResource createdUserResource = usersResource.get(userId);
@@ -81,9 +81,17 @@ public class AuthProviderImpl implements AuthProvider {
   }
 
   @Override
-  public void deleteUser(User registeredUser) throws RegistrationException {
+  public User deleteUser(String username) throws IllegalStateException {
     RealmResource realmResource = this.keycloak.realm(realm);
     UsersResource usersResource = realmResource.users();
-    usersResource.delete(usersResource.search(registeredUser.getUsername()).get(0).getId());
+    UserRepresentation userRepresentation = usersResource.search(username).get(0);
+    if (userRepresentation == null) {
+      throw new IllegalStateException("There isn't an account with usnername: " + username);
+    }
+    User user = User.builder().username(userRepresentation.getUsername())
+        .password(userRepresentation.getCredentials().stream().findAny().get().getValue())
+        .email(userRepresentation.getEmail()).build();
+    usersResource.delete(usersResource.search(username).get(0).getId());
+    return user;
   }
 }

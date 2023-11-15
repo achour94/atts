@@ -5,5 +5,5 @@ import com.atts.tools.msystem.domain.model.User;
 
 public interface AuthProvider {
     void addUser(User registrationUser) throws RegistrationException;
-    void deleteUser(User registeredUser) throws RegistrationException;
+    User deleteUser(String username) throws IllegalStateException;
 }

@@ -17,4 +17,9 @@ public class UserStorageAdapter implements UserStoragePort {
   public User createUser(User user) {
     return Transformer.transformToUser(userRepository.save(Transformer.transformToUserEntity(user)));
   }
+
+  @Override
+  public void deleteUserByUsername(String username) {
+    userRepository.deleteUserEntityByUsername(username);
+  }
 }

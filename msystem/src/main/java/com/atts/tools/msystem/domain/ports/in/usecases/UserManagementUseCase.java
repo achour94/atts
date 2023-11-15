@@ -5,4 +5,5 @@ import com.atts.tools.msystem.domain.model.User;
 
 public interface UserManagementUseCase {
     User addUser(User user) throws RegistrationException;
+    void deleteUser(String username) throws RegistrationException;
 }

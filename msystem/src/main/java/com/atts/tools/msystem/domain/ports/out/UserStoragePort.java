@@ -4,4 +4,5 @@ import com.atts.tools.msystem.domain.model.User;
 
 public interface UserStoragePort {
   User createUser(User user);
+  void deleteUserByUsername(String username);
 }
