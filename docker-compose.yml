@@ -1,0 +1,16 @@
+version: '4.0'
+
+services:
+  keycloak:
+    image: jboss/keycloak:latest
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      DB_VENDOR: h2
+    volumes:
+      - keycloak_data:/opt/jboss/keycloak/standalone/data
+    ports:
+      - 8080:8080
+    
+volumes:
+  keycloak_data:
