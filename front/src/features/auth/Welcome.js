@@ -1,8 +1,11 @@
 import { useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 import { selectCurrentToken, selectCurrentUser } from "./authSlice"
+import UserService from "../../services/UserService"
+
 
 const Welcome = () => {
+
     // const user = useSelector(selectCurrentUser)
     // const token = useSelector(selectCurrentToken)
 
@@ -14,6 +17,7 @@ const Welcome = () => {
             {/* <h1>{welcome}</h1> */}
             {/* <p>Token: {tokenAbbr}</p> */}
             <p><Link to="/userslist">Go to the Users List</Link></p>
+            <button onClick={() => UserService.doLogout()}>Logout</button>
         </section>
     )
 

@@ -1,0 +1,8 @@
+{
+    "realm": "atts",
+    "auth-server-url": "http://localhost:8080/",
+    "ssl-required": "external",
+    "resource": "atts-ui-client",
+    "public-client": true,
+    "confidential-port": 0
+}
