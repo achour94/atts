@@ -2,37 +2,27 @@ import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import Public from './components/Public'
-import Login from './features/auth/Login'
 import Welcome from './features/auth/Welcome'
-import RequireAuth from './features/auth/RequireAuth'
 import UsersList from './features/users/UsersList'
-import { initKeycloack } from './features/auth/authSlice'
 
 import { useDispatch } from 'react-redux'
+import RenderOnAuthenticated from './components/RenderOnAuthenticated'
+import RenderOnRole from './components/RenderOnRole'
+import UserService from './services/UserService'
 
 
-function App() {
 
-    const dispatch = useDispatch();
+function App(keycloak: any) {
 
-    // useEffect(() => {
-    //     initKeycloack(dispatch);
-    // }, [dispatch]);
     
     
     return (
         <Routes>
             <Route path="/" element={<Layout />}>
-                {/* public routes */}
-                <Route index element={<Public />} />
-                <Route path="login" element={<Login />} />
-
-                {/* protected routes */}
-                <Route element={<RequireAuth />}>
-                    <Route path="welcome" element={<Welcome />} />
-                    <Route path="userslist" element={<UsersList />} />
-                </Route>
-
+                <Route path="/" element={<Public/>}/>
+                {/* <Route index element={<Public />} /> */}
+                    <Route path="welcome" element={<RenderOnAuthenticated><Welcome /></RenderOnAuthenticated>} />
+                    <Route path="userslist" element={<RenderOnRole showNotAllowed={true} roles={["admin"]}><UsersList /></RenderOnRole>} />
             </Route>
         </Routes>
     )

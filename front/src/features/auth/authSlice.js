@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import keycloak from '../../keycloak-config';
 
 const initialState = {
     user: null,
@@ -39,17 +38,6 @@ const authSlice = createSlice({
     },
 });
 
-export const initKeycloack = (dispatch) => {
-    keycloak.init({ onLoad: 'login-required' }).then((authenticated) => {
-        if (authenticated) {
-            keycloak.updateToken(30).then(() => {
-                dispatch(setAuth({ isAuthenticated: authenticated, token: keycloak.token }));
-            });
-        } else {
-            dispatch(setAuth({ isAuthenticated: authenticated, token: null }));
-        }
-    });
-}
 
 export const { setAuth, loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
 
