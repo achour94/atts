@@ -1,4 +1,4 @@
-package com.atts.tools.msystem.application.rest.response;
+package com.atts.tools.msystem.application.rest.response.user;
 
 import lombok.Builder;
 import lombok.Getter;

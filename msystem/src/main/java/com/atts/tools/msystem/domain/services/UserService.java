@@ -7,10 +7,12 @@ import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.ports.in.usecases.UserManagementUseCase;
 import com.atts.tools.msystem.domain.ports.out.AuthProvider;
 import com.atts.tools.msystem.domain.ports.out.UserStoragePort;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
+@Transactional
 @RequiredArgsConstructor
 public class UserService implements UserManagementUseCase {
 
@@ -31,15 +33,10 @@ public class UserService implements UserManagementUseCase {
 
   @Override
   public void deleteUser(String username) {
-    User user = authProvider.deleteUser(username);
+    authProvider.deleteUser(username);
     try {
       userStoragePort.deleteUserByUsername(username);
     } catch (Exception e) {
-      try {
-        addUser(user);
-      } catch (RegistrationException ex) {
-        //do nothing
-      }
       throw new RuntimeException(e);
     }
   }

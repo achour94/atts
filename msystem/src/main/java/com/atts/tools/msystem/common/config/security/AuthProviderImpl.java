@@ -1,9 +1,12 @@
 package com.atts.tools.msystem.common.config.security;
 
 import com.atts.tools.msystem.common.exceptions.RegistrationException;
+import com.atts.tools.msystem.domain.model.Role;
 import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.ports.out.AuthProvider;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
@@ -24,74 +27,89 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthProviderImpl implements AuthProvider {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AuthProviderImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuthProviderImpl.class);
 
-  private final Keycloak keycloak;
+    private final Keycloak keycloak;
 
-  @Value("${keycloak.realm}")
-  private String realm;
+    @Value("${keycloak.realm}")
+    private String realm;
 
-  @Value("${keycloak.client-id}")
-  private String clientId;
+    @Value("${keycloak.client-id}")
+    private String clientId;
 
-  private CredentialRepresentation createPasswordCredentials(String password) {
-    CredentialRepresentation passwordCredentials = new CredentialRepresentation();
-    passwordCredentials.setTemporary(false);
-    passwordCredentials.setType(CredentialRepresentation.PASSWORD);
-    passwordCredentials.setValue(password);
-    return passwordCredentials;
-  }
-
-  @Override
-  public void addUser(User registrationUser) throws RegistrationException {
-    RealmResource realmResource = this.keycloak.realm(realm);
-    UsersResource usersResource = realmResource.users();
-    CredentialRepresentation credentialRepresentation = createPasswordCredentials(registrationUser.getPassword());
-
-    UserRepresentation user = new UserRepresentation();
-    user.setUsername(registrationUser.getUsername());
-    user.setEmail(user.getEmail());
-    user.setEnabled(true);
-    user.setCredentials(Collections.singletonList(credentialRepresentation));
-
-    Response response = usersResource.create(user);
-    if (response.getStatus() != 201) {
-      if (Response.Status.CONFLICT.equals(response.getStatusInfo())) {
-        throw new RegistrationException("An user with the same username already exists");
-      } else {
-        throw new RuntimeException(response.getStatusInfo().getReasonPhrase());
-      }
+    private CredentialRepresentation createPasswordCredentials(String password) {
+        CredentialRepresentation passwordCredentials = new CredentialRepresentation();
+        passwordCredentials.setTemporary(false);
+        passwordCredentials.setType(CredentialRepresentation.PASSWORD);
+        passwordCredentials.setValue(password);
+        return passwordCredentials;
     }
 
-    String userId = CreatedResponseUtil.getCreatedId(response);
-    UserResource createdUserResource = usersResource.get(userId);
+    @Override
+    public void addUser(User registrationUser) throws RegistrationException {
+        RealmResource realmResource = this.keycloak.realm(realm);
+        UsersResource usersResource = realmResource.users();
+        CredentialRepresentation credentialRepresentation = createPasswordCredentials(registrationUser.getPassword());
 
-    try {
-      ClientRepresentation clientRepresentation = realmResource.clients().findByClientId(clientId).get(0);
-      RolesResource rolesResource = realmResource.clients().get(clientRepresentation.getId()).roles();
-      List<RoleRepresentation> userRoles = registrationUser.getRoles().stream()
-          .map(role -> rolesResource.get(role.getLabel()).toRepresentation()).collect(Collectors.toList());
-      createdUserResource.roles().clientLevel(clientRepresentation.getId()).add(userRoles);
-    } catch (Exception e) {
-      usersResource.delete(userId);
-      throw new RuntimeException(e);
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(registrationUser.getUsername());
+        user.setEmail(user.getEmail());
+        user.setEnabled(true);
+        user.setCredentials(Collections.singletonList(credentialRepresentation));
+
+        Response response = usersResource.create(user);
+        if (response.getStatus() != 201) {
+            if (Response.Status.CONFLICT.equals(response.getStatusInfo())) {
+                throw new RegistrationException("An user with the same username already exists");
+            } else {
+                throw new RuntimeException(response.getStatusInfo().getReasonPhrase());
+            }
+        }
+
+        String userId = CreatedResponseUtil.getCreatedId(response);
+        UserResource createdUserResource = usersResource.get(userId);
+
+        try {
+            ClientRepresentation clientRepresentation = realmResource.clients().findByClientId(clientId).get(0);
+            RolesResource rolesResource = realmResource.clients().get(clientRepresentation.getId()).roles();
+            List<RoleRepresentation> userRoles = registrationUser.getRoles().stream()
+                .map(role -> rolesResource.get(role.getLabel()).toRepresentation()).collect(Collectors.toList());
+            createdUserResource.roles().clientLevel(clientRepresentation.getId()).add(userRoles);
+        } catch (Exception e) {
+            usersResource.delete(userId);
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+    private RoleResource getRoleRepresentation(Role role) {
+        RealmResource realmResource = this.keycloak.realm(realm);
+        ClientRepresentation clientRepresentation = realmResource.clients().findByClientId(clientId).get(0);
+        return realmResource.clients().get(clientRepresentation.getId()).roles().get(role.getLabel());
     }
 
 
-  }
 
-  @Override
-  public User deleteUser(String username) throws IllegalStateException {
-    RealmResource realmResource = this.keycloak.realm(realm);
-    UsersResource usersResource = realmResource.users();
-    UserRepresentation userRepresentation = usersResource.search(username).get(0);
-    if (userRepresentation == null) {
-      throw new IllegalStateException("There isn't an account with usnername: " + username);
+    @Override
+    public void deleteUser(String username) throws IllegalStateException {
+        RealmResource realmResource = this.keycloak.realm(realm);
+        UsersResource usersResource = realmResource.users();
+        UserRepresentation userRepresentation = usersResource.search(username).stream().findAny().orElse(null);
+        if (userRepresentation == null) {
+            throw new IllegalStateException("There isn't an account with usnername: " + username);
+        }
+        Response response = usersResource.delete(userRepresentation.getId());
+        if (!Status.NO_CONTENT.equals(response.getStatusInfo())) {
+            throw new RuntimeException(
+                String.format("There was a problem at deleting account for user [%s]!", username));
+        }
     }
-    User user = User.builder().username(userRepresentation.getUsername())
-        .password(userRepresentation.getCredentials().stream().findAny().get().getValue())
-        .email(userRepresentation.getEmail()).build();
-    usersResource.delete(usersResource.search(username).get(0).getId());
-    return user;
-  }
+
+    @Override
+    public List<User> findAllAdminUsers() {
+        return getRoleRepresentation(Role.ADMIN).getUserMembers().stream().map(
+            userRepresentation -> User.builder().username(userRepresentation.getUsername()).email(userRepresentation.getEmail()).build()
+        ).collect(Collectors.toList());
+    }
 }

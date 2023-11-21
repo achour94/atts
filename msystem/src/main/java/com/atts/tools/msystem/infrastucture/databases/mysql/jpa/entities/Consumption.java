@@ -11,41 +11,33 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "subscription")
-public class Subscription {
+@Table(name = "consumption")
+public class Consumption {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "price")
-    private Double price;
+    @Column(name = "duration")
+    private Integer duration;
+
+    @Column(name = "count")
+    private Integer count;
 
     @Size(max = 45)
-    @Column(name = "name", length = 45)
-    private String name;
-
-    @Size(max = 45)
-    @Column(name = "data", length = 45)
-    private String data;
+    @Column(name = "type", length = 45)
+    private String type;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
-
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @Column(name = "updated_at")
-    private Instant updatedAt;
+    @JoinColumn(name = "invoice_id", nullable = false)
+    private Invoice invoice;
 
 }

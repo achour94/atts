@@ -1,5 +1,6 @@
 package com.atts.tools.msystem.domain.model;
 
+import java.util.Objects;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,16 +11,27 @@ import java.util.List;
 @Setter
 @Builder
 public class User {
+
     private Integer id;
-    private Double diverseAmount;
     private List<Role> roles;
-    private String address;
     private String email;
     private String username;
     private String password;
-    private String postalCode;
-    private String reference;
-    private Subscription subscription;
-    private Boolean diverse;
-    private Integer diverseAmountÍ;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        User user = (User) o;
+        return Objects.equals(email, user.email) && Objects.equals(username,
+            user.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, email);
+    }
 }

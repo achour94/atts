@@ -1,18 +1,23 @@
 package com.atts.tools.msystem.application.rest.controllers;
 
-import com.atts.tools.msystem.application.rest.request.AddUserRequest;
-import com.atts.tools.msystem.application.rest.request.DeleteUserRequest;
-import com.atts.tools.msystem.application.rest.response.AddUserResponse;
+import com.atts.tools.msystem.application.rest.request.user.AddUserRequest;
+import com.atts.tools.msystem.application.rest.request.user.DeleteUserRequest;
+import com.atts.tools.msystem.application.rest.response.user.AddUserResponse;
 import com.atts.tools.msystem.common.exceptions.RegistrationException;
+import com.atts.tools.msystem.common.runners.AdminsLoader;
 import com.atts.tools.msystem.domain.model.User;
+import com.atts.tools.msystem.domain.model.pageable.user.UserPage;
+import com.atts.tools.msystem.domain.model.pageable.user.UserSearchCriteria;
 import com.atts.tools.msystem.domain.ports.in.usecases.UserManagementUseCase;
+import com.atts.tools.msystem.domain.ports.out.UserCriteriaPort;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.DefaultApplicationArguments;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private final UserManagementUseCase userManagementUseCase;
+  private final AdminsLoader adminsLoader;
+  private final UserCriteriaPort userCriteriaPort;
 
   Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -40,9 +47,15 @@ public class UserController {
     logger.info(String.format("An user with the username: %s was deleted", request.getUsername()));
   }
 
+  @PutMapping("/admins")
+  public void updateAdmins() throws Exception {
+      adminsLoader.run(new DefaultApplicationArguments());
+      logger.info("Admins list was updated into database!");
+  }
+
   @GetMapping("/")
-  public String helloGet() {
-    int x = 1;
-    return "hello";
+  @PreAuthorize("hasRole('admin')")
+  public ResponseEntity<Page<User>> getUsers(UserPage userPage, UserSearchCriteria criteria) {
+    return ResponseEntity.ok(userCriteriaPort.findAllWithFilters(userPage, criteria));
   }
 }

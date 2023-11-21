@@ -1,4 +1,4 @@
-package com.atts.tools.msystem.application.rest.request;
+package com.atts.tools.msystem.application.rest.request.user;
 
 import com.atts.tools.msystem.domain.model.User;
 import jakarta.validation.constraints.NotNull;
