@@ -10,6 +10,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { Link } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 interface TabIconProps {
     icon: string,
@@ -47,22 +48,26 @@ interface TabProps {
 }
 
 export function Tab(props: TabProps) {
+    const { t } = useTranslation();
+
     return (
         <ListItem>
             <ListItemButton component={Link} to={props.link}>
                 <ListItemIcon>
                     <TabIcon icon={props.icon}></TabIcon>
                 </ListItemIcon>
-                <ListItemText primary={props.text} />
+                <ListItemText primary={t(props.text)} />
             </ListItemButton>
         </ListItem>
     );
 }
 
 export function CollapsedTab(props: TabProps) {
+    const { t } = useTranslation();
+
     return (
         <ListItem>
-            <Tooltip title={props.text} placement="right">
+            <Tooltip title={t(props.text)} placement="right">
                 <ListItemButton component={Link} to={props.link}>
                     <ListItemIcon>
                         <TabIcon icon={props.icon}></TabIcon>

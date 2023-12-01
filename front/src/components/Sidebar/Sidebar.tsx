@@ -14,27 +14,27 @@ const SIDEBAR_FULL_WIDTH = 290;
 const SIDEBAR_COLLAPSED_WIDTH = 80;
 const TABS = {
   dasboard: {
-    text: 'Dashboard',
+    text: 'sidebar_tab_dashboard',
     icon: 'home',
     link: 'dashboard'
   },
   clients: {
-    text: 'Clients',
+    text: 'sidebar_tab_clients',
     icon: 'group',
     link: 'clients'
   },
   invoices: {
-    text: 'Invoices',
+    text: 'sidebar_tab_invoices',
     icon: 'description',
     link: 'invoices'
   },
   history: {
-    text: 'History',
+    text: 'sidebar_tab_history',
     icon: 'history',
     link: 'history'
   },
   profile: {
-    text: 'Profile',
+    text: 'sidebar_tab_profile',
     icon: 'account',
     link: 'profile'
   }
