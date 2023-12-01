@@ -2,16 +2,15 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import { Logo } from './Logo';
-import {CollapsedTab, Tab} from './Tabs';
-import IconButton from '@mui/material/IconButton';
+import { CollapsedTab, Tab } from './Tabs/Tabs';
+import CollapseButton from './CollapseButton/CollapseButton';
 
 const SIDEBAR_FULL_WIDTH = 290;
-const SIDEBAR_COLLAPSED_WIDTH = 80;
+const SIDEBAR_COLLAPSED_WIDTH = 90;
 const TABS = {
   dasboard: {
     text: 'sidebar_tab_dashboard',
@@ -60,14 +59,12 @@ export default function SidebarMenu() {
         variant="permanent"
         anchor="left"
       >
+        <CollapseButton collapsed={collapsed} setCollapsed={setCollapsed}></CollapseButton>
         <Stack spacing={3} sx={{
           position: 'relative',
           top: '60px',
         }}>
-          <IconButton sx={{position: 'absolute', width: '30px', backgroundColor: 'gray', right: '0px'}} onClick={() => setCollapsed(!collapsed)}>
-            {!collapsed ? <ArrowBackIosNewIcon> </ArrowBackIosNewIcon> : <ArrowForwardIosIcon></ArrowForwardIosIcon>}
-          </IconButton>
-          <Logo src='logoatts.png'></Logo>
+          <Logo src='logoatts.png' collapsed={collapsed}></Logo>
           <Divider />
           <List>
             {Object.values(TABS).map((tabInfo, index) => (

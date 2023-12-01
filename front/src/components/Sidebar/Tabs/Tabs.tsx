@@ -11,6 +11,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { Link } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
+import './Tabs.css';
 
 interface TabIconProps {
     icon: string,
@@ -47,21 +48,6 @@ interface TabProps {
     link: string,
 }
 
-export function Tab(props: TabProps) {
-    const { t } = useTranslation();
-
-    return (
-        <ListItem>
-            <ListItemButton component={Link} to={props.link}>
-                <ListItemIcon>
-                    <TabIcon icon={props.icon}></TabIcon>
-                </ListItemIcon>
-                <ListItemText primary={t(props.text)} />
-            </ListItemButton>
-        </ListItem>
-    );
-}
-
 export function CollapsedTab(props: TabProps) {
     const { t } = useTranslation();
 
@@ -69,11 +55,26 @@ export function CollapsedTab(props: TabProps) {
         <ListItem>
             <Tooltip title={t(props.text)} placement="right">
                 <ListItemButton component={Link} to={props.link}>
-                    <ListItemIcon>
+                    <ListItemIcon className='iconHuge'>
                         <TabIcon icon={props.icon}></TabIcon>
                     </ListItemIcon>
                 </ListItemButton>
             </Tooltip>
+        </ListItem>
+    );
+}
+
+export function Tab(props: TabProps) {
+    const { t } = useTranslation();
+
+    return (
+        <ListItem id={`sidebar_tab_${props.text}`} className='listItem'>
+            <ListItemButton component={Link} to={props.link}>
+                <ListItemIcon className='icon'>
+                    <TabIcon icon={props.icon}></TabIcon>
+                </ListItemIcon>
+                <ListItemText primary={t(props.text)} />
+            </ListItemButton>
         </ListItem>
     );
 }
