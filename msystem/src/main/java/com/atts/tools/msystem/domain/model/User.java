@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class User {
+public class User implements ModelEntity {
 
     private Integer id;
     private List<Role> roles;

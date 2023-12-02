@@ -14,34 +14,38 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "invoice")
-public class Invoice {
+public class InvoiceEntity implements DBEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
 
     @Column(name = "proforma")
     private Byte proforma;
-
-    @NotNull
-    @Column(name = "invoice_number", nullable = false)
-    private Integer invoiceNumber;
 
     @Size(max = 45)
     @Column(name = "file_uri", length = 45)
@@ -62,9 +66,9 @@ public class Invoice {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
+    private ClientEntity client;
 
-    @OneToMany(mappedBy = "invoice")
-    private Set<Consumption> consumptions = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "invoiceEntity")
+    private Set<ConsumptionEntity> consumptions = new LinkedHashSet<>();
 
 }

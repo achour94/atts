@@ -10,6 +10,7 @@ import lombok.Setter;
 public class AddUserRequest {
     @NotNull
     private String username;
+    private Integer clientId;
     @NotNull
     private String password;
     @NotNull

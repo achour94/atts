@@ -6,8 +6,8 @@ import com.atts.tools.msystem.application.rest.response.user.AddUserResponse;
 import com.atts.tools.msystem.common.exceptions.RegistrationException;
 import com.atts.tools.msystem.common.runners.AdminsLoader;
 import com.atts.tools.msystem.domain.model.User;
-import com.atts.tools.msystem.domain.model.pageable.user.UserPage;
-import com.atts.tools.msystem.domain.model.pageable.user.UserSearchCriteria;
+import com.atts.tools.msystem.domain.model.pageable.RequestPage;
+import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
 import com.atts.tools.msystem.domain.ports.in.usecases.UserManagementUseCase;
 import com.atts.tools.msystem.domain.ports.out.UserCriteriaPort;
 import jakarta.validation.Valid;
@@ -48,6 +48,7 @@ public class UserController {
   }
 
   @PutMapping("/admins")
+  @PreAuthorize("hasRole('admin')")
   public void updateAdmins() throws Exception {
       adminsLoader.run(new DefaultApplicationArguments());
       logger.info("Admins list was updated into database!");
@@ -55,7 +56,7 @@ public class UserController {
 
   @GetMapping("/")
   @PreAuthorize("hasRole('admin')")
-  public ResponseEntity<Page<User>> getUsers(UserPage userPage, UserSearchCriteria criteria) {
-    return ResponseEntity.ok(userCriteriaPort.findAllWithFilters(userPage, criteria));
+  public ResponseEntity<Page<User>> getUsers(RequestPage page, SearchCriteria criteria) throws NoSuchFieldException {
+    return ResponseEntity.ok(userCriteriaPort.findAllWithFilters(page, criteria));
   }
 }

@@ -15,22 +15,23 @@ import org.springframework.stereotype.Component;
 public class UserStorageAdapter implements UserStoragePort {
 
     private final UserRepository userRepository;
+    private final Transformer transformer;
 
     @Override
     public User createUser(User user) {
-        return Transformer.transformToUser(userRepository.save(Transformer.transformToUserEntity(user)));
+        return transformer.transformToUser(userRepository.save(transformer.transformToUserEntity(user)));
     }
 
     @Override
     public Set<User> findUsersByUsernames(List<String> usernames) {
         return userRepository.findUsersByUsernameIsIn(usernames).stream().map(
-            Transformer::transformToUser
+            transformer::transformToUser
         ).collect(Collectors.toSet());
     }
 
     @Override
     public void addUsers(List<User> users) {
-        userRepository.saveAll(users.stream().map(Transformer::transformToUserEntity).collect(Collectors.toList()));
+        userRepository.saveAll(users.stream().map(transformer::transformToUserEntity).collect(Collectors.toList()));
     }
 
     @Override

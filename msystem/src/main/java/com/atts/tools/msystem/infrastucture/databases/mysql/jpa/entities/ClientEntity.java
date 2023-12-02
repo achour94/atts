@@ -13,12 +13,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "client")
-public class Client {
+public class ClientEntity implements DBEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +33,14 @@ public class Client {
     @Size(max = 45)
     @Column(name = "reference", length = 45)
     private String reference;
+
+    @Size(max = 45)
+    @Column(name = "name", length = 45)
+    private String name;
+
+    @Size(max = 100)
+    @Column(name = "address", length = 45)
+    private String address;
 
     @Size(max = 45)
     @Column(name = "postal_code", length = 45)
@@ -46,19 +56,21 @@ public class Client {
     @Column(name = "diverse_amount")
     private Double diverseAmount;
 
+    @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "client")
-    private Set<Invoice> invoices = new LinkedHashSet<>();
+    private Set<InvoiceEntity> invoiceEntities = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "client")
-    private Set<Subscription> subscriptions = new LinkedHashSet<>();
+    private Set<SubscriptionEntity> subscriptions = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "client")
-    private Set<User> users = new LinkedHashSet<>();
+    private Set<UserEntity> users = new LinkedHashSet<>();
 
 }
