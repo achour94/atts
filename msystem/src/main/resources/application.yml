@@ -4,7 +4,7 @@ keycloak:
   realm: atts
   url: http://localhost:8080
   client-id: atts-application
-  client-secret: FE3H1gmUSFLSpRYJvdWrnyftVLBsnm6g
+  client-secret: FFlMb8jBCCLvGmOnTraBu1jPaA72c3WG
 spring:
   security:
     oauth2:
