@@ -7,5 +7,5 @@ import org.springframework.data.domain.Page;
 
 public interface UserCriteriaPort {
 
-    Page<User> findAllWithFilters(RequestPage page, SearchCriteria criteria) throws NoSuchFieldException;
+    Page<User> findAllWithFilters(RequestPage page, SearchCriteria criteria);
 }

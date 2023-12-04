@@ -14,11 +14,19 @@ public class StringToTypeConverter {
         return LocalDate.parse(value, formatter);
     }
 
+    public static Integer toInteger(String value) {
+        return Integer.valueOf(value);
+    }
+
     public static Comparable toComparableType(String value, Class clazz) {
         if (clazz.equals(LocalDate.class)) {
             return toLocalDate(value);
-        } else if (clazz.equals(Integer.class)) {
+        } else if (clazz.equals(Double.class)) {
             return toDouble(value);
+        } else if (clazz.equals(String.class)) {
+            return value;
+        } else if (clazz.equals(Integer.class)) {
+            return toInteger(value);
         }
         return null;
     }

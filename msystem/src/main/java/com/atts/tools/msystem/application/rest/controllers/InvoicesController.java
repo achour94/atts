@@ -36,8 +36,7 @@ public class InvoicesController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, SearchCriteria criteria)
-        throws NoSuchFieldException {
+    public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, SearchCriteria criteria) {
         //TODO return only minimum things that we need to view in the list of invoices
         //TODO improve error handling
         return ResponseEntity.ok(invoiceCriteriaPort.findAllWithFilters(page, criteria));

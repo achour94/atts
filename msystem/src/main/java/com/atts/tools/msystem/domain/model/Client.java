@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class Client {
+public class Client implements ModelEntity{
     Integer id;
     ClientReference clientReference;
     Double defaultSubscription;

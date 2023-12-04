@@ -25,7 +25,7 @@ public class InvoiceCriteriaRepository implements InvoiceCriteriaPort {
 
     @Override
     public Page<Invoice> findAllWithFilters(RequestPage page,
-        SearchCriteria criteria) throws NoSuchFieldException {
+        SearchCriteria criteria) {
         return criteriaRepository.findAllWithFilters(page, criteria);
     }
 }

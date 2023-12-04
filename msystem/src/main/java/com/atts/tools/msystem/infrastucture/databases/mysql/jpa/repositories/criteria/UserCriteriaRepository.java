@@ -24,7 +24,7 @@ public class UserCriteriaRepository implements UserCriteriaPort {
 
     @Override
     public Page<User> findAllWithFilters(RequestPage page,
-        SearchCriteria criteria) throws NoSuchFieldException {
+        SearchCriteria criteria) {
         return criteriaRepository.findAllWithFilters(page, criteria);
     }
 }

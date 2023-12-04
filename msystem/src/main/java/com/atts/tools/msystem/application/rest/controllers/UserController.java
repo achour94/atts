@@ -56,7 +56,7 @@ public class UserController {
 
   @GetMapping("/")
   @PreAuthorize("hasRole('admin')")
-  public ResponseEntity<Page<User>> getUsers(RequestPage page, SearchCriteria criteria) throws NoSuchFieldException {
+  public ResponseEntity<Page<User>> getUsers(RequestPage page, SearchCriteria criteria) {
     return ResponseEntity.ok(userCriteriaPort.findAllWithFilters(page, criteria));
   }
 }
