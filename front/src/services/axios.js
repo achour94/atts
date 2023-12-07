@@ -6,7 +6,6 @@ const _axios = axios.create();
 _axios.interceptors.request.use((config) => {
   if (UserService.isLoggedIn()) {
     const cb = () => {
-        console.log('INCERCAM SI AICI CEVA');
       config.headers.Authorization = `Bearer ${UserService.getToken()}`;
       return Promise.resolve(config);
     };

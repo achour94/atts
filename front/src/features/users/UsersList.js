@@ -30,6 +30,6 @@ const UsersList = () => {
         content = <p>{JSON.stringify(error)}</p>;
     }
 
-    return content
+    return content;
 }
-export default UsersList
+export default UsersList;
