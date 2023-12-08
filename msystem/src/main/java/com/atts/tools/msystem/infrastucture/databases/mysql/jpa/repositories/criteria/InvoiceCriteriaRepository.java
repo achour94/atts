@@ -3,7 +3,7 @@ package com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.cr
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
-import com.atts.tools.msystem.domain.ports.out.InvoiceCriteriaPort;
+import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceCriteriaPort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.InvoiceEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import jakarta.persistence.EntityManager;

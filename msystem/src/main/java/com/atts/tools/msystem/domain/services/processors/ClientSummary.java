@@ -12,10 +12,7 @@ import lombok.Setter;
 @Builder
 public class ClientSummary {
     List<Consumption> consumptions;
-    Integer totalConsumptions;
-    Double htTotal;
-    Date minStartDate;
-    Date maxEndDate;
+    Double tva;
     String name;
     String email;
     String address;

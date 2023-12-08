@@ -1,8 +1,8 @@
 package com.atts.tools.msystem.common.runners;
 
 import com.atts.tools.msystem.domain.model.User;
-import com.atts.tools.msystem.domain.ports.out.AuthProvider;
-import com.atts.tools.msystem.domain.ports.out.UserStoragePort;
+import com.atts.tools.msystem.domain.ports.out.auth.AuthProvider;
+import com.atts.tools.msystem.domain.ports.out.datastore.UserStoragePort;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

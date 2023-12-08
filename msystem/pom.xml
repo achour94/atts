@@ -18,12 +18,21 @@
 		<keycloack.admin-client>22.0.5</keycloack.admin-client>
 		<hibernate.validator>8.0.1.Final</hibernate.validator>
         <apache.poi>5.2.4</apache.poi>
-	</properties>
+        <itextpdf.cre>8.0.2</itextpdf.cre>
+	    <apache.commons.text>1.11.0</apache.commons.text>
+    </properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>${itextpdf.cre}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>${apache.commons.text}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>

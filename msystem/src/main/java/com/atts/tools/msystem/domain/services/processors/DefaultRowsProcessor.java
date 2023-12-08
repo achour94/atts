@@ -3,6 +3,7 @@ package com.atts.tools.msystem.domain.services.processors;
 import com.atts.tools.msystem.common.exceptions.ProcessException;
 import com.atts.tools.msystem.domain.model.Consumption;
 import com.atts.tools.msystem.domain.model.ConsumptionType;
+import com.atts.tools.msystem.domain.model.contants.InvoiceConstants;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -59,6 +60,10 @@ public class DefaultRowsProcessor {
             }
         }
 
+        public static Double tva(List<Object> row) {
+            return row.get(12) == null ? InvoiceConstants.TVA : (Double) row.get(12);
+        }
+
         public static Date startPeriod(List<Object> row) throws ProcessException {
             try {
                 Date date = (Date) row.get(13);
@@ -89,7 +94,7 @@ public class DefaultRowsProcessor {
 
         public static Double htAmount(List<Object> row) throws ProcessException {
             try {
-                return Objects.requireNonNull((Double) row.get(9));
+                return Objects.requireNonNull((Double) row.get(8));
             } catch (IndexOutOfBoundsException err) {
                 throw new ProcessException("ht amount column doesn't exist");
             } catch (NullPointerException err) {
@@ -131,21 +136,22 @@ public class DefaultRowsProcessor {
                 Integer consumptionDuration = RowExtractor.consumptionDuration(row);
                 Integer consumptionCount = RowExtractor.consumptionCount(row);
                 Double htAmount = RowExtractor.htAmount(row);
+                Double tva = RowExtractor.tva(row);
                 Consumption consumption = Consumption.builder().consumptionCount(consumptionCount)
-                    .consumptionDuration(consumptionDuration).type(type).build();
+                    .consumptionDuration(consumptionDuration).type(type).startDate(startPeriod).htAmount(htAmount)
+                    .endDate(endPeriod)
+                    .build();
                 if (clientsSummary.containsKey(clientReference)) {
                     ClientSummary summary = clientsSummary.get(clientReference);
                     summary.getConsumptions().add(consumption);
-                    summary.setHtTotal(summary.getHtTotal() + htAmount);
-                    summary.setTotalConsumptions(summary.getTotalConsumptions() + consumptionDuration);
-                    summary.setMinStartDate(minDate(startPeriod, summary.getMinStartDate()));
-                    summary.setMaxEndDate(maxDate(endPeriod, summary.getMaxEndDate()));
+                    if (!Objects.equals(tva, summary.getTva()))
+                        throw new ProcessException("You cannot have different tva for the same invoice!");
 
                 } else {
                     clientsSummary.put(clientReference,
-                        ClientSummary.builder().minStartDate(startPeriod).maxEndDate(endPeriod).htTotal(htAmount)
-                            .address(address).name(clientName).totalConsumptions(consumptionDuration)
-                            .consumptions(new ArrayList<>(List.of(consumption))).build());
+                        ClientSummary.builder()
+                            .address(address).name(clientName).tva(tva).consumptions(new ArrayList<>(List.of(consumption)))
+                            .build());
                 }
 
             } catch (ProcessException e) {
@@ -153,29 +159,6 @@ public class DefaultRowsProcessor {
             }
         }
         return ClientsResults.builder().clientsSummary(clientsSummary).errors(errors).build();
-    }
-
-    private Date minDate(Date date1, Date date2) {
-        if (date1 == null) {
-            return date2;
-        }
-        if (date2 == null) {
-            return date1;
-        }
-
-        return date1.compareTo(date2) > 0 ? date2 : date1;
-
-    }
-
-    private Date maxDate(Date date1, Date date2) {
-        if (date1 == null) {
-            return date2;
-        }
-        if (date2 == null) {
-            return date1;
-        }
-
-        return date1.compareTo(date2) > 0 ? date1 : date2;
     }
 
 }

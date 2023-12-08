@@ -3,7 +3,7 @@ package com.atts.tools.msystem.application.rest.controllers;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
-import com.atts.tools.msystem.domain.ports.out.ClientCriteriaPort;
+import com.atts.tools.msystem.domain.ports.out.datastore.ClientCriteriaPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

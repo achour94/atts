@@ -17,7 +17,7 @@ public enum ConsumptionType {
         this.label = label;
     }
 
-    String getLabel() {
+    public String getLabel() {
         return this.label;
     }
 

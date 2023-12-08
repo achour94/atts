@@ -1,12 +1,13 @@
 package com.atts.tools.msystem.infrastucture.databases.mysql;
 
 import com.atts.tools.msystem.domain.model.Invoice;
-import com.atts.tools.msystem.domain.ports.out.InvoiceStoragePort;
+import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.InvoiceEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.ConsumptionRepository;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.InvoiceRepository;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -28,5 +29,10 @@ public class InvoiceStorageAdapter implements InvoiceStoragePort {
                     .collect(Collectors.toList()));
             }
         );
+    }
+
+    @Override
+    public Optional<Invoice> findById(Integer id) {
+        return invoiceRepository.findById(id).map(transformer::transformToInvoice);
     }
 }

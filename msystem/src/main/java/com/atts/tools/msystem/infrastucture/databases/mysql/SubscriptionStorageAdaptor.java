@@ -2,7 +2,7 @@ package com.atts.tools.msystem.infrastucture.databases.mysql;
 
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
-import com.atts.tools.msystem.domain.ports.out.SubscriptionStoragePort;
+import com.atts.tools.msystem.domain.ports.out.datastore.SubscriptionStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.SubscriptionRepository;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import java.util.List;

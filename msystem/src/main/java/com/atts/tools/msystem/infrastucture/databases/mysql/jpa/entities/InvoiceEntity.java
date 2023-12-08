@@ -57,6 +57,9 @@ public class InvoiceEntity implements DBEntity {
     @Column(name = "end_period")
     private LocalDate endPeriod;
 
+    @Column(name = "tva")
+    private Double tva;
+
     @Column(name = "ht_amount")
     private Double htAmount;
 
@@ -64,7 +67,7 @@ public class InvoiceEntity implements DBEntity {
     private Double ttcAmount;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)
     private ClientEntity client;
 

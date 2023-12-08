@@ -3,7 +3,7 @@ package com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.cr
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
-import com.atts.tools.msystem.domain.ports.out.ClientCriteriaPort;
+import com.atts.tools.msystem.domain.ports.out.datastore.ClientCriteriaPort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ClientEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import jakarta.persistence.EntityManager;

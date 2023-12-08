@@ -9,7 +9,8 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-public class Invoice implements ModelEntity{
+public class Invoice implements ModelEntity {
+
     Client client;
     Boolean proforma;
     Date creationDate; //first time is inserted by database automatically
@@ -17,6 +18,7 @@ public class Invoice implements ModelEntity{
     Date startPeriod;
     Date endPeriod;
     Double httAmount;
+    Double tva;
     Double ttcAmount;
     Integer invoiceNumber; //id
     List<Consumption> consumptions;

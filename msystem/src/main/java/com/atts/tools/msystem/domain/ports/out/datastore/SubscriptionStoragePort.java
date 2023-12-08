@@ -1,4 +1,4 @@
-package com.atts.tools.msystem.domain.ports.out;
+package com.atts.tools.msystem.domain.ports.out.datastore;
 
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.model.types.ClientReference;

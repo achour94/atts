@@ -2,7 +2,7 @@ package com.atts.tools.msystem.infrastucture.databases.mysql;
 
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
-import com.atts.tools.msystem.domain.ports.out.ClientStoragePort;
+import com.atts.tools.msystem.domain.ports.out.datastore.ClientStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.ClientRepository;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import java.util.Collection;

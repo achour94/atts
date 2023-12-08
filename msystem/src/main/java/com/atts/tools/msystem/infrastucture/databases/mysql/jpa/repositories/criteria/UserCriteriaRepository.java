@@ -4,7 +4,7 @@ import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.UserEntity;
-import com.atts.tools.msystem.domain.ports.out.UserCriteriaPort;
+import com.atts.tools.msystem.domain.ports.out.datastore.UserCriteriaPort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;

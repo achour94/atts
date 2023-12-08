@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,6 +35,15 @@ public class ConsumptionEntity {
     @Size(max = 45)
     @Column(name = "type", length = 45)
     private String type;
+
+    @Column(name = "start_period")
+    private LocalDate startPeriod;
+
+    @Column(name = "end_period")
+    private LocalDate endPeriod;
+
+    @Column(name = "ht_amount")
+    private Double htAmount;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -9,7 +9,7 @@ import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
 import com.atts.tools.msystem.domain.ports.in.usecases.UserManagementUseCase;
-import com.atts.tools.msystem.domain.ports.out.UserCriteriaPort;
+import com.atts.tools.msystem.domain.ports.out.datastore.UserCriteriaPort;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package com.atts.tools.msystem.domain.ports.out;
+package com.atts.tools.msystem.domain.ports.out.auth;
 
 import com.atts.tools.msystem.common.exceptions.RegistrationException;
 import com.atts.tools.msystem.domain.model.User;

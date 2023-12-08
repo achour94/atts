@@ -1,7 +1,7 @@
 package com.atts.tools.msystem.infrastucture.databases.mysql;
 
 import com.atts.tools.msystem.domain.model.User;
-import com.atts.tools.msystem.domain.ports.out.UserStoragePort;
+import com.atts.tools.msystem.domain.ports.out.datastore.UserStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.UserRepository;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import java.util.List;
