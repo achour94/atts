@@ -2,7 +2,8 @@ import { GridSortModel } from "@mui/x-data-grid";
 import _axios from "./axios";
 
 const BASE_URL = "http://localhost:8081";
-const INVOICES_API = `${BASE_URL}/api/invoice/`;
+const INVOICES_API = `${BASE_URL}/api/invoice`;
+const CLIENTS_API = `${BASE_URL}/api/client`;
 
 interface apiOptions {
     pageInfo: {
@@ -10,18 +11,40 @@ interface apiOptions {
         pageSize: number;
     },
     filterInfo?: Array<any>
-    sortInfo?: GridSortModel
+    sortInfo?: {
+        sortBy: string;
+        sortDirection: string;
+    }
+}
+
+const formURL = (BASE_URL: string, options: apiOptions | undefined) => {
+    if (!options) return BASE_URL;
+
+    let url = BASE_URL + "?";
+
+    if (options.pageInfo) {
+        url += `pageNumber=${options.pageInfo.pageNumber}&pageSize=${options.pageInfo.pageSize}`;
+    }
+    if (options.sortInfo?.sortBy && options.sortInfo?.sortDirection) {
+        url += `&sortBy=${options.sortInfo.sortBy}&sortDirection=${options.sortInfo.sortDirection}`;
+    }
+    
+    if (!options.filterInfo?.length) {
+        return url;
+    }
+    
+    return url + `&criteria=${encodeURI(JSON.stringify(options.filterInfo))}`;
 }
 
 interface Invoice {
     id: number;
     invoiceNumber: number;
-    issueDate: Date;
-    startDate: Date;
-    endDate: Date;
-    clientName: string;
+    creationDate: Date;
+    startPeriod: Date;
+    endPeriod: Date;
+    'client.name': string;
     // specialNumber: number;
-    ttc: number;
+    ttcAmount: number;
     // status: string;
 }
 
@@ -34,27 +57,19 @@ interface InvoiceList {
 }
 
 export function getInvoiceList(options: apiOptions | undefined): Promise<InvoiceList> {
-    const filters = options ? Object.assign({}, ...(options.filterInfo || [])) : {};
-
-    return _axios.get(INVOICES_API, {
-        params: {
-            ...options?.pageInfo,
-            ...options?.sortInfo,
-            ...filters, 
-        }
-    })
+    return _axios.get(formURL(INVOICES_API, options))
         .then((response) => {
             console.log('Api invoices data', response.data);
             const pageInfo = {totalRowCount: response.data.totalElements, pageNumber: response.data.pageable.pageNumber};
             const invoices = response.data.content.map((invoice: any) => ({
                 id: invoice.invoiceNumber,
                 invoiceNumber: invoice.invoiceNumber,
-                issueDate: invoice.creationDate,
-                startDate: invoice.startPeriod,
-                endDate: invoice.endPeriod,
-                clientName: invoice.client.name,
+                creationDate: invoice.creationDate,
+                startPeriod: invoice.startPeriod,
+                endPeriod: invoice.endPeriod,
+                'client.name': invoice.client.name,
                 // specialNumber: invoice.specialNumber,
-                ttc: invoice.ttcAmount,
+                ttcAmount: invoice.ttcAmount,
                 // status: invoice.status
             }));
             return { pageInfo: pageInfo, rows: invoices };
@@ -67,7 +82,7 @@ export function getInvoiceList(options: apiOptions | undefined): Promise<Invoice
 
 interface Clients {
     id: number;
-    clientReference: number;
+    'clientReference.reference': number;
     name: string;
     address: string;
     defaultSubscription: number;
@@ -81,22 +96,14 @@ interface ClientsList {
     rows: Clients[];
 }
 
-export function getClientsList(options: apiOptions | undefined): Promise<ClientsList> {
-    const filters = options ? Object.assign({}, ...(options.filterInfo || [])) : {};
-    
-    return _axios.get(INVOICES_API, {
-        params: {
-            ...options?.pageInfo,
-            ...options?.sortInfo,
-            ...filters, 
-        }
-    })
+export function getClientsList(options: apiOptions | undefined): Promise<ClientsList> {    
+    return _axios.get(formURL(CLIENTS_API, options))
         .then((response) => {
             console.log('Api clients data', response.data);
             const pageInfo = {totalRowCount: response.data.totalElements, pageNumber: response.data.pageable.pageNumber};
             const clients = response.data.content.map((client: any) => ({
                 id: client.id,
-                clientReference: client.clientReference,
+                'clientReference.reference': client.clientReference.reference,
                 name: client.name,
                 address: client.address,
                 defaultSubscription: client.defaultSubscription

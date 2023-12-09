@@ -21,25 +21,25 @@ export const INVOICES_DATA = (translator: Function) => ({
             filterOperators: ["equals", "notEquals", "contains", "notContains", "startsWith", "endsWith"],
         },
         {
-            field: "issueDate",
+            field: "creationDate",
             headerName: translator("invoices_table_column_issue_date"),
             headerAlign: 'center',
             filterOperators: ["equals", "notEquals", "contains", "notContains", "startsWith", "endsWith"],
         },
         {
-            field: "startDate",
+            field: "startPeriod",
             headerName: translator("invoices_table_column_start_date"),
             headerAlign: 'center',
             filterOperators: ["equals", "notEquals", "contains", "notContains", "startsWith", "endsWith"],
         },
         {
-            field: "endDate",
+            field: "endPeriod",
             headerName: translator("invoices_table_column_end_date"),
             headerAlign: 'center',
             filterOperators: ["equals", "notEquals", "contains", "notContains", "startsWith", "endsWith"],
         },
         {
-            field: "clientName",
+            field: "client.name",
             headerName: translator("invoices_table_column_client"),
             headerAlign: 'center',
             filterOperators: ["equals", "notEquals", "contains", "notContains", "startsWith", "endsWith"],
@@ -51,7 +51,7 @@ export const INVOICES_DATA = (translator: Function) => ({
         //     "headerAlign": 'center'
         // },
         {
-            field: "ttc",
+            field: "ttcAmount",
             headerName: translator("invoices_table_column_ttc"),
             headerAlign: 'center',
             filterOperators: ["equals", "notEquals", "contains", "notContains", "startsWith", "endsWith"],

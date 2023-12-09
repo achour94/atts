@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `atts`.`client` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `reference_UNIQUE` (`reference` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 504
+AUTO_INCREMENT = 554
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -58,13 +58,14 @@ CREATE TABLE IF NOT EXISTS `atts`.`invoice` (
   `ht_amount` DOUBLE NULL DEFAULT NULL,
   `ttc_amount` DOUBLE NULL DEFAULT NULL,
   `client_id` INT NOT NULL,
+  `tva` DOUBLE NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_invoice_client1_idx` (`client_id` ASC) VISIBLE,
   CONSTRAINT `fk_invoice_client1`
     FOREIGN KEY (`client_id`)
     REFERENCES `atts`.`client` (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 951
+AUTO_INCREMENT = 1251
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -79,6 +80,9 @@ CREATE TABLE IF NOT EXISTS `atts`.`consumption` (
   `duration` INT NULL DEFAULT NULL,
   `count` INT NULL DEFAULT '1',
   `type` VARCHAR(45) NULL DEFAULT NULL,
+  `start_period` DATE NULL,
+  `end_period` DATE NULL,
+  `ht_amount` DOUBLE NULL,
   `invoice_id` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_consumption_invoice1_idx` (`invoice_id` ASC) VISIBLE,
@@ -86,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `atts`.`consumption` (
     FOREIGN KEY (`invoice_id`)
     REFERENCES `atts`.`invoice` (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 81
+AUTO_INCREMENT = 561
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -134,7 +138,7 @@ CREATE TABLE IF NOT EXISTS `atts`.`user` (
     FOREIGN KEY (`client_id`)
     REFERENCES `atts`.`client` (`id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 30
+AUTO_INCREMENT = 32
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 

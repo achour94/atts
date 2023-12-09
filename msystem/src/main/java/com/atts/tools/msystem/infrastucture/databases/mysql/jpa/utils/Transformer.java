@@ -90,7 +90,7 @@ public class Transformer {
     }
 
     public Client transformToClient(ClientEntity clientEntity) {
-        return Client.builder().clientReference(new ClientReference(clientEntity.getReference()))
+        return Client.builder().id(clientEntity.getId()).clientReference(new ClientReference(clientEntity.getReference()))
             .defaultSubscription(clientEntity.getDefaultSubscription())
             .activeDiverse(clientEntity.getDiverse() == 1).email(clientEntity.getEmail())
             .address(clientEntity.getAddress())

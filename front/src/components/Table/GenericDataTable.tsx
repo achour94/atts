@@ -72,7 +72,7 @@ export default function GenericDataTable(props: GenericDataTableProps) {
                     column: f.column,
                     [f.operator]: f.values[0]
                 }
-            })[0]
+            })
         }
     }, [paginationModel, queryOptions, currentFilters]);
 
