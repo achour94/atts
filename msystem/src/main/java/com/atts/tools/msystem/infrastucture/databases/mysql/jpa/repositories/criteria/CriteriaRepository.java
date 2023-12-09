@@ -95,10 +95,12 @@ public class CriteriaRepository<T extends DBEntity, M extends ModelEntity> {
     }
 
     private void setOrder(RequestPage page, CriteriaQuery<T> criteriaQuery, Root<T> root) {
+        String column = Transformer.columnMapper(page.getSortBy());
+        Path<?> path = extractPath(root, column);
         if (page.getSortDirection().equals(Direction.ASC)) {
-            criteriaQuery.orderBy(criteriaBuilder.asc(root.get(page.getSortBy())));
+            criteriaQuery.orderBy(criteriaBuilder.asc(path));
         } else {
-            criteriaQuery.orderBy(criteriaBuilder.desc(root.get(page.getSortBy())));
+            criteriaQuery.orderBy(criteriaBuilder.desc(path));
         }
     }
 
@@ -130,10 +132,10 @@ public class CriteriaRepository<T extends DBEntity, M extends ModelEntity> {
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             }
-            if (Objects.nonNull(criteria.equalsWith())) {
+            if (Objects.nonNull(criteria.equals())) {
                 predicates.add(
                     criteriaBuilder.equal(path,
-                        StringToTypeConverter.toComparableType(criteria.equalsWith(), columnType))
+                        StringToTypeConverter.toComparableType(criteria.equals(), columnType))
 
                 );
             }

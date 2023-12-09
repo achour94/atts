@@ -37,6 +37,8 @@ public class Transformer {
     public static String columnMapper(String column) {
         if (column.equals("invoiceNumber"))
             return "id";
+        else if (column.equals("creationDate"))
+            return "createdAt";
         return column;
     }
 
@@ -58,7 +60,7 @@ public class Transformer {
             .fileUri(entity.getFileUri())
             .consumptions(
                 entity.getConsumptions().stream().map(this::transformToConsumption).collect(Collectors.toList()))
-            .creationDate(Date.valueOf(LocalDate.ofInstant(entity.getCreatedAt(), ZoneId.of("Europe/Paris")))).build();
+            .creationDate(entity.getCreatedAt() != null ? Date.valueOf(LocalDate.ofInstant(entity.getCreatedAt(), ZoneId.of("Europe/Paris"))) : null).build();
     }
 
     public Consumption transformToConsumption(ConsumptionEntity entity) {
