@@ -7,6 +7,7 @@ import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceCriteriaPort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.InvoiceEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import jakarta.persistence.EntityManager;
+import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
@@ -25,7 +26,7 @@ public class InvoiceCriteriaRepository implements InvoiceCriteriaPort {
 
     @Override
     public Page<Invoice> findAllWithFilters(RequestPage page,
-        SearchCriteria criteria) {
-        return criteriaRepository.findAllWithFilters(page, criteria);
+        Collection<SearchCriteria> criterias) {
+        return criteriaRepository.findAllWithFilters(page, criterias);
     }
 }

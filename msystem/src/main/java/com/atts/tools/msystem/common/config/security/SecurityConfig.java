@@ -1,5 +1,6 @@
 package com.atts.tools.msystem.common.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
@@ -25,6 +26,11 @@ import java.util.*;
 public class SecurityConfig {
 
     private final KeycloakRoleConverter keycloakRoleConverter;
+
+    @Bean
+    public ObjectMapper jsonMapper() {
+        return new ObjectMapper();
+    }
 
     @Value("${keycloak.url}")
     private String keyclockUrl;

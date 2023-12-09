@@ -1,13 +1,16 @@
 package com.atts.tools.msystem.application.rest.controllers;
 
+import aj.org.objectweb.asm.TypeReference;
 import com.atts.tools.msystem.application.parsers.xlsx.StandardXlsxParser;
 import com.atts.tools.msystem.application.rest.request.invoice.GeneratePDFRequest;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
-import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageInvoicesUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceCriteriaPort;
+import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria.CriteriaMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -27,13 +30,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/invoice/")
+@RequestMapping("/api/invoice")
 @RequiredArgsConstructor
 public class InvoicesController {
 
     private final ManageInvoicesUseCase manageInvoicesUseCase;
     private final StandardXlsxParser standardXlsxParser;
     private final InvoiceCriteriaPort invoiceCriteriaPort;
+    private final CriteriaMapper criteriaMapper;
 
 
     @PostMapping("/upload")
@@ -43,11 +47,11 @@ public class InvoicesController {
             file.getName());
     }
 
-    @GetMapping("/")
+    @GetMapping
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, SearchCriteria criteria) {
+    public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, String criteria) throws JsonProcessingException {
         //TODO return only minimum things that we need to view in the list of invoices
-        return ResponseEntity.ok(invoiceCriteriaPort.findAllWithFilters(page, criteria));
+        return ResponseEntity.ok(invoiceCriteriaPort.findAllWithFilters(page, criteriaMapper.convert(criteria)));
     }
 
     @PutMapping("/pdf")

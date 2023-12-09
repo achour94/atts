@@ -7,6 +7,7 @@ import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.UserEnt
 import com.atts.tools.msystem.domain.ports.out.datastore.UserCriteriaPort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import jakarta.persistence.EntityManager;
+import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
@@ -24,7 +25,7 @@ public class UserCriteriaRepository implements UserCriteriaPort {
 
     @Override
     public Page<User> findAllWithFilters(RequestPage page,
-        SearchCriteria criteria) {
+        Collection<SearchCriteria> criteria) {
         return criteriaRepository.findAllWithFilters(page, criteria);
     }
 }

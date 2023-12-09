@@ -7,6 +7,7 @@ import com.atts.tools.msystem.domain.ports.out.datastore.ClientCriteriaPort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ClientEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import jakarta.persistence.EntityManager;
+import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
@@ -23,7 +24,7 @@ public class ClientCriteriaRepository implements ClientCriteriaPort {
     }
 
     @Override
-    public Page<Client> findAllWithFilters(RequestPage page, SearchCriteria criteria) {
+    public Page<Client> findAllWithFilters(RequestPage page, Collection<SearchCriteria> criteria) {
         return criteriaRepository.findAllWithFilters(page, criteria);
     }
 }

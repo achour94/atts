@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +21,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Setter
 @Entity
 @Table(name = "client")
-public class ClientEntity implements DBEntity {
+public class ClientEntity implements Comparable, DBEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -72,5 +73,22 @@ public class ClientEntity implements DBEntity {
 
     @OneToMany(mappedBy = "client")
     private Set<UserEntity> users = new LinkedHashSet<>();
+
+    @Override
+    public int compareTo(Object o) {
+        return this.name.compareTo(((ClientEntity)o).getName()) ;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ClientEntity that = (ClientEntity) o;
+        return that.name.equals(that.name);
+    }
 
 }

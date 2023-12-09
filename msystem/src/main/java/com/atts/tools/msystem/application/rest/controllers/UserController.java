@@ -7,9 +7,10 @@ import com.atts.tools.msystem.common.exceptions.RegistrationException;
 import com.atts.tools.msystem.common.runners.AdminsLoader;
 import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
-import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
 import com.atts.tools.msystem.domain.ports.in.usecases.UserManagementUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.UserCriteriaPort;
+import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria.CriteriaMapper;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ public class UserController {
   private final UserManagementUseCase userManagementUseCase;
   private final AdminsLoader adminsLoader;
   private final UserCriteriaPort userCriteriaPort;
+  private final CriteriaMapper criteriaMapper;
 
   Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -56,7 +58,7 @@ public class UserController {
 
   @GetMapping("/")
   @PreAuthorize("hasRole('admin')")
-  public ResponseEntity<Page<User>> getUsers(RequestPage page, SearchCriteria criteria) {
-    return ResponseEntity.ok(userCriteriaPort.findAllWithFilters(page, criteria));
+  public ResponseEntity<Page<User>> getUsers(RequestPage page, String criteria) {
+    return ResponseEntity.ok(userCriteriaPort.findAllWithFilters(page, criteriaMapper.convert(criteria)));
   }
 }

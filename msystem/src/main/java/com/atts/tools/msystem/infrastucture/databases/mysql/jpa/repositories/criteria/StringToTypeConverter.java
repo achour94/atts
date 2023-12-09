@@ -1,5 +1,6 @@
 package com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria;
 
+import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ClientEntity;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 

@@ -34,6 +34,12 @@ public class Transformer {
         return userEntity;
     }
 
+    public static String columnMapper(String column) {
+        if (column.equals("invoiceNumber"))
+            return "id";
+        return column;
+    }
+
     public User transformToUser(
         UserEntity userEntity) {
         return User.builder().username(userEntity.getUsername()).id(userEntity.getId()).email(userEntity.getEmail())
