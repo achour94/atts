@@ -53,7 +53,7 @@ const Login = () => {
     const handlePwdInput = (e) => setPwd(e.target.value)
 
     const content = isLoading ? <h1>Loading...</h1> : (
-        <section className="login">
+        <section style={{left: '300px', position: 'absolute'}} className="login">
             <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
 
             <h1>Employee Login</h1>

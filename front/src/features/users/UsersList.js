@@ -1,3 +1,4 @@
+import React from "react"
 import { useGetUsersQuery } from "./usersApiSlice"
 import { Link } from "react-router-dom";
 
@@ -10,7 +11,7 @@ const UsersList = () => {
         error
     } = useGetUsersQuery()
 
-    let content;
+    let content = null;
     if (isLoading) {
         content = <p>"Loading..."</p>;
     } else if (isSuccess) {
@@ -29,6 +30,6 @@ const UsersList = () => {
         content = <p>{JSON.stringify(error)}</p>;
     }
 
-    return content
+    return content;
 }
-export default UsersList
+export default UsersList;

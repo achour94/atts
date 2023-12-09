@@ -1,40 +1,39 @@
 import { Routes, Route } from 'react-router-dom'
-// import Layout from './components/Layout'
-// import Public from './components/Public'
-// import Login from './features/auth/Login'
-// import Welcome from './features/auth/Welcome'
-// import RequireAuth from './features/auth/RequireAuth'
-// import UsersList from './features/users/UsersList';
+import Public from './components/Public'
 import CssBaseline from '@mui/material/CssBaseline';
 import SidebarMenu from "./components/Sidebar/Sidebar";
 import Box from '@mui/material/Box';
-import ContentPlaceholder from './components/ContentPlaceholder';
+import Invoices from './components/pages/invoices/Invoices';
+import Dashboard from './components/pages/Dashboard';
+import Clients from './components/pages/clients/Clients';
+import History from './components/pages/History';
+import Profile from './components/pages/Profile';
+import InvoiceDetails from './components/pages/invoices/InvoiceDetails';
 
 
-function App() {
+
+function App(keycloak: any) {
     return (
         <Box id='root'>
             <CssBaseline/>
             <SidebarMenu ></SidebarMenu>
             <Routes>
-                <Route path='/' element={<ContentPlaceholder name='MAIN PAGE'></ContentPlaceholder>} />
-                <Route path='/dashboard' element={<ContentPlaceholder name='DASHBOARD'></ContentPlaceholder>} />
-                <Route path='/clients' element={<ContentPlaceholder name='CLIENTS'></ContentPlaceholder>} />
-                <Route path='/invoices' element={<ContentPlaceholder name='INVOICES'></ContentPlaceholder>} />
-                <Route path='/history' element={<ContentPlaceholder name='HISTORY'></ContentPlaceholder>} />
-                <Route path='/profile' element={<ContentPlaceholder name='PROFILE'></ContentPlaceholder>} />
-                {/* <Route path="/" element={<Layout />}>
-                    {/* public routes */}
-                    {/* <Route index element={<Public />} />
-                    <Route path="login" element={<Login />} /> */}
+                {/* public routes */}
+                <Route index element={<Public />} />
+                {/* <Route path="login" element={<Login />} /> */}
+                <Route path='/' element={<Dashboard name="DASHBOARD"></Dashboard>} />
+                <Route path='/dashboard' element={<Dashboard name="DASHBOARD"></Dashboard>} />
+                <Route path='/clients' element={<Clients name="CLIENTS"></Clients>} />
+                <Route path='/invoices' element={<Invoices/>} />
+                <Route path='/history' element={<History name="HISTORY"></History>} />
+                <Route path='/profile' element={<Profile name="PROFILE"></Profile>} />
 
-                    {/* protected routes */}
-                    {/* <Route element={<RequireAuth />}>
-                        <Route path="welcome" element={<Welcome />} />
-                        <Route path="userslist" element={<UsersList />} />
-                    </Route> */}
 
-                {/* </Route> */}
+                {/* protected routes */}
+                {/* <Route>
+                    <Route path="welcome" element={<Welcome />} />
+                    <Route path="userslist" element={<UsersList />} />
+                </Route> */}
             </Routes>
         </Box>
     )
