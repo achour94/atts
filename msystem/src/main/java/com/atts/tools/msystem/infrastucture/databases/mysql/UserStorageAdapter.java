@@ -23,6 +23,11 @@ public class UserStorageAdapter implements UserStoragePort {
     }
 
     @Override
+    public User findUserByUsername(String username) {
+        return transformer.transformToUser(userRepository.findUserEntityByUsername(username).get());
+    }
+
+    @Override
     public Set<User> findUsersByUsernames(List<String> usernames) {
         return userRepository.findUsersByUsernameIsIn(usernames).stream().map(
             transformer::transformToUser

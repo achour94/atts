@@ -11,4 +11,8 @@ public enum Role {
     public String getLabel() {
         return label;
     }
+
+    public String toAuthority() {
+        return "ROLE_" + label;
+    }
 }

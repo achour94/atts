@@ -64,6 +64,7 @@ public class InvoicesController {
     }
 
     @GetMapping("/pdf/{invoiceNumber}")
+    @PreAuthorize("@securityService.hasPermission('INVOICE', #invoiceNumber)")
     public ResponseEntity<Resource> getPDF(@PathVariable Integer invoiceNumber) {
         //TODO check authorization
         InvoiceFile invoiceFile = manageInvoicesUseCase.getFile(invoiceNumber);
@@ -79,6 +80,7 @@ public class InvoicesController {
     }
 
     @PutMapping("/pdf")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Resource> generatePDF(@RequestBody GeneratePDFRequest request) {
         InvoiceFile invoiceFile = manageInvoicesUseCase.generateFile(request.id());
         ByteArrayResource resource = new ByteArrayResource(invoiceFile.getContent());

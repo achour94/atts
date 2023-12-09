@@ -13,4 +13,6 @@ public interface UserStoragePort {
     void addUsers(List<User> users);
 
     void deleteUserByUsername(String username);
+
+    User findUserByUsername(String username);
 }

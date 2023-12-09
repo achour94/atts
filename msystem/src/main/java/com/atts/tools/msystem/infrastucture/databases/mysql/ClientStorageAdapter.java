@@ -20,7 +20,7 @@ public class ClientStorageAdapter implements ClientStoragePort {
 
 
     @Override
-    public Optional<Client> findBy(ClientReference clientReference) {http://localhost:3000"
+    public Optional<Client> findBy(ClientReference clientReference) {
         return clientRepository.findClientByReference(clientReference.reference()).map(transformer::transformToClient);
     }
 

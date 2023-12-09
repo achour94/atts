@@ -13,6 +13,7 @@ import java.util.List;
 public class User implements ModelEntity {
 
     private Integer id;
+    private Client client;
     private List<Role> roles;
     private String email;
     private String username;
