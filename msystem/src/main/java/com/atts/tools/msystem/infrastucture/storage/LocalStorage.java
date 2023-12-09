@@ -24,7 +24,7 @@ public class LocalStorage implements IFileStorage {
     }
 
     @Override
-    public void save(InvoiceFile invoiceFile) {
+    public void saveInvoice(InvoiceFile invoiceFile) {
         String location = invoicesFolder + "/" + invoiceFile.getFilename();
         File invoice = new File(location);
         if (!invoice.exists()) {
@@ -44,8 +44,8 @@ public class LocalStorage implements IFileStorage {
     }
 
     @Override
-    public InvoiceFile getFile(String fileUri) {
-        File file = new File(fileUri);
+    public InvoiceFile getInvoice(String filename) {
+        File file = new File(invoicesFolder + "/" + filename);
         try (FileInputStream in = new FileInputStream(file)) {
             return InvoiceFile.builder().filename(file.getName())
                 .content(in.readAllBytes()).build();

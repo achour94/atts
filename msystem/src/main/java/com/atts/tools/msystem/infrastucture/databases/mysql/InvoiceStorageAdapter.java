@@ -2,6 +2,7 @@ package com.atts.tools.msystem.infrastucture.databases.mysql;
 
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
+import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ConsumptionEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.InvoiceEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.ConsumptionRepository;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.InvoiceRepository;
@@ -30,6 +31,18 @@ public class InvoiceStorageAdapter implements InvoiceStoragePort {
             }
         );
     }
+
+    @Override
+    public void save(Invoice invoice) {
+        InvoiceEntity invoiceEntity = transformer.transformToInvoiceEntity(invoice);
+        Collection<ConsumptionEntity> consumptions = invoice.getConsumptions().stream()
+            .map(transformer::transformToConsumptionEntity)
+            .peek(consumptionEntity -> consumptionEntity.setInvoiceEntity(invoiceEntity)).collect(
+                Collectors.toList());
+        consumptionRepository.saveAll(consumptions);
+        invoiceRepository.save(invoiceEntity);
+    }
+
 
     @Override
     public Optional<Invoice> findById(Integer id) {

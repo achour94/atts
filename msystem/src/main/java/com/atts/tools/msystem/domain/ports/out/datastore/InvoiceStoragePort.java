@@ -7,5 +7,6 @@ import java.util.Optional;
 public interface InvoiceStoragePort {
 
     void save(Collection<Invoice> invoices);
+    void save(Invoice invoice);
     Optional<Invoice> findById(Integer id);
 }

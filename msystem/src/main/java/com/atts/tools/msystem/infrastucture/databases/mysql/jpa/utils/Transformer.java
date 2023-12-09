@@ -55,6 +55,7 @@ public class Transformer {
             .ttcAmount(entity.getTtcAmount())
             .proforma(entity.getProforma() == 1)
             .tva(entity.getTva())
+            .fileUri(entity.getFileUri())
             .consumptions(
                 entity.getConsumptions().stream().map(this::transformToConsumption).collect(Collectors.toList()))
             .creationDate(Date.valueOf(LocalDate.ofInstant(entity.getCreatedAt(), ZoneId.of("Europe/Paris")))).build();

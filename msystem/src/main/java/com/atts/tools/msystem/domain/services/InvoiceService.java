@@ -66,8 +66,32 @@ public class InvoiceService implements ManageInvoicesUseCase {
             "facture_" + opInvoice.get().getClient().getName().strip().replaceAll(" ", "_") + "_" +
                 invoiceId + "." + fileGeneratorPort.getFileType();
         InvoiceFile invoiceFile = InvoiceFile.builder().content(file).filename(filename).build();
-        fileStorage.save(invoiceFile);
+        fileStorage.saveInvoice(invoiceFile);
+        opInvoice.get().setFileUri(invoiceFile.getFilename());
+        invoiceStoragePort.save(opInvoice.get());
         return invoiceFile;
+    }
+
+    @Override
+    public void update(Invoice invoice) {
+        Optional<Invoice> opInvoice = invoiceStoragePort.findById(invoice.getInvoiceNumber());
+        if (invoice.getInvoiceNumber() == null || opInvoice.isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        invoiceStoragePort.save(invoice);
+    }
+
+    @Override
+    public InvoiceFile getFile(Integer invoiceId) {
+        Optional<Invoice> opInvoice = invoiceStoragePort.findById(invoiceId);
+        if (opInvoice.isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        Invoice invoice = opInvoice.get();
+        if (invoice.getFileUri() == null) {
+            return generateFile(invoiceId);
+        }
+        return fileStorage.getInvoice(invoice.getFileUri());
     }
 
 
