@@ -58,7 +58,7 @@ public class InvoicesController {
 
     @PutMapping
     @PreAuthorize("hasRole('admin')")
-    public void update(Invoice invoice) {
+    public void update(@RequestBody Invoice invoice) {
         manageInvoicesUseCase.update(invoice);
 
     }

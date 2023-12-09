@@ -104,7 +104,7 @@ public class DefaultRowsProcessor {
 
         public static Integer consumptionCount(List<Object> row) throws ProcessException {
             try {
-                return ((Double) (row.get(16) == null ? 1.0 : row.get(0))).intValue();
+                return ((Double) (row.get(15) == null ? 1.0 : row.get(15))).intValue();
             } catch (IndexOutOfBoundsException err) {
                 throw new ProcessException("consumption count column doesn't exist");
             } catch (NullPointerException err) {

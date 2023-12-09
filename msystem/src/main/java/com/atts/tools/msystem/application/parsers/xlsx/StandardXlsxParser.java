@@ -84,7 +84,9 @@ public class StandardXlsxParser {
             throw new IllegalStateException("You cannot convert " + cell.getCellType().name() + " to date!");
         };
         extractors.add(new IntervalCellExtractor(13, 15, dateExtractor));
-        extractors.add(new IntervalCellExtractor(15, 18, doubleExtractor));
+        extractors.add(new IntervalCellExtractor(15, 16, doubleExtractor));
+        extractors.add(new IntervalCellExtractor(16, 17, stringExtractor));
+        extractors.add(new IntervalCellExtractor(17, 18, doubleExtractor));
         extractors.add(new IntervalCellExtractor(18, 22, stringExtractor));
     }
 
