@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping("/api/client/")
+@RequestMapping("/api/client")
 @RestController
 @RequiredArgsConstructor
 public class ClientController {
@@ -24,7 +24,7 @@ public class ClientController {
     private final ClientCriteriaPort clientCriteriaPort;
     private final CriteriaMapper criteriaMapper;
 
-    @GetMapping("/")
+    @GetMapping
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Page<Client>> getClients(RequestPage page, String criteria) {
         //TODO return only minimum things that we need to view in the list of Client

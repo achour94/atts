@@ -16,7 +16,7 @@ export const CLIENTS_DATA = (translator: Function) => ({
             },
         },
         {
-            field: "clientReference.reference",
+            field: "reference",
             headerName: translator("clients_table_column_reference"),
             headerAlign: 'center',
             filterOperators: ["equals", "notEquals", "contains", "notContains", "startsWith", "endsWith"],

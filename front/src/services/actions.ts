@@ -82,7 +82,7 @@ export function getInvoiceList(options: apiOptions | undefined): Promise<Invoice
 
 interface Clients {
     id: number;
-    'clientReference.reference': number;
+    reference: string;
     name: string;
     address: string;
     defaultSubscription: number;
@@ -103,7 +103,7 @@ export function getClientsList(options: apiOptions | undefined): Promise<Clients
             const pageInfo = {totalRowCount: response.data.totalElements, pageNumber: response.data.pageable.pageNumber};
             const clients = response.data.content.map((client: any) => ({
                 id: client.id,
-                'clientReference.reference': client.clientReference.reference,
+                reference: client.clientReference.reference,
                 name: client.name,
                 address: client.address,
                 defaultSubscription: client.defaultSubscription

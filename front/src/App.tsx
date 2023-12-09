@@ -8,7 +8,6 @@ import Dashboard from './components/pages/Dashboard';
 import Clients from './components/pages/clients/Clients';
 import History from './components/pages/History';
 import Profile from './components/pages/Profile';
-import InvoiceDetails from './components/pages/invoices/InvoiceDetails';
 
 
 
