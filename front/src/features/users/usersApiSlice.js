@@ -7,7 +7,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
             keepUnusedDataFor: 5,
         })
     })
-});
+})
 
 export const {
     useGetUsersQuery

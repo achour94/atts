@@ -1,7 +1,7 @@
-import { DataGrid, GridColDef, GridFilterModel, GridRowsProp, GridSortModel, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridFilterModel, GridRowsProp, GridSortModel } from '@mui/x-data-grid';
 // import { UseDemoDataOptions, createFakeServer } from '@mui/x-data-grid-generator';
 import * as React from 'react';
-import { ColumnsFileds } from './MultiColumnFilter';
+import { ColumnsFileds } from './MultiColumnFilter/MultiColumnFilter';
 
 // const SERVER_OPTIONS = {
 //     useCursorPagination: false
@@ -39,7 +39,7 @@ export default function GenericDataTable(props: GenericDataTableProps) {
         page: 0,
         pageSize: 5,
     });
-    const [currentFilters, setCurrentFilter] = React.useState<Array<ColumnsFileds>>([{ column: '', operator: '', values: [] }]);
+    const [currentFilters, setCurrentFilters] = React.useState<Array<ColumnsFileds>>([{ column: '', operator: '', values: [] }]);
     const [queryOptions, setQueryOptions] = React.useState<QueryOptions>({sortModel: undefined, filterModel: undefined});
 
     const handleSortModelChange = React.useCallback((sortModel: GridSortModel) => {
@@ -67,19 +67,24 @@ export default function GenericDataTable(props: GenericDataTableProps) {
                 sortDirection: queryOptions.sortModel?.[0]?.sort?.toUpperCase(),
                 sortBy: queryOptions.sortModel?.[0]?.field
             },
-            filterModel: null
+            filterInfo: currentFilters.filter(f => f.column && f.operator && f.values?.length).map((f) => {
+                return {
+                    column: f.column,
+                    [f.operator]: f.values[0]
+                }
+            })[0]
         }
-    }, [paginationModel, queryOptions]);
+    }, [paginationModel, queryOptions, currentFilters]);
 
     React.useEffect(() => {
-        console.log("paginationModel", paginationModel);
+        console.log("paginationModel", paginationModel, apiQueryOptions);
         setIsLoading(true);
         props.getItemsFunction(apiQueryOptions).then((res: any) => {
             setIsLoading(false);
             setRows(res.rows);
             setPageInfo({ totalRowCount: res.pageInfo.totalRowCount });
         });;
-    }, [paginationModel, queryOptions]);
+    }, [paginationModel, queryOptions, currentFilters]);
 
     return (
         <div id={`data_table_${props.componentName}`} style={{ width: props.width, height: props.height }}>
@@ -98,7 +103,7 @@ export default function GenericDataTable(props: GenericDataTableProps) {
             filterMode="server"
             onFilterModelChange={onFilterChange}
             slots={{ toolbar: props.toolbar }}
-            slotProps={{ toolbar: {...props.toolbarProps, currentFilters: currentFilters, setCurrentFilters: setCurrentFilter} }}
+            slotProps={{ toolbar: { ...props.toolbarProps, currentFilters: currentFilters, setCurrentFilters: setCurrentFilters } }}
             />
         </div>
     );

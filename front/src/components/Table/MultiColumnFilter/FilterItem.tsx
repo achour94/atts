@@ -64,7 +64,12 @@ export default function FilterItem(props: FilterItemProps) {
     }
 
     return (
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={2} sx={{
+            paddingLeft: '1rem',
+            paddingRight: '1rem',
+            paddingTop: '0.2rem',
+            alignItems: 'center'
+        }}>
             <Select
                 variant='standard'
                 value={chosenColumn}

@@ -6,8 +6,9 @@ import Popover from '@mui/material/Popover';
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Badge from '@mui/material/Badge';
-import MultiColumnFilter, { ColumnsFileds } from "../MultiColumnFilter";
-import { FilterModelItem } from "../FilterItem";
+import MultiColumnFilter, { ColumnsFileds } from "../MultiColumnFilter/MultiColumnFilter";
+import { FilterModelItem } from "../MultiColumnFilter/FilterItem";
+import { useTranslation } from "react-i18next";
 
 interface InvoiceToolbarProps {
     filterModel: Array<FilterModelItem>;
@@ -16,6 +17,7 @@ interface InvoiceToolbarProps {
 }
 
 export default function InvoiceToolbar(props: InvoiceToolbarProps) {
+    const { t } = useTranslation();
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -33,7 +35,7 @@ export default function InvoiceToolbar(props: InvoiceToolbarProps) {
         <GridToolbarContainer>
             <Badge badgeContent={props.currentFilters?.filter(f => f.column && f.operator && f.values?.length).length} color="primary">
                 <Button onClick={handleClick} variant="text" startIcon={<FilterAltIcon/>}>
-                    Filter by
+                    { t("multi_column_filter_button") }
                 </Button>
             </Badge>
             

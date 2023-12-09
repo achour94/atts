@@ -13,6 +13,18 @@
     "invoices_table_column_ttc": "Raising TTC",
     "invoices_table_column_status": "Status",
     "invoices_table_column_download": "Download",
+    "clients_table_column_reference": "References",
+    "clients_table_column_name": "Name",
+    "clients_table_column_address": "Address",
+    "clients_table_column_subscription": "Subscription",
+    "clients_table_column_option": "Options",
     "multi_column_filter_add_filter": "Add filter",
-    "multi_column_filter_delete_filters": "Delete filters"
+    "multi_column_filter_delete_filters": "Delete filters",
+    "multi_column_filter_button": "Filter by",
+    "invoice_details_title": "Invoice details",
+    "invoice_details_proforma": "Proforma",
+    "invoice_details_consumption": "Consumption",
+    "invoice_details_client_details": "Client details",
+    "invoice_details_info": "Invoice info",
+    "invoice_details_invoice_due_date": "Due date"
 }

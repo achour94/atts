@@ -39,7 +39,7 @@ export const INVOICES_DATA = (translator: Function) => ({
             filterOperators: ["equals", "notEquals", "contains", "notContains", "startsWith", "endsWith"],
         },
         {
-            field: "client",
+            field: "clientName",
             headerName: translator("invoices_table_column_client"),
             headerAlign: 'center',
             filterOperators: ["equals", "notEquals", "contains", "notContains", "startsWith", "endsWith"],

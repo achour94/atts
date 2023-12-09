@@ -1,18 +1,14 @@
 import { Routes, Route } from 'react-router-dom'
 import Public from './components/Public'
-import Welcome from './features/auth/Welcome';
-import UsersList from './features/users/UsersList';
 import CssBaseline from '@mui/material/CssBaseline';
 import SidebarMenu from "./components/Sidebar/Sidebar";
 import Box from '@mui/material/Box';
-import ContentPlaceholder from './components/ContentPlaceholder';
-
-
-import { useDispatch } from 'react-redux'
-import RenderOnAuthenticated from './components/RenderOnAuthenticated'
-import RenderOnRole from './components/RenderOnRole'
-import UserService from './services/UserService'
-import Invoices from './components/Invoices';
+import Invoices from './components/pages/invoices/Invoices';
+import Dashboard from './components/pages/Dashboard';
+import Clients from './components/pages/clients/Clients';
+import History from './components/pages/History';
+import Profile from './components/pages/Profile';
+import InvoiceDetails from './components/pages/invoices/InvoiceDetails';
 
 
 
@@ -25,18 +21,21 @@ function App(keycloak: any) {
                 {/* public routes */}
                 <Route index element={<Public />} />
                 {/* <Route path="login" element={<Login />} /> */}
-                <Route path='/' element={<ContentPlaceholder name='MAIN PAGE'></ContentPlaceholder>} />
-                <Route path='/dashboard' element={<ContentPlaceholder name='DASHBOARD'></ContentPlaceholder>} />
-                <Route path='/clients' element={<ContentPlaceholder name='CLIENTS'></ContentPlaceholder>} />
+                <Route path='/' element={<Dashboard name="DASHBOARD"></Dashboard>} />
+                <Route path='/dashboard' element={<Dashboard name="DASHBOARD"></Dashboard>} />
+                <Route path='/clients' element={<Clients name="CLIENTS"></Clients>} />
                 <Route path='/invoices' element={<Invoices/>} />
-                <Route path='/history' element={<ContentPlaceholder name='HISTORY'></ContentPlaceholder>} />
-                <Route path='/profile' element={<ContentPlaceholder name='PROFILE'></ContentPlaceholder>} />
+                <Route path='/history' element={<History name="HISTORY"></History>} />
+                <Route path='/profile' element={<Profile name="PROFILE"></Profile>} />
+
+                {/* JUST FOR TESTING */}
+                <Route path='/test' element={<InvoiceDetails invoiceNumber={52} clientName='Securitest' dueDate={new Date()}/>} />
 
                 {/* protected routes */}
-                <Route>
+                {/* <Route>
                     <Route path="welcome" element={<Welcome />} />
                     <Route path="userslist" element={<UsersList />} />
-                </Route>
+                </Route> */}
             </Routes>
         </Box>
     )
