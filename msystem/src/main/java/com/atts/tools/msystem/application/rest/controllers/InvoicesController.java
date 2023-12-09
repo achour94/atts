@@ -20,10 +20,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,6 +54,28 @@ public class InvoicesController {
     public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, String criteria) throws JsonProcessingException {
         //TODO return only minimum things that we need to view in the list of invoices
         return ResponseEntity.ok(invoiceCriteriaPort.findAllWithFilters(page, criteriaMapper.convert(criteria)));
+    }
+
+    @PutMapping
+    @PreAuthorize("hasRole('admin')")
+    public void update(Invoice invoice) {
+        manageInvoicesUseCase.update(invoice);
+
+    }
+
+    @GetMapping("/pdf/{invoiceNumber}")
+    public ResponseEntity<Resource> getPDF(@PathVariable Integer invoiceNumber) {
+        //TODO check authorization
+        InvoiceFile invoiceFile = manageInvoicesUseCase.getFile(invoiceNumber);
+        ByteArrayResource resource = new ByteArrayResource(invoiceFile.getContent());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", invoiceFile.getFilename()));
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
+        return ResponseEntity.ok()
+            .headers(headers)
+            .contentLength(invoiceFile.getContent().length)
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(resource);
     }
 
     @PutMapping("/pdf")

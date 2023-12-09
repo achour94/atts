@@ -4,7 +4,7 @@ import com.atts.tools.msystem.domain.model.InvoiceFile;
 
 public interface IFileStorage {
 
-    void save(InvoiceFile invoiceFile);
+    void saveInvoice(InvoiceFile invoiceFile);
 
-    InvoiceFile getFile(String fileUri);
+    InvoiceFile getInvoice(String fileName);
 }
