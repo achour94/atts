@@ -28,8 +28,6 @@ function App(keycloak: any) {
                 <Route path='/history' element={<History name="HISTORY"></History>} />
                 <Route path='/profile' element={<Profile name="PROFILE"></Profile>} />
 
-                {/* JUST FOR TESTING */}
-                <Route path='/test' element={<InvoiceDetails invoiceNumber={52} clientName='Securitest' dueDate={new Date()}/>} />
 
                 {/* protected routes */}
                 {/* <Route>
