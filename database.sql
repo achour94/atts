@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `atts`.`invoice` (
   `ttc_amount` DOUBLE NULL DEFAULT NULL,
   `client_id` INT NOT NULL,
   `tva` DOUBLE NULL,
+  `status` VARCHAR(45) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_invoice_client1_idx` (`client_id` ASC) VISIBLE,
   CONSTRAINT `fk_invoice_client1`
