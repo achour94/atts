@@ -4,6 +4,7 @@ import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Consumption;
 import com.atts.tools.msystem.domain.model.ConsumptionType;
 import com.atts.tools.msystem.domain.model.Invoice;
+import com.atts.tools.msystem.domain.model.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
@@ -52,18 +53,23 @@ public class Transformer {
 
     public Invoice transformToInvoice(InvoiceEntity entity) {
         //TODO add all fields for invoice
-        return Invoice.builder().startPeriod(Date.valueOf(entity.getStartPeriod()))
-            .endPeriod(Date.valueOf(entity.getEndPeriod())).invoiceNumber(entity.getId())
-            .client(transformToClient(entity.getClient()))
-            .httAmount(entity.getHtAmount())
-            .ttcAmount(entity.getTtcAmount())
-            .proforma(entity.getProforma() == 1)
-            .tva(entity.getTva())
-            .fileUri(entity.getFileUri())
-            .consumptions(
-                entity.getConsumptions().stream().map(this::transformToConsumption).collect(Collectors.toList()))
-            .creationDate(entity.getCreatedAt() != null ? Date.valueOf(
-                LocalDate.ofInstant(entity.getCreatedAt(), ZoneId.of("Europe/Paris"))) : null).build();
+        try {
+            return Invoice.builder().startPeriod(Date.valueOf(entity.getStartPeriod()))
+                .endPeriod(Date.valueOf(entity.getEndPeriod())).invoiceNumber(entity.getId())
+                .client(transformToClient(entity.getClient()))
+                .httAmount(entity.getHtAmount())
+                .ttcAmount(entity.getTtcAmount())
+                .proforma(entity.getProforma() == 1)
+                .tva(entity.getTva())
+                .status(InvoiceStatus.convert(entity.getStatus()))
+                .fileUri(entity.getFileUri())
+                .consumptions(
+                    entity.getConsumptions().stream().map(this::transformToConsumption).collect(Collectors.toList()))
+                .creationDate(entity.getCreatedAt() != null ? Date.valueOf(
+                    LocalDate.ofInstant(entity.getCreatedAt(), ZoneId.of("Europe/Paris"))) : null).build();
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Consumption transformToConsumption(ConsumptionEntity entity) {
@@ -96,8 +102,9 @@ public class Transformer {
     }
 
     public Client transformToClient(ClientEntity clientEntity) {
-        if (clientEntity == null)
+        if (clientEntity == null) {
             return null;
+        }
         return Client.builder().id(clientEntity.getId())
             .clientReference(new ClientReference(clientEntity.getReference()))
             .defaultSubscription(clientEntity.getDefaultSubscription())
@@ -123,7 +130,7 @@ public class Transformer {
     }
 
 
-    public InvoiceEntity transformToInvoiceEntity(com.atts.tools.msystem.domain.model.Invoice invoice) {
+    public InvoiceEntity transformToInvoiceEntity(Invoice invoice) {
         InvoiceEntity invoiceEntity = new InvoiceEntity();
         invoiceEntity.setClient(
             clientRepository.findClientByReference(invoice.getClient().getClientReference().reference()).get());
@@ -138,6 +145,9 @@ public class Transformer {
         invoiceEntity.setFileUri(invoice.getFileUri());
         invoiceEntity.setTva(invoice.getTva());
         invoiceEntity.setId(invoice.getInvoiceNumber());
+        if (invoice.getStatus() != null) {
+            invoiceEntity.setStatus(invoice.getStatus().name());
+        }
         return invoiceEntity;
     }
 }

@@ -66,6 +66,9 @@ public class InvoiceEntity implements DBEntity {
     @Column(name = "ttc_amount")
     private Double ttcAmount;
 
+    @Column(name = "status")
+    private String status;
+
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)

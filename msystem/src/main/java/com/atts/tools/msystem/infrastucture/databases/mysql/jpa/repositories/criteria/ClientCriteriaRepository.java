@@ -25,6 +25,6 @@ public class ClientCriteriaRepository implements ClientCriteriaPort {
 
     @Override
     public Page<Client> findAllWithFilters(RequestPage page, Collection<SearchCriteria> criteria) {
-        return criteriaRepository.findAllWithFilters(page, criteria);
+        return criteriaRepository.findAllWithFilters(page, criteria, null);
     }
 }
