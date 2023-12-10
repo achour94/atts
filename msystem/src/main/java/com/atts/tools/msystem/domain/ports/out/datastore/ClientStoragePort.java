@@ -7,5 +7,8 @@ import java.util.Optional;
 
 public interface ClientStoragePort {
     Optional<Client> findBy(ClientReference clientReference);
+    Optional<Client> findById(Integer id);
     void save(Collection<Client> clients);
+    Client save(Client client);
+    void delete(Client client);
 }

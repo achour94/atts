@@ -2,6 +2,7 @@ package com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -66,13 +67,13 @@ public class ClientEntity implements Comparable, DBEntity {
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "client")
-    private Set<InvoiceEntity> invoiceEntities = new LinkedHashSet<>();
+    private Set<InvoiceEntity> invoiceEntities;
+
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    private Set<SubscriptionEntity> subscriptions;
 
     @OneToMany(mappedBy = "client")
-    private Set<SubscriptionEntity> subscriptions = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "client")
-    private Set<UserEntity> users = new LinkedHashSet<>();
+    private Set<UserEntity> users;
 
     @Override
     public int compareTo(Object o) {

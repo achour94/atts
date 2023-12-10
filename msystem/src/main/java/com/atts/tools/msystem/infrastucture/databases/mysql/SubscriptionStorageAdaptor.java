@@ -5,6 +5,7 @@ import com.atts.tools.msystem.domain.model.types.ClientReference;
 import com.atts.tools.msystem.domain.ports.out.datastore.SubscriptionStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.SubscriptionRepository;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,11 @@ public class SubscriptionStorageAdaptor implements SubscriptionStoragePort {
         return subscriptionRepository.findAllByClientReference(clientReference.reference()).stream()
             .map(transformer::transformToSubscription).collect(
                 Collectors.toList());
+    }
+
+    @Override
+    public void delete(Collection<Subscription> subscriptions) {
+        subscriptionRepository.deleteAll(subscriptions.stream().map(transformer::transformToSubscriptionEntity).collect(
+            Collectors.toList()));
     }
 }

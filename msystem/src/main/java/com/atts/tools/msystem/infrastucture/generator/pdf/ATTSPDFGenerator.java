@@ -315,8 +315,8 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
             addContentSubtableWithTwoColumns(document, "Abonnement, offre fibre/xdsl",
                 String.valueOf(invoice.getClient().getDiverseSubscription()));
         }
-        if (invoice.getClient().getSubscriptionList() != null) {
-            for (Subscription subscription : invoice.getClient().getSubscriptionList()) {
+        if (invoice.getClient().getSubscriptions() != null) {
+            for (Subscription subscription : invoice.getClient().getSubscriptions()) {
                 addContentSubtableWithTwoColumns(document, subscription.getName(),
                     String.valueOf(subscription.getPrice()));
             }
