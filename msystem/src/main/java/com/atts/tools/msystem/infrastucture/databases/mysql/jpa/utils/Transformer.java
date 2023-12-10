@@ -149,6 +149,8 @@ public class Transformer {
             .subscriptions(clientEntity.getSubscriptions().stream().map(this::transformToSubscriptionWithoutClient).collect(
                 Collectors.toList()))
             .diverseSubscription(clientEntity.getDiverseAmount())
+            .phone(clientEntity.getPhone())
+            .city(clientEntity.getCity())
             .postalCode(clientEntity.getPostalCode()).build();
     }
 
@@ -167,6 +169,8 @@ public class Transformer {
         entity.setSubscriptions(client.getSubscriptions().stream().map(this::transformToSubscriptionEntityLazyClient).collect(
             Collectors.toSet()));
         entity.setAddress(client.getAddress());
+        entity.setPhone(client.getPhone());
+        entity.setCity(client.getCity());
         return entity;
     }
 

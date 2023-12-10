@@ -20,6 +20,8 @@ public class Client implements ModelEntity {
     Double defaultSubscription;
     Double diverseSubscription;
     String postalCode;
+    String phone;
+    String city;
     Boolean activeDiverse;
     String name;
     String address;

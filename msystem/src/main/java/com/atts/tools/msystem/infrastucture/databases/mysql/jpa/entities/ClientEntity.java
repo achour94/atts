@@ -49,6 +49,14 @@ public class ClientEntity implements Comparable, DBEntity {
     private String postalCode;
 
     @Size(max = 45)
+    @Column(name = "phone", length = 45)
+    private String phone;
+
+    @Size(max = 45)
+    @Column(name = "phone", length = 45)
+    private String city;
+
+    @Size(max = 45)
     @Column(name = "email", length = 45)
     private String email;
 
