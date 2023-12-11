@@ -10,13 +10,13 @@ import { FilterModelItem } from "../../Table/MultiColumnFilter/FilterItem";
 export default function Clients(props: any) {
     const { t } = useTranslation();
     const data = CLIENTS_DATA(t);
-    const filterModel: Array<FilterModelItem> = data.columns.filter(item => item.filterOperators).map((item: any) => {
-        return {
-            column: item.field,
-            headerName: item.headerName,
-            operators: item.filterOperators,
-        };
-    });
+    // const filterModel: Array<FilterModelItem> = data.columns.filter(item => item.type).map((item: any) => {
+    //     return {
+    //         field: item.field,
+    //         type: item.type,
+    //         headerName: item.headerName,
+    //     };
+    // });
 
     return (
         <Box
@@ -24,7 +24,7 @@ export default function Clients(props: any) {
                 flexGrow: 1, bgcolor: 'background.default', p: 3, position: 'relative',
                 left: '290px', width: 'calc(100% - 290px)', height: '100vh'
             }}>
-            <GenericDataTable
+            {/* <GenericDataTable
                 componentName={"table"}
                 getItemsFunction={getClientsList}
                 columns={data.columns}
@@ -32,6 +32,8 @@ export default function Clients(props: any) {
                 height="90%"
                 toolbar={ClientsToolbar}
                 toolbarProps={{filterModel: filterModel}}
-            ></GenericDataTable></Box>
+                handleClickedRow={(params: any) => console.log(params)}
+            ></GenericDataTable> */}
+            </Box>
     );
 }

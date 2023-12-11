@@ -4,10 +4,12 @@ import './index.css';
 import App from './App';
 import "./i18n/config";
 
-import { store } from './app/store'
-import { Provider } from 'react-redux'
+import { store } from './app/store';
+import { Provider } from 'react-redux';
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import UserService from './services/UserService';
 
 
@@ -17,13 +19,15 @@ const root = ReactDOM.createRoot(rootElement);
 const renderApp = () => root.render(
     // <React.StrictMode>
         <Provider store={store}>
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/*" element={
-                        < App />
-                    } />
-                </Routes>
-            </BrowserRouter>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/*" element={
+                            < App />
+                        } />
+                    </Routes>
+                </BrowserRouter>
+            </LocalizationProvider>
         </Provider>
     // </React.StrictMode>
 );

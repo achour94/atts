@@ -9,6 +9,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const BASE_URL = `http://${HOST}:${PORT}`;
 const INVOICES_API = `${BASE_URL}/api/invoice`;
+const PUT_INVOICES_API = `${BASE_URL}/invoice/upload`;
 const CLIENTS_API = `${BASE_URL}/api/client`;
 
 interface apiOptions {
@@ -70,9 +71,9 @@ export function getInvoiceList(options: apiOptions | undefined): Promise<Invoice
             const invoices = response.data.content.map((invoice: any) => ({
                 id: invoice.invoiceNumber,
                 invoiceNumber: invoice.invoiceNumber,
-                createDate: invoice.creationDate,
-                startPeriod: invoice.startPeriod,
-                endPeriod: invoice.endPeriod,
+                createDate: new Date(invoice.creationDate),
+                startPeriod: new Date(invoice.startPeriod),
+                endPeriod: new Date(invoice.endPeriod),
                 'client.name': invoice.client.name,
                 // specialNumber: invoice.specialNumber,
                 ttcAmount: invoice.ttcAmount,
@@ -120,4 +121,23 @@ export function getClientsList(options: apiOptions | undefined): Promise<Clients
             console.log(error);
             return {pageInfo: {pageNumber: 0, totalRowCount: 0}, rows: []};
         });
+}
+
+
+export const handleUploadInvoices = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("uploaded file");
+    
+    if (!event.target.files?.length) {
+        console.warn("no file uploaded");
+        return;
+    }
+
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    _axios.post(PUT_INVOICES_API, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }

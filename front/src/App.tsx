@@ -13,7 +13,7 @@ import Profile from './components/pages/Profile';
 
 function App(keycloak: any) {
     return (
-        <Box id='root'>
+        <Box id='root' sx={{backgroundColor: '#F6FAFD', width: '100vw', height: '100vh'}}>
             <CssBaseline/>
             <SidebarMenu ></SidebarMenu>
             <Routes>

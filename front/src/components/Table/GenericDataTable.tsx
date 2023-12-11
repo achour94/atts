@@ -1,7 +1,9 @@
-import { DataGrid, GridColDef, GridFilterModel, GridRowsProp, GridSortModel } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridFilterModel, GridRowSpacingParams, GridRowsProp, GridSortModel, gridClasses } from '@mui/x-data-grid';
 // import { UseDemoDataOptions, createFakeServer } from '@mui/x-data-grid-generator';
 import * as React from 'react';
 import { ColumnsFileds } from './MultiColumnFilter/MultiColumnFilter';
+import { grey } from '@mui/material/colors';
+import { styled } from '@mui/material/styles';
 
 // const SERVER_OPTIONS = {
 //     useCursorPagination: false
@@ -17,13 +19,14 @@ import { ColumnsFileds } from './MultiColumnFilter/MultiColumnFilter';
 // const { useQuery, ...data } = createFakeServer(DATASET_OPTION, SERVER_OPTIONS);
 
 interface GenericDataTableProps {
-    columns: Array<GridColDef>;
+    columns: Array<any>;
     width: string;
     height: string;
     toolbar?: any;
     toolbarProps?: any;
     componentName: string;
     getItemsFunction: Function;
+    handleOpenItem?: Function;
 }
 
 interface QueryOptions {
@@ -37,9 +40,9 @@ export default function GenericDataTable(props: GenericDataTableProps) {
     const [isLoading, setIsLoading] = React.useState(false);
     const [paginationModel, setPaginationModel] = React.useState({
         page: 0,
-        pageSize: 5,
+        pageSize: 10,
     });
-    const [currentFilters, setCurrentFilters] = React.useState<Array<ColumnsFileds>>([{ column: '', operator: '', values: [] }]);
+    const [currentFilters, setCurrentFilters] = React.useState<Array<ColumnsFileds>>([{ column: '', operator: '', value: '' }]);
     const [queryOptions, setQueryOptions] = React.useState<QueryOptions>({sortModel: undefined, filterModel: undefined});
 
     const handleSortModelChange = React.useCallback((sortModel: GridSortModel) => {
@@ -54,6 +57,13 @@ export default function GenericDataTable(props: GenericDataTableProps) {
         console.log("queryOptions", queryOptions, filterModel);
     }, []);
 
+    const getRowSpacing = React.useCallback((params: GridRowSpacingParams) => {
+        return {
+          top: params.isFirstVisible ? 0 : 7,
+          bottom: params.isLastVisible ? 0 : 7,
+        };
+      }, []);
+
     // const useQueryOptions = React.useMemo(() => ({...paginationModel, ...queryOptions}), [paginationModel, queryOptions]);
     // const { isLoading, rows, pageInfo } = useQuery(useQueryOptions);
 
@@ -67,10 +77,10 @@ export default function GenericDataTable(props: GenericDataTableProps) {
                 sortDirection: queryOptions.sortModel?.[0]?.sort?.toUpperCase(),
                 sortBy: queryOptions.sortModel?.[0]?.field
             },
-            filterInfo: currentFilters.filter(f => f.column && f.operator && f.values?.length).map((f) => {
+            filterInfo: currentFilters.filter(f => f.column && f.operator && f.value).map((f) => {
                 return {
                     column: f.column,
-                    [f.operator]: f.values[0]
+                    [f.operator]: f.value
                 }
             })
         }
@@ -83,18 +93,27 @@ export default function GenericDataTable(props: GenericDataTableProps) {
             setIsLoading(false);
             setRows(res.rows);
             setPageInfo({ totalRowCount: res.pageInfo.totalRowCount });
-        });;
+        });
     }, [paginationModel, queryOptions, currentFilters]);
 
+    const handleRefreshData = () => {
+        setIsLoading(true);
+        props.getItemsFunction(paginationModel).then((res: any) => {
+            setIsLoading(false);
+            setRows(res.rows);
+            setPageInfo({ totalRowCount: res.pageInfo.totalRowCount });
+        });
+    }
+
     return (
-        <div id={`data_table_${props.componentName}`} style={{ width: props.width, height: props.height }}>
+        <div id={`data_table_${props.componentName}`} style={{ width: props.width, height: props.height, overflow: 'hidden' }}>
             <DataGrid 
             rows={rows} 
             columns={props.columns}
             // {...data}
             rowCount={pageInfo.totalRowCount}
             loading={isLoading}
-            pageSizeOptions={[5, 50, 100]}
+            pageSizeOptions={[10, 25, 100]}
             paginationModel={paginationModel}
             paginationMode="server"
             onPaginationModelChange={setPaginationModel} 
@@ -102,8 +121,16 @@ export default function GenericDataTable(props: GenericDataTableProps) {
             onSortModelChange={handleSortModelChange}
             filterMode="server"
             onFilterModelChange={onFilterChange}
+            getRowSpacing={getRowSpacing}
+            onRowDoubleClick={(params) => props.handleOpenItem?.(params)}
             slots={{ toolbar: props.toolbar }}
-            slotProps={{ toolbar: { ...props.toolbarProps, currentFilters: currentFilters, setCurrentFilters: setCurrentFilters } }}
+            slotProps={{ toolbar: { ...props.toolbarProps, currentFilters: currentFilters, setCurrentFilters: setCurrentFilters, refreshData: handleRefreshData } }}
+            sx={{
+                '&, [class^=MuiDataGrid-root]': { border: 'none', backgroundColor: '#F6FAFD' },
+                [`& .${gridClasses.row}`]: {
+                    bgcolor: '#FFFFFF !important'
+                  },
+              }}
             />
         </div>
     );

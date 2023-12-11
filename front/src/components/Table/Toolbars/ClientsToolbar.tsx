@@ -33,7 +33,7 @@ export default function ClientsToolbar(props: ClientsToolbarProps) {
 
     return (
         <GridToolbarContainer>
-            <Badge badgeContent={props.currentFilters?.filter(f => f.column && f.operator && f.values?.length).length} color="primary">
+            <Badge badgeContent={props.currentFilters?.filter(f => f.column && f.operator && f.value).length} color="primary">
                 <Button onClick={handleClick} variant="text" startIcon={<FilterAltIcon/>}>
                     { t("multi_column_filter_button") }
                 </Button>

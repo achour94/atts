@@ -40,5 +40,8 @@
     "invoice_details_info_creation_date": "Creation date",
     "invoice_details_info_visualise_button": "Visualise",
     "invoice_details_info_download_button": "Download",
-    "invoice_details_info_send_by_email_button": "Send by email"
+    "invoice_details_info_send_by_email_button": "Send by email",
+    "invoide_page_header": "My invoices",
+    "invoice_page_import_button": "Import",
+    "invoice_page_delete_my_invoices_button": "Delete my inovoices"
 }

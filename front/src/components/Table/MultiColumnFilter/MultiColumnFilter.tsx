@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
 import FilterItem, { FilterModelItem } from './FilterItem';
 import { Button, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -10,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 export interface ColumnsFileds {
     column: string;
     operator: string;
-    values: Array<string | number | Date>;
+    value: string | number | Date ;
 }
 
 interface MultiColumnFilterProps {
@@ -19,7 +18,7 @@ interface MultiColumnFilterProps {
     setCurrentFilters: Function;
 }
 
-const getEmptyFilter = (): ColumnsFileds => ({ column: '', operator: '', values: [] });
+const getEmptyFilter = (): ColumnsFileds => ({ column: '', operator: '', value: '' });
 
 export default function MultiColumnFilter(props: MultiColumnFilterProps) {
     const { t } = useTranslation();
@@ -35,7 +34,7 @@ export default function MultiColumnFilter(props: MultiColumnFilterProps) {
         if (idx < oldFilters.length) {
             filter.column && (oldFilters[idx].column = filter.column);
             filter.operator && (oldFilters[idx].operator = filter.operator);
-            filter.values && (oldFilters[idx].values = filter.values);
+            oldFilters[idx].value = filter.value;
         } else {
             oldFilters.push(filter);
         }
@@ -52,7 +51,7 @@ export default function MultiColumnFilter(props: MultiColumnFilterProps) {
         }
 
         if (oldFilters.length === 1) {
-            oldFilters[0] = { column: '', operator: '', values: [] };
+            oldFilters[0] = { column: '', operator: '', value: '' };
         } else {
             oldFilters.splice(idx, 1);
         }
@@ -62,7 +61,7 @@ export default function MultiColumnFilter(props: MultiColumnFilterProps) {
 
     return (
         <Box sx={{ 
-            width: 400,
+            width: 600,
             height: 'auto',
             minWidth: 'min-content',
             display: 'flex',
@@ -80,7 +79,7 @@ export default function MultiColumnFilter(props: MultiColumnFilterProps) {
                             model={props.filterModel}
                             chosenColumn={item.column}
                             chosenOperator={item.operator}
-                            values={item.values}
+                            value={item.value}
                             updateFilter={updateFilters}
                             deleteFilter={deleteFilter}
                         />

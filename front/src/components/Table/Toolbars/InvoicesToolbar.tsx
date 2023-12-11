@@ -14,6 +14,7 @@ interface InvoiceToolbarProps {
     filterModel: Array<FilterModelItem>;
     currentFilters?: Array<ColumnsFileds>;
     setCurrentFilters: Function;
+    refreshData: Function;
 }
 
 export default function InvoiceToolbar(props: InvoiceToolbarProps) {
@@ -33,7 +34,7 @@ export default function InvoiceToolbar(props: InvoiceToolbarProps) {
 
     return (
         <GridToolbarContainer>
-            <Badge badgeContent={props.currentFilters?.filter(f => f.column && f.operator && f.values?.length).length} color="primary">
+            <Badge badgeContent={props.currentFilters?.filter(f => f.column && f.operator && f.value).length} color="primary">
                 <Button onClick={handleClick} variant="text" startIcon={<FilterAltIcon/>}>
                     { t("multi_column_filter_button") }
                 </Button>
@@ -57,35 +58,9 @@ export default function InvoiceToolbar(props: InvoiceToolbarProps) {
 
             <GridToolbarColumnsButton />
 
-            <IconButton color="primary" aria-label="upload picture" component="span">
+            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => props.refreshData()}>
                 <CachedIcon />
             </IconButton>
         </GridToolbarContainer>
     );
 }
-
-// export const ClientsToolbar = React.forwardRef<
-//   HTMLDivElement,
-//   GridToolbarContainerProps
-// >(function GridToolbar(props, ref) {
-//   const { className, ...other } = props;
-//   const rootProps = useGridRootProps();
-
-//   // if (
-//   //   rootProps.disableColumnFilter &&
-//   //   rootProps.disableColumnSelector &&
-//   //   rootProps.disableDensitySelector
-//   // ) {
-//   //   return null;
-//   // }
-
-//   return (
-//     <GridToolbarContainer ref={ref} {...other}>
-//       <MultiColumnFilter />
-//       <GridToolbarColumnsButton />
-//       <IconButton>
-//         <CachedIcon/>
-//       </IconButton>
-//     </GridToolbarContainer>
-//   );
-// });

@@ -5,11 +5,13 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
+import { FILTER_TYPES, FILTER_TYPES_NAMES } from '../../constants';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 export interface FilterModelItem {
-    column: string;
+    field: string;
+    type: string;
     headerName: string;
-    operators: Array<string>;
 }
 
 export interface FilterItemProps {
@@ -17,7 +19,7 @@ export interface FilterItemProps {
     model: Array<FilterModelItem>;
     chosenColumn?: string;
     chosenOperator?: string;
-    values?: Array<string | number | Date>;
+    value?: string | number | Date;
     updateFilter: Function;
     deleteFilter: Function;
 }
@@ -25,12 +27,12 @@ export interface FilterItemProps {
 export default function FilterItem(props: FilterItemProps) {
     const [chosenColumn, setChosenColumn] = React.useState(props.chosenColumn);
     const [chosenOperator, setChosenOperator] = React.useState(props.chosenOperator);
-    const [values, setValues] = React.useState(props.values);
+    const [value, setValue] = React.useState(props.value);
 
     React.useEffect(() => {
         setChosenColumn(props.chosenColumn);
         setChosenOperator(props.chosenOperator);
-        setValues(props.values);
+        setValue(props.value);
     }, [props]);
 
     const handleColumnChange = (event: SelectChangeEvent) => {
@@ -43,24 +45,62 @@ export default function FilterItem(props: FilterItemProps) {
         props.updateFilter({ operator: event.target.value }, props.index);
     };
 
-    const handleValueChange = (event: any, index: number) => {
-        const oldValues = values || [];
-
-        if (oldValues.length > index) {
-            oldValues[index] = event.target.value;
-        } else {
-            oldValues.push(event.target.value);
-        }
-
-        setValues(oldValues);
-        props.updateFilter({ values: oldValues }, props.index);
+    const handleValueChange = (event: any) => {
+        const _value = event.target?.value ?? event.getTime() ?? '';
+        setValue(_value);
+        props.updateFilter({ value: _value}, props.index);
     };
 
     const handleClear = () => {
         props.deleteFilter(props.index);
         setChosenColumn('');
         setChosenOperator('');
-        setValues([]);
+        setValue(undefined);
+    }
+
+    const selectedColumn = props.model.find(item => item.field === chosenColumn);
+
+    const operatorSelector = () => {
+        if (!selectedColumn) {
+            return null;
+        }
+
+        return FILTER_TYPES[selectedColumn.type].map((operator: string, index: number) => {
+            return (
+                <MenuItem key={index} value={operator}>{operator}</MenuItem>
+            );
+        })
+    }
+
+    const valueSelector = () => {
+        if (!selectedColumn) {
+            return <TextField
+                variant='standard'
+                defaultValue={props.value}
+                value={value}
+                onChange={handleValueChange}
+            />
+        }
+
+        switch (selectedColumn.type) {
+            case FILTER_TYPES_NAMES.STRING:
+                return <TextField
+                    variant='standard'
+                    defaultValue={props.value}
+                    value={value}
+                    onChange={(e) => handleValueChange(e)}
+                />
+            case FILTER_TYPES_NAMES.NUMBER:
+                return <TextField
+                    variant='standard'
+                    defaultValue={props.value}
+                    value={value}
+                    type='number'
+                    onChange={(e) => handleValueChange(e)}
+                />
+            case FILTER_TYPES_NAMES.DATE:
+                return <DatePicker onChange={(e) => handleValueChange(e)}/>
+        }
     }
 
     return (
@@ -78,7 +118,7 @@ export default function FilterItem(props: FilterItemProps) {
                 {
                     props.model.map((item: any, index: number) => {
                         return (
-                            <MenuItem key={index} value={item.column}>{item.headerName}</MenuItem>
+                            <MenuItem key={index} value={item.field}>{item.headerName}</MenuItem>
                         );
                     })
                 }
@@ -89,36 +129,11 @@ export default function FilterItem(props: FilterItemProps) {
                 onChange={handleOperatorChange}
             >
                 {
-                    props.model.find(item => item.column === chosenColumn)?.operators.map((operator: string, index: number) => {
-                        return (
-                            <MenuItem key={index} value={operator}>{operator}</MenuItem>
-                        );
-                    })
+                    operatorSelector()
                 }
             </Select>
             {
-                chosenOperator === "between" ? (
-                    <Stack direction="row">
-                        <TextField
-                            variant='standard'
-                            defaultValue={props.values?.[0]}
-                            value={values?.[0] ?? ''}
-                            onChange={(e) => handleValueChange(e, 0)}
-                        />
-                        <TextField
-                            variant='standard'
-                            defaultValue={props.values?.[1]}
-                            value={values?.[1] ?? ''}
-                            onChange={(e) => handleValueChange(e, 1)} />
-
-                    </Stack>) : (
-                    <TextField
-                        variant='standard'
-                        defaultValue={props.values?.[0]}
-                        value={values?.[0] ?? ''}
-                        onChange={(e) => handleValueChange(e, 0)}
-                    />
-                )
+                valueSelector()
             }
             <IconButton onClick={handleClear}>
                 <CloseIcon />

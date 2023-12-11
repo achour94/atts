@@ -2,67 +2,110 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import GenericDataTable from "../../Table/GenericDataTable";
-import FileUploadIcon from '@mui/icons-material/FileUpload';
 import _axios from "../../../services/axios";
-import { getInvoiceList } from "../../../services/actions";
+import { getInvoiceList, handleUploadInvoices } from "../../../services/actions";
 import { INVOICES_DATA } from "../../Table/structures/InvoicesTableStructure";
 import { useTranslation } from "react-i18next";
 import InvoiceToolbar from "../../Table/Toolbars/InvoicesToolbar";
 import { FilterModelItem } from "../../Table/MultiColumnFilter/FilterItem";
+import { Typography } from "@mui/material";
+import SystemUpdateAltOutlinedIcon from '@mui/icons-material/SystemUpdateAltOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import InvoiceDetails from "./InvoiceDetails";
 
 export default function Invoices(props: any) {
     const { t } = useTranslation();
-    const data = INVOICES_DATA(t);
-    const filterModel: Array<FilterModelItem> = data.columns.filter(item => item.filterOperators).map((item: any) => {
+    const [ invoice, setInvoice ] = React.useState(null);
+    const [ checkedInvoices, setCheckedInvoices] = React.useState<Array<number>>([]);
+
+    const handleCheckInvoice = (e: any, id: number) => {
+        
+        const newChecked = checkedInvoices;
+        if (e.target.checked) {
+            newChecked.push(id);
+        } else {
+            const index = checkedInvoices.indexOf(id);
+            newChecked.splice(index, 1);
+        }
+
+        setCheckedInvoices([...newChecked]);
+
+        console.log(e.target.checked, id, checkedInvoices);
+    }
+
+    const data = INVOICES_DATA(t, handleCheckInvoice);
+    const filterModel: Array<FilterModelItem> = data.columns.filter(item => item.type).map((item: any) => {
         return {
-            column: item.field,
+            field: item.field,
+            type: item.type,
             headerName: item.headerName,
-            operators: item.filterOperators,
         };
     });
 
-    const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("uploaded file");
-        if (!event.target.files?.length) {
-            console.warn("no file uploaded");
-            return;
-        }
-
-        for (let i = 0; i < event.target.files.length; i++) {
-            const file = event.target.files[i];
-            const formData = new FormData();
-            formData.append("file", file);
-            _axios.post("http://localhost:8081/api/invoice/upload", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-        }
+    const handleInvoiceSelect = (params: any) => {
+        console.log("handleInvoiceSelect", params);
+        setInvoice(params.row);
     }
 
-    return (
+    return (invoice === null ? 
         <Box
             sx={{
-                flexGrow: 1, bgcolor: 'background.default', p: 3, position: 'relative',
-                left: '290px', width: 'calc(100% - 290px)', height: '100vh'
+                flexGrow: 1, bgcolor: '#F6FAFD', p: 3, position: 'relative',
+                left: '290px', width: 'calc(100% - 290px)', height: '871px',
+                top: '62px', overflow: 'hidden',
             }}>
-            <Button
-                component="label"
-                variant="outlined"
-                startIcon={<FileUploadIcon />}
-                sx={{ marginRight: "1rem" }}
-            >
-                Upload
-                <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" hidden onChange={handleUpload} />
-            </Button>
-            <GenericDataTable
-                componentName={"table"}
-                getItemsFunction={getInvoiceList}
-                columns={data.columns}
-                width="100%"
-                height="90%"
-                toolbar={InvoiceToolbar}
-                toolbarProps={{filterModel: filterModel}}
-            ></GenericDataTable></Box>
+                <Box
+                    sx={{
+                    position: 'relative', 
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}
+                >
+                    <Typography fontWeight={600} fontSize={'24px'} lineHeight={'28.13px'}>
+                        {t("invoide_page_header")}
+                    </Typography>
+
+                    <Box>
+                        <Button
+                            component="label"
+                            variant="contained"
+                            startIcon={<SystemUpdateAltOutlinedIcon />}
+                            sx={{ marginRight: "1rem", borderRadius: '33px' }}
+                        >
+                            {t("invoice_page_import_button")}
+                            <input type="file"
+                                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                hidden
+                                onChange={handleUploadInvoices} />
+                        </Button>
+                        <Button  
+                            variant="contained" 
+                            startIcon={<DeleteOutlineOutlinedIcon  />}
+                            sx={{ marginRight: "1rem", borderRadius: '33px' }}
+                            color="error"
+                            onClick={() => console.log("Delete after API is avialable")}
+                        >
+                            {t("invoice_page_delete_my_invoices_button")}
+                        </Button>
+                    </Box>
+                </Box>
+                
+                <Box sx={{position: 'relative', top: '20px', overflow: 'hidden'}}>
+                    <GenericDataTable
+                        componentName={"invoices"}
+                        getItemsFunction={getInvoiceList}
+                        columns={data.columns}
+                        width="100%"
+                        height="800px"
+                        toolbar={InvoiceToolbar}
+                        toolbarProps={{ filterModel: filterModel }}
+                        handleOpenItem={(params: any) => handleInvoiceSelect(params)}
+                    ></GenericDataTable>
+                </Box>
+        </Box> : <Box>
+            "Invoice Details"
+        </Box>
     );
 }

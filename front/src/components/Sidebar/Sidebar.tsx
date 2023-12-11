@@ -13,6 +13,9 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import { useTranslation } from 'react-i18next';
 import { ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { setAuth, logout } from '../../features/auth/authSlice';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const SIDEBAR_FULL_WIDTH = 290;
 const SIDEBAR_COLLAPSED_WIDTH = 90;
@@ -51,6 +54,21 @@ export default function SidebarMenu() {
   const [collapsed, setCollapsed] = React.useState(false);
   const { t } = useTranslation();
   const PROFILE_TABS_STYLE = { position: 'absolute', bottom: '0' };
+
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    if (UserService.isLoggedIn()) {
+      dispatch(setAuth({
+        isAuthenticated: true,
+        token: UserService.getToken()
+      }))
+    } else {
+      dispatch(logout())
+    }
+  }, []);
+
+  console.log('token', useSelector((state: any) => state.auth.token));
 
   const logButton = () => {
     if (UserService.isLoggedIn()) {
