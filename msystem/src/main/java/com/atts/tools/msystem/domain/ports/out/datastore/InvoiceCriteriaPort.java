@@ -9,4 +9,5 @@ import org.springframework.data.domain.Page;
 
 public interface InvoiceCriteriaPort {
     Page<Invoice> findAllWithFilters(RequestPage page, Collection<SearchCriteria> criteria);
+    Page<Invoice> findAllWithFiltersAndRestrictions(RequestPage page, Collection<SearchCriteria> criteria);
 }

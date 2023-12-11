@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
@@ -40,20 +41,19 @@ public class CriteriaRepository<T extends DBEntity, M extends ModelEntity> {
         this.transformer = transformer;
     }
 
-    public Page<M> findAllWithFilters(RequestPage page, Collection<SearchCriteria> criterias) {
+    public Page<M> findAllWithFilters(RequestPage page, Collection<SearchCriteria> criterias,
+        BiFunction<Root<T>, CriteriaBuilder, Predicate> securityGenPredicate) {
         CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(type);
 
         Root<T> root = criteriaQuery.from(type);
         setOrder(page, criteriaQuery, root);
         long count;
 
-        if (criterias != null && !criterias.isEmpty()) {
-            Predicate predicate = getPredicate(criterias, root);
+        Predicate predicate = getPredicate(criterias, root, securityGenPredicate);
+        if (predicate != null) {
             criteriaQuery.where(predicate);
-            count = getCount(criterias);
-        } else {
-            count = getCount(null);
         }
+        count = getCount(criterias, securityGenPredicate);
 
         TypedQuery<T> typedQuery = entityManager.createQuery(criteriaQuery);
         typedQuery.setFirstResult(page.getPageNumber() * page.getPageSize());
@@ -78,12 +78,14 @@ public class CriteriaRepository<T extends DBEntity, M extends ModelEntity> {
         return columnType;
     }
 
-    private long getCount(Collection<SearchCriteria> criterias) {
+    private long getCount(Collection<SearchCriteria> criterias,
+        BiFunction<Root<T>, CriteriaBuilder, Predicate> securityGenPredicate) {
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
         Root<T> countRoot = countQuery.from(type);
         countQuery.select(criteriaBuilder.count(countRoot));
-        if (criterias != null) {
-            countQuery.where(getPredicate(criterias, countRoot));
+        Predicate predicate = getPredicate(criterias, countRoot, securityGenPredicate);
+        if (predicate != null) {
+            countQuery.where(predicate);
         }
 
         return entityManager.createQuery(countQuery).getSingleResult();
@@ -120,80 +122,89 @@ public class CriteriaRepository<T extends DBEntity, M extends ModelEntity> {
         return result;
     }
 
-    private Predicate getPredicate(Collection<SearchCriteria> criterias, Root<T> root) {
+    private Predicate getPredicate(Collection<SearchCriteria> criterias, Root<T> root,
+        BiFunction<Root<T>, CriteriaBuilder, Predicate> securityGenPredicate) {
 
         List<Predicate> predicates = new ArrayList<>();
-        for (SearchCriteria criteria : criterias) {
-            String column = Transformer.columnMapper(criteria.column());
-            Class columnType;
-            Path<? extends Comparable> path = extractPath(root, column);
-            try {
-                columnType = extractFieldType(column);
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-            }
-            if (Objects.nonNull(criteria.equals())) {
-                predicates.add(
-                    criteriaBuilder.equal(path,
-                        StringToTypeConverter.toComparableType(criteria.equals(), columnType))
-
-                );
-            }
-            if (Objects.nonNull(criteria.startsWith())) {
-                predicates.add(
-                    criteriaBuilder.like((Expression<String>) path, criteria.startsWith() + "%")
-
-                );
-            }
-
-            if (Objects.nonNull(criteria.endsWith())) {
-                predicates.add(
-                    criteriaBuilder.like((Expression<String>) path, "%" + criteria.endsWith())
-
-                );
-            }
-
-            if (Objects.nonNull(criteria.contains())) {
-                predicates.add(
-                    criteriaBuilder.like((Expression<String>) path, "%" + criteria.contains() + "%")
-
-                );
-            }
-
-            if (Objects.nonNull(criteria.min())) {
-                predicates.add(
-                    criteriaBuilder.greaterThanOrEqualTo(path,
-                        StringToTypeConverter.toComparableType(criteria.min(), columnType))
-
-                );
-            }
-
-            if (Objects.nonNull(criteria.max())) {
-                predicates.add(
-                    criteriaBuilder.lessThanOrEqualTo(path,
-                        StringToTypeConverter.toComparableType(criteria.max(), columnType))
-                );
-            }
-
-            if (Objects.nonNull(criteria.anyOf()) && !criteria.anyOf().isEmpty()) {
-                predicates.add(
-                    path.in(criteria.anyOf())
-                );
-            }
-
-            if (Objects.nonNull(criteria.isEmpty())) {
-                if (criteria.isEmpty()) {
+        if (criterias != null) {
+            for (SearchCriteria criteria : criterias) {
+                String column = Transformer.columnMapper(criteria.column());
+                Class columnType;
+                Path<? extends Comparable> path = extractPath(root, column);
+                try {
+                    columnType = extractFieldType(column);
+                } catch (NoSuchFieldException e) {
+                    throw new RuntimeException(e);
+                }
+                if (Objects.nonNull(criteria.equals())) {
                     predicates.add(
-                        criteriaBuilder.isEmpty(root.get(column))
+                        criteriaBuilder.equal(path,
+                            StringToTypeConverter.toComparableType(criteria.equals(), columnType))
+
                     );
-                } else {
+                }
+                if (Objects.nonNull(criteria.startsWith())) {
                     predicates.add(
-                        criteriaBuilder.isNotEmpty(root.get(column))
+                        criteriaBuilder.like((Expression<String>) path, criteria.startsWith() + "%")
+
                     );
+                }
+
+                if (Objects.nonNull(criteria.endsWith())) {
+                    predicates.add(
+                        criteriaBuilder.like((Expression<String>) path, "%" + criteria.endsWith())
+
+                    );
+                }
+
+                if (Objects.nonNull(criteria.contains())) {
+                    predicates.add(
+                        criteriaBuilder.like((Expression<String>) path, "%" + criteria.contains() + "%")
+
+                    );
+                }
+
+                if (Objects.nonNull(criteria.min())) {
+                    predicates.add(
+                        criteriaBuilder.greaterThanOrEqualTo(path,
+                            StringToTypeConverter.toComparableType(criteria.min(), columnType))
+
+                    );
+                }
+
+                if (Objects.nonNull(criteria.max())) {
+                    predicates.add(
+                        criteriaBuilder.lessThanOrEqualTo(path,
+                            StringToTypeConverter.toComparableType(criteria.max(), columnType))
+                    );
+                }
+
+                if (Objects.nonNull(criteria.anyOf()) && !criteria.anyOf().isEmpty()) {
+                    predicates.add(
+                        path.in(criteria.anyOf())
+                    );
+                }
+
+                if (Objects.nonNull(criteria.isEmpty())) {
+                    if (criteria.isEmpty()) {
+                        predicates.add(
+                            criteriaBuilder.isEmpty(root.get(column))
+                        );
+                    } else {
+                        predicates.add(
+                            criteriaBuilder.isNotEmpty(root.get(column))
+                        );
+                    }
                 }
             }
         }
 
+        if (securityGenPredicate != null) {
+            predicates.add(securityGenPredicate.apply(root, criteriaBuilder));
+        }
+        if (predicates.isEmpty()) {
+            return null;
+        }
         return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
     }
 }

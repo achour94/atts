@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS `atts`.`client` (
   `address` VARCHAR(100) NULL DEFAULT NULL,
   `name` VARCHAR(45) NULL DEFAULT NULL,
   `email` VARCHAR(45) NULL DEFAULT NULL,
+  `phone` VARCHAR(45) NULL DEFAULT NULL,
+  `city` VARCHAR(45) NULL DEFAULT NULL,
   `diverse` TINYINT NULL DEFAULT NULL,
   `diverse_amount` DOUBLE NULL DEFAULT NULL,
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -59,6 +61,7 @@ CREATE TABLE IF NOT EXISTS `atts`.`invoice` (
   `ttc_amount` DOUBLE NULL DEFAULT NULL,
   `client_id` INT NOT NULL,
   `tva` DOUBLE NULL,
+  `status` VARCHAR(45) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_invoice_client1_idx` (`client_id` ASC) VISIBLE,
   CONSTRAINT `fk_invoice_client1`
@@ -111,6 +114,27 @@ CREATE TABLE IF NOT EXISTS `atts`.`subscription` (
   PRIMARY KEY (`id`),
   INDEX `fk_Subscription_Client_idx` (`client_id` ASC) VISIBLE,
   CONSTRAINT `fk_Subscription_Client`
+    FOREIGN KEY (`client_id`)
+    REFERENCES `atts`.`client` (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+-- -----------------------------------------------------
+-- Table `atts`.`email_template`
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS `atts`.`email_template` ;
+
+CREATE TABLE IF NOT EXISTS `atts`.`email_template` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `content` VARCHAR(150) NULL DEFAULT NULL,
+  `client_id` INT NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_Email_Template_Client_idx` (`client_id` ASC) VISIBLE,
+  CONSTRAINT `fk_Email_Template_Client`
     FOREIGN KEY (`client_id`)
     REFERENCES `atts`.`client` (`id`))
 ENGINE = InnoDB

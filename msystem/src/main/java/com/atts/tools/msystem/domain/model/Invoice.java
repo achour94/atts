@@ -16,6 +16,7 @@ public class Invoice implements ModelEntity {
     Date creationDate; //first time is inserted by database automatically
     String fileUri;
     Date startPeriod;
+    InvoiceStatus status;
     Date endPeriod;
     Double httAmount;
     Double tva;

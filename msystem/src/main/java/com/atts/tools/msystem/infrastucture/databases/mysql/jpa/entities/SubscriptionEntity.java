@@ -45,7 +45,7 @@ public class SubscriptionEntity {
     private ClientEntity client;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 
     @UpdateTimestamp

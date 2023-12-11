@@ -50,10 +50,10 @@ public class InvoicesController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'client')")
     public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, String criteria) throws JsonProcessingException {
         //TODO return only minimum things that we need to view in the list of invoices
-        return ResponseEntity.ok(invoiceCriteriaPort.findAllWithFilters(page, criteriaMapper.convert(criteria)));
+        return ResponseEntity.ok(invoiceCriteriaPort.findAllWithFiltersAndRestrictions(page, criteriaMapper.convert(criteria)));
     }
 
     @PutMapping

@@ -26,6 +26,6 @@ public class UserCriteriaRepository implements UserCriteriaPort {
     @Override
     public Page<User> findAllWithFilters(RequestPage page,
         Collection<SearchCriteria> criteria) {
-        return criteriaRepository.findAllWithFilters(page, criteria);
+        return criteriaRepository.findAllWithFilters(page, criteria, null);
     }
 }

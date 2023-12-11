@@ -5,6 +5,7 @@ import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Consumption;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
+import com.atts.tools.msystem.domain.model.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.model.contants.ClientConstants;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
@@ -112,7 +113,8 @@ public class InvoiceService implements ManageInvoicesUseCase {
                     .diverseSubscription(ClientConstants.DEFAULT_DIVERSE_AMOUNT).address(summary.getAddress()).build();
                 clients.add(client);
             }
-            Invoice invoice = Invoice.builder().proforma(false).client(client).creationDate(creationDate)
+            Invoice invoice = Invoice.builder().status(InvoiceStatus.DRAFT).proforma(false).client(client)
+                .creationDate(creationDate)
                 .consumptions(summary.getConsumptions()).tva(summary.getTva()).consumptions(summary.getConsumptions())
                 .build();
             updateInvoiceBasedOnConsumptions(invoice);
