@@ -32,4 +32,5 @@ const renderApp = () => root.render(
     // </React.StrictMode>
 );
 
+// renderApp();
 UserService.initKeycloak(renderApp);

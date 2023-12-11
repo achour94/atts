@@ -12,7 +12,7 @@ const Public = () => {
     }
 
     const checkAxios = () => {
-        axios.get("http://localhost:8081/api/user/hello", {
+        axios.get("http://localhost:8082/api/user/hello", {
         }).then(
             (result) => {
                 console.log("result: ", result);

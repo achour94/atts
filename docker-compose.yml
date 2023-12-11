@@ -1,16 +1,32 @@
 version: '4.0'
 
 services:
-  keycloak:
-    image: jboss/keycloak:latest
-    environment:
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
-      DB_VENDOR: h2
-    volumes:
-      - keycloak_data:/opt/jboss/keycloak/standalone/data
+#  keycloak:
+#    image: jboss/keycloak:latest
+#    environment:
+#      KEYCLOAK_USER: admin
+#      KEYCLOAK_PASSWORD: admin
+#      DB_VENDOR: h2
+#    volumes:
+#      - keycloak_data:/opt/jboss/keycloak/standalone/data
+#    ports:
+#      - 8080:8080
+  db:
+    image: mysql:latest
+    container_name: atts_db
     ports:
-      - 8080:8080
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: 'atts'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'atts'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'atts'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'root'
+#    command: --sql_mode="STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION"
+    volumes:
+      - ./mysql:/var/lib/mysql
     
-volumes:
-  keycloak_data:
+#volumes:
+#  keycloak_data:

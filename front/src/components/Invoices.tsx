@@ -1,14 +1,14 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import GenericDataTable from "../../Table/GenericDataTable";
+import GenericDataTable from "./Table/GenericDataTable";
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-import _axios from "../../../services/axios";
-import { getInvoiceList } from "../../../services/actions";
-import { INVOICES_DATA } from "../../Table/structures/InvoicesTableStructure";
+import _axios from "../services/axios";
+import { getInvoiceList } from "../services/actions";
+import { INVOICES_DATA } from "./Table/TablesData";
 import { useTranslation } from "react-i18next";
-import InvoiceToolbar from "../../Table/Toolbars/InvoicesToolbar";
-import { FilterModelItem } from "../../Table/MultiColumnFilter/FilterItem";
+import InvoiceToolbar from "./Table/Toolbars/InvoicesToolbar";
+import { FilterModelItem } from "./Table/FilterItem";
 
 export default function Invoices(props: any) {
     const { t } = useTranslation();
