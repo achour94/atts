@@ -1,19 +1,25 @@
 package com.atts.tools.msystem.domain.services;
 
 import com.atts.tools.msystem.common.annotations.UseCase;
+import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Consumption;
+import com.atts.tools.msystem.domain.model.EmailTemplate;
 import com.atts.tools.msystem.domain.model.Invoice;
+import com.atts.tools.msystem.domain.model.InvoiceAndTemplate;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
 import com.atts.tools.msystem.domain.model.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.Subscription;
+import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.model.contants.ClientConstants;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageInvoicesUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientStoragePort;
+import com.atts.tools.msystem.domain.ports.out.datastore.UserStoragePort;
 import com.atts.tools.msystem.domain.ports.out.file.FileGeneratorPort;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
 import com.atts.tools.msystem.domain.ports.out.datastore.SubscriptionStoragePort;
+import com.atts.tools.msystem.domain.ports.out.smtp.EmailPort;
 import com.atts.tools.msystem.domain.ports.out.storage.IFileStorage;
 import com.atts.tools.msystem.domain.services.processors.ClientSummary;
 import com.atts.tools.msystem.domain.services.processors.ClientsResults;
@@ -26,7 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
@@ -46,6 +54,12 @@ public class InvoiceService implements ManageInvoicesUseCase {
     private final FileGeneratorPort fileGeneratorPort;
 
     private final IFileStorage fileStorage;
+
+    private final EmailPort emailPort;
+
+    private final UserStoragePort userStoragePort;
+
+    private final AuthorizationUtil authorizationUtil;
 
     @Override
     @Transactional
@@ -93,6 +107,36 @@ public class InvoiceService implements ManageInvoicesUseCase {
             return generateFile(invoiceId);
         }
         return fileStorage.getInvoice(invoice.getFileUri());
+    }
+
+    @Override
+    public void sendInvoices(List<InvoiceAndTemplate> invoiceAndTemplates) {
+        for (InvoiceAndTemplate invoiceAndTemplate : invoiceAndTemplates) {
+            Invoice invoice = invoiceStoragePort.findById(invoiceAndTemplate.getInvoiceId()).orElse(null);
+            if (invoice != null) {
+                InvoiceFile invoiceFile = getFile(invoice.getInvoiceNumber());
+                List<String> emails = invoice.getClient().getUsers().stream().map(User::getEmail)
+                    .filter(Objects::nonNull).toList();
+                AtomicReference<String> emailContent = new AtomicReference<>(EmailTemplate.DEFAULT_TEMPLATE_INVOICE);
+                if (invoiceAndTemplate.getTemplateId() != null) {
+                    User user = userStoragePort.findUserByUsername(authorizationUtil.getCurrentUserUsername());
+                    if (user == null) {
+                        throw new IllegalStateException("You cannot use a template with an unknown user by app!");
+                    }
+                    user.getEmailTemplates().stream()
+                        .filter(emailTemplate -> invoiceAndTemplate.getTemplateId().equals(emailTemplate.getId()))
+                        .findAny().ifPresent((template) -> {
+                            emailContent.set(template.getContent());
+                        });
+
+                }
+                for (String email : emails) {
+                    emailPort.sendInvoice(emailContent.get(), invoiceFile, email);
+                }
+            } else {
+                //TODO logg an error
+            }
+        }
     }
 
 

@@ -22,6 +22,7 @@ public class Client implements ModelEntity {
     String postalCode;
     String phone;
     String city;
+    List<User> users;
     Boolean activeDiverse;
     String name;
     String address;

@@ -1,8 +1,10 @@
 package com.atts.tools.msystem.domain.model;
 
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User implements ModelEntity {
 
     private Integer id;
@@ -18,6 +22,7 @@ public class User implements ModelEntity {
     private String email;
     private String username;
     private String password;
+    private List<EmailTemplate> emailTemplates;
     @Override
     public boolean equals(Object o) {
         if (this == o) {

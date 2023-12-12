@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.*;
+import org.keycloak.admin.client.token.TokenManager;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -89,7 +90,6 @@ public class AuthProviderImpl implements AuthProvider {
     }
 
 
-
     @Override
     public void deleteUser(String username) throws IllegalStateException {
         RealmResource realmResource = this.keycloak.realm(realm);
@@ -108,7 +108,21 @@ public class AuthProviderImpl implements AuthProvider {
     @Override
     public List<User> findAllAdminUsers() {
         return getRoleRepresentation(Role.ADMIN).getUserMembers().stream().map(
-            userRepresentation -> User.builder().username(userRepresentation.getUsername()).email(userRepresentation.getEmail()).build()
+            userRepresentation -> User.builder().username(userRepresentation.getUsername())
+                .email(userRepresentation.getEmail()).build()
         ).collect(Collectors.toList());
+    }
+
+    @Override
+    public void updatePasswordForUser(String oldPassword, User newUser) {
+        RealmResource realmResource = this.keycloak.realm(realm);
+        UsersResource usersResource = realmResource.users();
+        UserRepresentation userRepresentation = usersResource.search(newUser.getUsername()).stream().findAny()
+            .orElseThrow(NoSuchElementException::new);
+        UserResource userResource = usersResource.get(userRepresentation.getId());
+        CredentialRepresentation passwordCredential = new CredentialRepresentation();
+        passwordCredential.setType(CredentialRepresentation.PASSWORD);
+        passwordCredential.setValue(newUser.getPassword());
+        userResource.resetPassword(passwordCredential);
     }
 }

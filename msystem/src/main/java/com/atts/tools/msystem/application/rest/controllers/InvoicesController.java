@@ -1,15 +1,14 @@
 package com.atts.tools.msystem.application.rest.controllers;
 
-import aj.org.objectweb.asm.TypeReference;
 import com.atts.tools.msystem.application.parsers.xlsx.StandardXlsxParser;
 import com.atts.tools.msystem.application.rest.request.invoice.GeneratePDFRequest;
+import com.atts.tools.msystem.application.rest.request.invoice.SendInvoiceByMailRequest;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageInvoicesUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceCriteriaPort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria.CriteriaMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,7 +49,7 @@ public class InvoicesController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('admin', 'client')")
-    public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, String criteria) throws JsonProcessingException {
+    public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, String criteria) {
         //TODO return only minimum things that we need to view in the list of invoices
         return ResponseEntity.ok(invoiceCriteriaPort.findAllWithFiltersAndRestrictions(page, criteriaMapper.convert(criteria)));
     }
@@ -92,5 +90,11 @@ public class InvoicesController {
             .contentLength(invoiceFile.getContent().length)
             .contentType(MediaType.APPLICATION_PDF)
             .body(resource);
+    }
+
+    @PutMapping("/email")
+    @PreAuthorize("hasRole('admin')")
+    public void sendInvoice(@RequestBody SendInvoiceByMailRequest request) {
+        manageInvoicesUseCase.sendInvoices(request.getInvoices());
     }
 }

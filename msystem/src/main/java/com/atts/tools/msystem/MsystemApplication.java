@@ -3,6 +3,7 @@ package com.atts.tools.msystem;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -21,6 +22,7 @@ import java.security.cert.X509Certificate;
 
 
 @SpringBootApplication
+@EnableAsync
 public class MsystemApplication {
 
 	static {

@@ -3,6 +3,7 @@ package com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Consumption;
 import com.atts.tools.msystem.domain.model.ConsumptionType;
+import com.atts.tools.msystem.domain.model.EmailTemplate;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.Subscription;
@@ -10,6 +11,7 @@ import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ClientEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ConsumptionEntity;
+import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.EmailTemplateEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.InvoiceEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.SubscriptionEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.UserEntity;
@@ -29,8 +31,32 @@ public class Transformer {
 
     public UserEntity transformToUserEntity(
         User user) {
+        return transformToUserEntityWithRel(user, true, true);
+    }
+
+
+    public UserEntity transformToUserEntityWithoutClient(
+        User user) {
+        return transformToUserEntityWithRel(user, false, true);
+    }
+
+    public UserEntity transformToUserEntityWithoutEmailTemplate(
+        User user) {
+        return transformToUserEntityWithRel(user, true, false);
+    }
+
+    public UserEntity transformToUserEntityWithRel(User user,
+        boolean addClient, boolean withEmailTemplate) {
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(user.getEmail());
+        if (addClient) {
+            userEntity.setClient(transformToClientEntityWithoutUser(user.getClient()));
+        }
+        if (withEmailTemplate) {
+            userEntity.setEmailTemplateEntities(
+                user.getEmailTemplates().stream().map(this::transformtoEmailTemplateEntityWithoutUser).collect(
+                    Collectors.toList()));
+        }
         userEntity.setUsername(user.getUsername());
         return userEntity;
     }
@@ -46,9 +72,57 @@ public class Transformer {
 
     public User transformToUser(
         UserEntity userEntity) {
+        if (userEntity == null) {
+            return null;
+        }
         return User.builder().username(userEntity.getUsername()).id(userEntity.getId()).email(userEntity.getEmail())
+            .client(transformToClientWithoutUsers(userEntity.getClient())).emailTemplates(
+                userEntity.getEmailTemplateEntities().stream().map(this::transformToEmailTemplateWithoutUser).collect(
+                    Collectors.toList()))
+            .build();
+    }
+
+
+    public EmailTemplate transformToEmailTemplateWithoutUser(EmailTemplateEntity emailTemplate) {
+        return transformToEmailTemplateWithRel(emailTemplate, false);
+    }
+
+    public EmailTemplate transformToEmailTemplate(EmailTemplateEntity emailTemplate) {
+        return transformToEmailTemplateWithRel(emailTemplate, true);
+    }
+
+    public EmailTemplate transformToEmailTemplateWithRel(EmailTemplateEntity emailTemplateEntity, boolean withUser) {
+        if (emailTemplateEntity == null) {
+            return null;
+        }
+        EmailTemplate emailTemplate = EmailTemplate.builder().content(emailTemplateEntity.getContent())
+            .name(emailTemplateEntity.getName()).id(emailTemplateEntity.getId())
+            .build();
+        if (withUser) {
+            emailTemplate.setUser(transformToUserWithoutEmailTemplate(emailTemplateEntity.getUserEntity()));
+        }
+        return emailTemplate;
+    }
+
+    public User transformToUserWithoutEmailTemplate(UserEntity userEntity) {
+        return transformToUserWithRel(userEntity, true, false);
+    }
+
+    public User transformToUserWithRel(
+        UserEntity userEntity, boolean withClient, boolean withEmailTemplate) {
+        User user = User.builder().username(userEntity.getUsername()).id(userEntity.getId())
+            .email(userEntity.getEmail())
             .client(transformToClient(userEntity.getClient()))
             .build();
+        if (withClient) {
+            user.setClient(transformToClientWithoutUsers(userEntity.getClient()));
+        }
+        if (withEmailTemplate) {
+            user.setEmailTemplates(
+                userEntity.getEmailTemplateEntities().stream().map(this::transformToEmailTemplateWithoutUser).collect(
+                    Collectors.toList()));
+        }
+        return user;
     }
 
     public Invoice transformToInvoice(InvoiceEntity entity) {
@@ -89,7 +163,8 @@ public class Transformer {
     }
 
     public Subscription transformToSubscriptionWithRel(SubscriptionEntity subscriptionEntity, boolean addClient) {
-        Subscription subscription = Subscription.builder().id(subscriptionEntity.getId()).name(subscriptionEntity.getName())
+        Subscription subscription = Subscription.builder().id(subscriptionEntity.getId())
+            .name(subscriptionEntity.getName())
             .data(subscriptionEntity.getData()).price(
                 subscriptionEntity.getPrice()).build();
         if (addClient) {
@@ -107,8 +182,9 @@ public class Transformer {
     }
 
     public SubscriptionEntity transformToSubscriptionEntityWithRel(Subscription subscription, boolean addClient) {
-        if (subscription == null)
+        if (subscription == null) {
             return null;
+        }
         SubscriptionEntity entity = new SubscriptionEntity();
         if (addClient) {
             entity.setClient(transformToClientEntity(subscription.getClient()));
@@ -137,26 +213,48 @@ public class Transformer {
     }
 
     public Client transformToClient(ClientEntity clientEntity) {
+        return transformToClientWithRel(clientEntity, true);
+    }
+
+    public Client transformToClientWithRel(ClientEntity clientEntity, boolean addUsers) {
         if (clientEntity == null) {
             return null;
         }
-        return Client.builder().id(clientEntity.getId())
+        Client client = Client.builder().id(clientEntity.getId())
             .clientReference(new ClientReference(clientEntity.getReference()))
             .defaultSubscription(clientEntity.getDefaultSubscription())
             .activeDiverse(clientEntity.getDiverse() == 1).email(clientEntity.getEmail())
             .address(clientEntity.getAddress())
             .name(clientEntity.getName())
-            .subscriptions(clientEntity.getSubscriptions().stream().map(this::transformToSubscriptionWithoutClient).collect(
-                Collectors.toList()))
+            .subscriptions(
+                clientEntity.getSubscriptions().stream().map(this::transformToSubscriptionWithoutClient).collect(
+                    Collectors.toList()))
             .diverseSubscription(clientEntity.getDiverseAmount())
             .phone(clientEntity.getPhone())
             .city(clientEntity.getCity())
             .postalCode(clientEntity.getPostalCode()).build();
+        if (addUsers) {
+            client.setUsers(clientEntity.getUsers().stream().map(this::transformToUser).collect(Collectors.toList()));
+        }
+        return client;
+    }
+
+    public Client transformToClientWithoutUsers(ClientEntity clientEntity) {
+        return transformToClientWithRel(clientEntity, false);
     }
 
     public ClientEntity transformToClientEntity(Client client) {
-        if (client == null)
+        return transformToClientEntityWithRel(client, true);
+    }
+
+    public ClientEntity transformToClientEntityWithoutUser(Client client) {
+        return transformToClientEntityWithRel(client, false);
+    }
+
+    public ClientEntity transformToClientEntityWithRel(Client client, boolean addUsers) {
+        if (client == null) {
             return null;
+        }
         ClientEntity entity = new ClientEntity();
         entity.setId(client.getId());
         entity.setDefaultSubscription(client.getDefaultSubscription());
@@ -166,11 +264,41 @@ public class Transformer {
         entity.setEmail(client.getEmail());
         entity.setName(client.getName());
         entity.setReference(client.getClientReference().reference());
-        entity.setSubscriptions(client.getSubscriptions().stream().map(this::transformToSubscriptionEntityLazyClient).collect(
-            Collectors.toSet()));
+        if (client.getSubscriptions() != null) {
+            entity.setSubscriptions(
+                client.getSubscriptions().stream().map(this::transformToSubscriptionEntityLazyClient).collect(
+                    Collectors.toSet()));
+        }
         entity.setAddress(client.getAddress());
         entity.setPhone(client.getPhone());
         entity.setCity(client.getCity());
+
+        if (addUsers && client.getUsers() != null) {
+            entity.setUsers(
+                client.getUsers().stream().map(this::transformToUserEntityWithoutClient).collect(Collectors.toSet()));
+        }
+        return entity;
+    }
+
+    public EmailTemplateEntity transformToEmailTemplateEntity(EmailTemplate emailTemplate) {
+        return transformToEmailTemplateEntityWithRel(emailTemplate, true);
+    }
+
+    public EmailTemplateEntity transformtoEmailTemplateEntityWithoutUser(EmailTemplate emailTemplateEntity) {
+        return transformToEmailTemplateEntityWithRel(emailTemplateEntity, false);
+    }
+
+    public EmailTemplateEntity transformToEmailTemplateEntityWithRel(EmailTemplate emailTemplate, boolean withUser) {
+        if (emailTemplate == null) {
+            return null;
+        }
+        EmailTemplateEntity entity = new EmailTemplateEntity();
+        entity.setId(emailTemplate.getId());
+        entity.setContent(emailTemplate.getContent());
+        entity.setName(emailTemplate.getName());
+        if (withUser) {
+            entity.setUserEntity(transformToUserEntityWithoutEmailTemplate(emailTemplate.getUser()));
+        }
         return entity;
     }
 
