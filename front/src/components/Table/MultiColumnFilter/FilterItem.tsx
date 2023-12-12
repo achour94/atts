@@ -99,7 +99,7 @@ export default function FilterItem(props: FilterItemProps) {
                     onChange={(e) => handleValueChange(e)}
                 />
             case FILTER_TYPES_NAMES.DATE:
-                return <DatePicker onChange={(e) => handleValueChange(e)}/>
+                return <DatePicker onChange={(e) => handleValueChange(e)} slotProps={{ textField: {variant: "standard"}}}/>
         }
     }
 
