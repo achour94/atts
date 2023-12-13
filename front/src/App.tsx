@@ -1,52 +1,48 @@
-import { Routes, Route } from 'react-router-dom'
-import Public from './components/Public'
-import CssBaseline from '@mui/material/CssBaseline';
+import { Routes, Route } from "react-router-dom";
+import Public from "./components/Public";
+import CssBaseline from "@mui/material/CssBaseline";
 import SidebarMenu from "./components/Sidebar/Sidebar";
-import Box from '@mui/material/Box';
-import Invoices from './components/pages/invoices/Invoices';
-import Dashboard from './components/pages/Dashboard';
-import Clients from './components/pages/clients/Clients';
-import History from './components/pages/History';
-import Profile from './components/pages/Profile';
-import ClientDetails from './components/pages/ClientDetails';
+import Box from "@mui/material/Box";
+import Invoices from "./components/pages/invoices/Invoices";
+import Dashboard from "./components/pages/Dashboard";
+import Clients from "./components/pages/clients/Clients";
+import History from "./components/pages/History";
+import Profile from "./components/pages/Profile";
+import ClientDetails from "./components/pages/ClientDetails";
+import Login from "./features/auth/Login";
+import ProtectedRoute from "./components/ProtectedRoutes";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { initializeAuth } from "./features/auth/authSlice";
+import Layout from "./components/Layout";
+import ProtectedLayout from "./components/ProtectedLayout";
+import MissingPage from "./components/MissingPage";
 //import InvoiceDetails from './components/pages/invoices/InvoiceDetails';
 
+function App() {
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    console.log("App.tsx: useEffect");
+    initializeAuth(dispatch);
+  }, []);
 
-function App(keycloak: any) {
-    return (
-        <Box sx={{
-            display: 'flex',
-            height: '100vh',
-            width: '100vw'
-        }}>
-            <CssBaseline/>
-            <Box display={"flex"} width="100%" height="100%">
-                <SidebarMenu ></SidebarMenu>
-                <Box flexGrow={1} sx={{display: "flex", backgroundColor: "#FAFBFF", padding: 2}} >
-                    <Routes>
-                        {/* public routes */}
-                        <Route index element={<Public />} />
-                        {/* <Route path="login" element={<Login />} /> */}
-                        <Route path='/' element={<Dashboard name="DASHBOARD"></Dashboard>} />
-                        <Route path='/dashboard' element={<Dashboard name="DASHBOARD"></Dashboard>} />
-                        <Route path='/clients' element={<Clients name="CLIENTS"></Clients>} />
-                        <Route path='/invoices' element={<Invoices/>} />
-                        <Route path='/history' element={<History name="HISTORY"></History>} />
-                        <Route path='/profile' element={<Profile name="PROFILE"></Profile>} />
-                        <Route path='/client/:id' element={<ClientDetails />} />
-
-
-                        {/* protected routes */}
-                        {/* <Route>
-                            <Route path="welcome" element={<Welcome />} />
-                            <Route path="userslist" element={<UsersList />} />
-                        </Route> */}
-                    </Routes>
-                </Box>
-            </Box>
-        </Box>
-    )
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route path="login" element={<Login />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<ProtectedLayout />}>
+            <Route index element={<Dashboard name="DASHBOARD" />} />
+            <Route path="dashboard" element={<Dashboard name="DASHBOARD" />} />
+            <Route path="client/:id" element={<ClientDetails />} />
+          </Route>
+        </Route>
+        {/* catch all */}
+        <Route path="*" element={<MissingPage />} />
+      </Route>
+    </Routes>
+  );
 }
 
 export default App;

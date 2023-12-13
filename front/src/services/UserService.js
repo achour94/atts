@@ -12,7 +12,7 @@ _kc.onTokenExpired = () => {
  *
  * @param onAuthenticatedCallback
  */
-const initKeycloak = (onAuthenticatedCallback) => {
+const initKeycloak = (onAuthenticatedCallback, onErrorCallback) => {
   _kc.init({
     onLoad: 'check-sso',
     silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
@@ -21,7 +21,9 @@ const initKeycloak = (onAuthenticatedCallback) => {
     .then((authenticated) => {
         onAuthenticatedCallback();
     })
-    .catch(console.error);
+    .catch( (error) => {
+        onErrorCallback(error);
+    })
 };
 
 const doLogin = _kc.login;

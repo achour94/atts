@@ -1,9 +1,13 @@
 import axios from "axios";
 import UserService from "./UserService";
 
-const _axios = axios.create();
+const axiosInstance = axios.create(
+  {
+    baseURL: process.env.REACT_APP_BASE_URL,
+  }
+);
 
-_axios.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use((config) => {
   if (UserService.isLoggedIn()) {
     const cb = () => {
       config.headers.Authorization = `Bearer ${UserService.getToken()}`;
@@ -13,4 +17,4 @@ _axios.interceptors.request.use((config) => {
   }
 });
 
-export default _axios;
+export default axiosInstance;

@@ -1,88 +1,35 @@
-import { useRef, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-import { useDispatch } from 'react-redux'
-import { loginSuccess } from './authSlice'
-import { useLoginMutation } from './authApiSlice'
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import UserService from '../../services/UserService';
+import { useSelector } from 'react-redux';
 
 const Login = () => {
-    const userRef = useRef()
-    const errRef = useRef()
-    const [user, setUser] = useState('')
-    const [pwd, setPwd] = useState('')
-    const [errMsg, setErrMsg] = useState('')
-    const navigate = useNavigate()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
-    const [login, { isLoading }] = useLoginMutation()
-    const dispatch = useDispatch()
+  // This will hold the location they were redirected from, if available
+  const from = location.state?.from?.pathname || '/';
 
     useEffect(() => {
-        userRef.current.focus()
-    }, [])
-
-    useEffect(() => {
-        setErrMsg('')
-    }, [user, pwd])
-
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-
-        try {
-            const userData = await login({ user, pwd }).unwrap()
-            dispatch(loginSuccess({ ...userData, user }))
-            setUser('')
-            setPwd('')
-            navigate('/welcome')
-        } catch (err) {
-            if (!err?.originalStatus) {
-                // isLoading: true until timeout occurs
-                setErrMsg('No Server Response');
-            } else if (err.originalStatus === 400) {
-                setErrMsg('Missing Username or Password');
-            } else if (err.originalStatus === 401) {
-                setErrMsg('Unauthorized');
-            } else {
-                setErrMsg('Login Failed');
-            }
-            errRef.current.focus();
+        if (isAuthenticated) {
+            navigate(from);
         }
     }
+    , [isAuthenticated, navigate]);
 
-    const handleUserInput = (e) => setUser(e.target.value)
+  const handleLogin = () => {
+    UserService.doLogin().then(() => {
+      navigate(from);
+    });
+  };
 
-    const handlePwdInput = (e) => setPwd(e.target.value)
+  return (
+    <div>
+      <h1>Login Page</h1>
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+};
 
-    const content = isLoading ? <h1>Loading...</h1> : (
-        <section style={{left: '300px', position: 'absolute'}} className="login">
-            <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
-
-            <h1>Employee Login</h1>
-
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Username:</label>
-                <input
-                    type="text"
-                    id="username"
-                    ref={userRef}
-                    value={user}
-                    onChange={handleUserInput}
-                    autoComplete="off"
-                    required
-                />
-
-                <label htmlFor="password">Password:</label>
-                <input
-                    type="password"
-                    id="password"
-                    onChange={handlePwdInput}
-                    value={pwd}
-                    required
-                />
-                <button>Sign In</button>
-            </form>
-        </section>
-    )
-
-    return content
-}
-export default Login
+export default Login;
