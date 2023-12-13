@@ -45,16 +45,18 @@ export const { setAuth, loginStart, loginSuccess, loginFailure, logout } = authS
 
 export const initializeAuth = (dispatch) => {
     console.log("initializeAuth");
-    dispatch(loginStart());
-    UserService.initKeycloak(() => {
-        dispatch(loginSuccess({
-            isAuthenticated: UserService.isLoggedIn(),
-            user: UserService.getUsername(),
-            token: UserService.getToken(),
-        }));
-    }, (error) => {
-        dispatch(loginFailure(error));
-    });
+    if (!UserService.isInitialized()) {
+        dispatch(loginStart());
+        UserService.initKeycloak(() => {
+            dispatch(loginSuccess({
+                isAuthenticated: UserService.isLoggedIn(),
+                user: UserService.getUsername(),
+                token: UserService.getToken(),
+            }));
+        }, (error) => {
+            dispatch(loginFailure(error));
+        });
+    }
   };
 
 export default authSlice.reducer;

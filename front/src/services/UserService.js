@@ -7,6 +7,8 @@ _kc.onTokenExpired = () => {
     }).catch(console.error);
 }
 
+let isKeycloakInitialized = false; // This variable will track the initialization status
+
 /**
  * Initializes Keycloak instance and calls the provided callback function if successfully authenticated.
  *
@@ -19,12 +21,15 @@ const initKeycloak = (onAuthenticatedCallback, onErrorCallback) => {
     pkceMethod: 'S256',
   })
     .then((authenticated) => {
+      isKeycloakInitialized = true;
         onAuthenticatedCallback();
     })
     .catch( (error) => {
         onErrorCallback(error);
     })
 };
+
+const isInitialized = () => isKeycloakInitialized;
 
 const doLogin = _kc.login;
 
@@ -53,6 +58,7 @@ const hasAllRoles = (roles) => roles.every((role) => {
 
 const UserService = {
   initKeycloak,
+  isInitialized,
   doLogin,
   doLogout,
   isLoggedIn,
