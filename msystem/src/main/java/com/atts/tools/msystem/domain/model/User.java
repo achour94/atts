@@ -1,5 +1,6 @@
 package com.atts.tools.msystem.domain.model;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements ModelEntity {
@@ -22,7 +23,7 @@ public class User implements ModelEntity {
     private String email;
     private String username;
     private String password;
-    private List<EmailTemplate> emailTemplates;
+    private List<EmailTemplate> emailTemplates = new ArrayList<>();
     @Override
     public boolean equals(Object o) {
         if (this == o) {
