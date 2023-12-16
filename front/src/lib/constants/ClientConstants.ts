@@ -8,10 +8,13 @@ export enum ClientConstants {
     CLIENT_DEFAULTSUBSCRIPTION = 'defaultSubscription',
     CLIENT_DIVERSESUBSCRIPTION = 'diverseSubscription',
     CLIENT_POSTALCODE = 'postalCode',
+    CLIENT_PHONE = 'phone',
+    CLIENT_CITY = 'city',
     CLIENT_ACTIVEDIVERSE = 'activeDiverse',
     CLIENT_NAME = 'name',
     CLIENT_ADDRESS = 'address',
     CLIENT_EMAIL = 'email',
     CLIENT_SUBSCRIPTIONLIST = 'subscriptionList',
+    CLIENT_USERS = 'users',
   }
   

@@ -5,7 +5,6 @@ import SidebarMenu from "./components/oldSidebar/Sidebar";
 import Box from "@mui/material/Box";
 import Invoices from "./components/pages/invoices/Invoices";
 import Dashboard from "./components/pages/Dashboard";
-import Clients from "./components/pages/clients/Clients";
 import History from "./components/pages/History";
 import Profile from "./components/pages/Profile";
 import ClientDetails from "./components/pages/ClientDetails";
@@ -19,6 +18,7 @@ import ProtectedLayout from "./components/ProtectedLayout";
 import MissingPage from "./components/MissingPage";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme";
+import Clients from "./features/clients/Clients";
 //import InvoiceDetails from './components/pages/invoices/InvoiceDetails';
 
 function App() {
@@ -37,6 +37,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<ProtectedLayout />}>
               <Route index element={<Dashboard name="DASHBOARD" />} />
+              <Route path="clients" element={<Clients />} />
               <Route path="invoices" element={<Invoices name="INVOICES" />} />
               <Route path="client/:id" element={<ClientDetails />} />
             </Route>

@@ -1,8 +1,15 @@
 import { GridSortModel } from "@mui/x-data-grid";
 import _axios from "./axios";
 
-const BASE_URL = "http://localhost:8082";
+let HOST, PORT;
+if (process.env.NODE_ENV === 'development') {
+    HOST = process.env.REACT_APP_HOST_DEV;
+    PORT = process.env.REACT_APP_PORT_DEV;
+}
+
+const BASE_URL = `http://${HOST}:${PORT}`;
 const INVOICES_API = `${BASE_URL}/api/invoice`;
+const PUT_INVOICES_API = `${BASE_URL}/api/invoice/upload`;
 const CLIENTS_API = `${BASE_URL}/api/client`;
 
 interface apiOptions {
@@ -39,7 +46,7 @@ const formURL = (BASE_URL: string, options: apiOptions | undefined) => {
 interface Invoice {
     id: number;
     invoiceNumber: number;
-    creationDate: Date;
+    createDate: Date;
     startPeriod: Date;
     endPeriod: Date;
     'client.name': string;
@@ -64,9 +71,9 @@ export function getInvoiceList(options: apiOptions | undefined): Promise<Invoice
             const invoices = response.data.content.map((invoice: any) => ({
                 id: invoice.invoiceNumber,
                 invoiceNumber: invoice.invoiceNumber,
-                creationDate: invoice.creationDate,
-                startPeriod: invoice.startPeriod,
-                endPeriod: invoice.endPeriod,
+                createDate: new Date(invoice.creationDate),
+                startPeriod: new Date(invoice.startPeriod),
+                endPeriod: new Date(invoice.endPeriod),
                 'client.name': invoice.client.name,
                 // specialNumber: invoice.specialNumber,
                 ttcAmount: invoice.ttcAmount,
@@ -82,7 +89,7 @@ export function getInvoiceList(options: apiOptions | undefined): Promise<Invoice
 
 interface Clients {
     id: number;
-    reference: string;
+    'clientReference.reference': number;
     name: string;
     address: string;
     defaultSubscription: number;
@@ -103,7 +110,7 @@ export function getClientsList(options: apiOptions | undefined): Promise<Clients
             const pageInfo = {totalRowCount: response.data.totalElements, pageNumber: response.data.pageable.pageNumber};
             const clients = response.data.content.map((client: any) => ({
                 id: client.id,
-                reference: client.clientReference.reference,
+                'clientReference.reference': client.clientReference.reference,
                 name: client.name,
                 address: client.address,
                 defaultSubscription: client.defaultSubscription
@@ -114,4 +121,23 @@ export function getClientsList(options: apiOptions | undefined): Promise<Clients
             console.log(error);
             return {pageInfo: {pageNumber: 0, totalRowCount: 0}, rows: []};
         });
+}
+
+
+export const handleUploadInvoices = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("uploaded file");
+
+    if (!event.target.files?.length) {
+        console.warn("no file uploaded");
+        return;
+    }
+
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    _axios.post(PUT_INVOICES_API, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }

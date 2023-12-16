@@ -27,9 +27,9 @@ const theme = createTheme({
       paper: '#F4F7FE', // Paper Color
     },
     text: {
-      primary: '#030229', // Primary Text Color
-      secondary: '#2C2C2C', // Secondary Text Color
-      disabled: '#BDBDBD', // Disabled Text Color
+      primary: '#2C2C2C',
+      secondary: '#696969', 
+      disabled: '#BDBDBD', 
     },
     divider: '#D9D9D9', // Divider Color
   },
