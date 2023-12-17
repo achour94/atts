@@ -45,7 +45,7 @@ public class InvoicesController {
 
     @PostMapping("/upload")
     @PreAuthorize("hasRole('admin')")
-    public void uploadCSV(MultipartFile file) throws IOException {
+    public void uploadFile(MultipartFile file) throws IOException {
         TableFileType tableFileType = TableFileType.convert(file.getOriginalFilename());
         manageInvoicesUseCase.generateInvoices(
             consumptionsParsers.stream().filter(parser -> parser.match(tableFileType)).findAny().orElseThrow(
