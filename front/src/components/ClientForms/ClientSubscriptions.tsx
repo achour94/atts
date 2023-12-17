@@ -28,7 +28,7 @@ function ClientSubscriptions() {
   const { control } = useFormContext<IClient>(); 
   const { fields } = useFieldArray({
     control,
-    name: CC.CLIENT_SUBSCRIPTIONLIST, 
+    name: CC.CLIENT_SUBSCRIPTIONS, 
   });
 
   return (

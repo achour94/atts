@@ -50,7 +50,7 @@ const clientSchema = yup.object({
   [CC.CLIENT_NAME]: yup.string().required("Le nom est requis"),
   [CC.CLIENT_ADDRESS]: yup.string().required("L'adresse est requise"),
   [CC.CLIENT_EMAIL]: yup.string().email("Doit être un email valide").optional(),
-  [CC.CLIENT_SUBSCRIPTIONLIST]: yup.array().of(subscriptionSchema).optional(),
+  [CC.CLIENT_SUBSCRIPTIONS]: yup.array().of(subscriptionSchema).optional(),
 });
 
 function ClientDetails() {
@@ -72,7 +72,7 @@ function ClientDetails() {
     [CC.CLIENT_NAME]: "John Doe",
     [CC.CLIENT_ADDRESS]: "123 Main St",
     [CC.CLIENT_EMAIL]: "john.doe@example.com",
-    [CC.CLIENT_SUBSCRIPTIONLIST]: [
+    [CC.CLIENT_SUBSCRIPTIONS]: [
       // Example subscription list
       {
         [CC.CLIENT_SUBSCRIPTION_ID]: 10,

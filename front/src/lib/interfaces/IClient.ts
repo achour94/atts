@@ -17,5 +17,5 @@ export interface IClient {
     [CC.CLIENT_NAME]: string;
     [CC.CLIENT_ADDRESS]: string;
     [CC.CLIENT_EMAIL]: string;
-    [CC.CLIENT_SUBSCRIPTIONLIST]: ISubscrpition[];
+    [CC.CLIENT_SUBSCRIPTIONS]: ISubscrpition[];
 }

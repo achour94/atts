@@ -1,9 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Public from "./components/Public";
 import CssBaseline from "@mui/material/CssBaseline";
-import SidebarMenu from "./components/oldSidebar/Sidebar";
 import Box from "@mui/material/Box";
-import Invoices from "./components/pages/invoices/Invoices";
 import Dashboard from "./components/pages/Dashboard";
 import History from "./components/pages/History";
 import Profile from "./components/pages/Profile";
@@ -19,7 +17,9 @@ import MissingPage from "./components/MissingPage";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme";
 import Clients from "./features/clients/Clients";
-//import InvoiceDetails from './components/pages/invoices/InvoiceDetails';
+import { ToastContainer } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const dispatch = useDispatch();
@@ -31,6 +31,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route path="login" element={<Login />} />
@@ -38,7 +39,6 @@ function App() {
             <Route element={<ProtectedLayout />}>
               <Route index element={<Dashboard name="DASHBOARD" />} />
               <Route path="clients" element={<Clients />} />
-              <Route path="invoices" element={<Invoices name="INVOICES" />} />
               <Route path="client/:id" element={<ClientDetails />} />
             </Route>
           </Route>

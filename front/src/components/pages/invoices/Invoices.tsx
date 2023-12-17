@@ -12,14 +12,14 @@ import { FilterModelItem } from "../../Table/MultiColumnFilter/FilterItem";
 
 export default function Invoices(props: any) {
     const { t } = useTranslation();
-    const data = INVOICES_DATA(t);
-    const filterModel: Array<FilterModelItem> = data.columns.filter(item => item.filterOperators).map((item: any) => {
-        return {
-            column: item.field,
-            headerName: item.headerName,
-            operators: item.filterOperators,
-        };
-    });
+    // const data = INVOICES_DATA(t);
+    // const filterModel: Array<FilterModelItem> = data.columns.filter(item => item.filterOperators).map((item: any) => {
+    //     return {
+    //         column: item.field,
+    //         headerName: item.headerName,
+    //         operators: item.filterOperators,
+    //     };
+    // });
 
     const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         console.log("uploaded file");
@@ -55,7 +55,7 @@ export default function Invoices(props: any) {
                 Upload
                 <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" hidden onChange={handleUpload} />
             </Button>
-            <GenericDataTable
+            {/* <GenericDataTable
                 componentName={"table"}
                 getItemsFunction={getInvoiceList}
                 columns={data.columns}
@@ -63,6 +63,7 @@ export default function Invoices(props: any) {
                 height="90%"
                 toolbar={InvoiceToolbar}
                 toolbarProps={{filterModel: filterModel}}
-            ></GenericDataTable></Box>
+            ></GenericDataTable> */}
+            </Box>
     );
 }
