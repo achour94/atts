@@ -1,6 +1,7 @@
 package com.atts.tools.msystem.application.rest.controllers;
 
-import com.atts.tools.msystem.application.parsers.xlsx.StandardXlsxParser;
+import com.atts.tools.msystem.application.parsers.TableFileType;
+import com.atts.tools.msystem.application.parsers.consumptions.ConsumptionsParser;
 import com.atts.tools.msystem.application.rest.request.invoice.GeneratePDFRequest;
 import com.atts.tools.msystem.application.rest.request.invoice.SendInvoiceByMailRequest;
 import com.atts.tools.msystem.domain.model.Invoice;
@@ -10,6 +11,8 @@ import com.atts.tools.msystem.domain.ports.in.usecases.ManageInvoicesUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceCriteriaPort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria.CriteriaMapper;
 
+import jakarta.activation.UnsupportedDataTypeException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -35,7 +38,7 @@ import java.io.IOException;
 public class InvoicesController {
 
     private final ManageInvoicesUseCase manageInvoicesUseCase;
-    private final StandardXlsxParser standardXlsxParser;
+    private final List<ConsumptionsParser> consumptionsParsers;
     private final InvoiceCriteriaPort invoiceCriteriaPort;
     private final CriteriaMapper criteriaMapper;
 
@@ -43,15 +46,19 @@ public class InvoicesController {
     @PostMapping("/upload")
     @PreAuthorize("hasRole('admin')")
     public void uploadCSV(MultipartFile file) throws IOException {
-        manageInvoicesUseCase.generateInvoices(standardXlsxParser.extractXlsxRows(file.getInputStream()),
-            file.getName());
+        TableFileType tableFileType = TableFileType.convert(file.getOriginalFilename());
+        manageInvoicesUseCase.generateInvoices(
+            consumptionsParsers.stream().filter(parser -> parser.match(tableFileType)).findAny().orElseThrow(
+                UnsupportedDataTypeException::new).extractRows(file.getInputStream()),
+            file.getOriginalFilename());
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('admin', 'client')")
     public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, String criteria) {
         //TODO return only minimum things that we need to view in the list of invoices
-        return ResponseEntity.ok(invoiceCriteriaPort.findAllWithFiltersAndRestrictions(page, criteriaMapper.convert(criteria)));
+        return ResponseEntity.ok(
+            invoiceCriteriaPort.findAllWithFiltersAndRestrictions(page, criteriaMapper.convert(criteria)));
     }
 
     @PutMapping
@@ -68,7 +75,8 @@ public class InvoicesController {
         InvoiceFile invoiceFile = manageInvoicesUseCase.getFile(invoiceNumber);
         ByteArrayResource resource = new ByteArrayResource(invoiceFile.getContent());
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", invoiceFile.getFilename()));
+        headers.add(HttpHeaders.CONTENT_DISPOSITION,
+            String.format("attachment; filename=%s", invoiceFile.getFilename()));
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
         return ResponseEntity.ok()
             .headers(headers)
@@ -83,7 +91,8 @@ public class InvoicesController {
         InvoiceFile invoiceFile = manageInvoicesUseCase.generateFile(request.id());
         ByteArrayResource resource = new ByteArrayResource(invoiceFile.getContent());
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", invoiceFile.getFilename()));
+        headers.add(HttpHeaders.CONTENT_DISPOSITION,
+            String.format("attachment; filename=%s", invoiceFile.getFilename()));
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
         return ResponseEntity.ok()
             .headers(headers)

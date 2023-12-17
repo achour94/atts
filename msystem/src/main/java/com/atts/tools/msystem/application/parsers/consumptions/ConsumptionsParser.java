@@ -1,60 +1,39 @@
-package com.atts.tools.msystem.application.parsers.xlsx;
+package com.atts.tools.msystem.application.parsers.consumptions;
 
-import com.atts.tools.msystem.application.parsers.xlsx.IntervalCellExtractor;
+import com.atts.tools.msystem.application.parsers.CellReader;
+import com.atts.tools.msystem.application.parsers.IntervalCellExtractor;
+import com.atts.tools.msystem.application.parsers.RowReader;
+import com.atts.tools.msystem.application.parsers.TableFileType;
+import com.atts.tools.msystem.application.parsers.TableReader;
+import com.atts.tools.msystem.application.parsers.TableReaderFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.sql.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.stereotype.Component;
 
-@Component
-public class StandardXlsxParser {
-
-    Object getCellValue(Cell cell) {
-        if (cell == null)
-            return null;
-        if (cell.getCellType().equals(CellType.BOOLEAN)) {
-            return cell.getBooleanCellValue();
-        }
-        if (cell.getCellType().equals(CellType.STRING)) {
-            return cell.getStringCellValue();
-        }
-        if (cell.getCellType().equals(CellType.NUMERIC)) {
-            return cell.getNumericCellValue();
-        }
-        if (cell.getCellType().equals(CellType.BLANK)) {
-            return null;
-        }
-        throw new IllegalStateException("Unsuported cell type");
-    }
-
+public abstract class ConsumptionsParser {
 
     List<IntervalCellExtractor> extractors;
 
-    public StandardXlsxParser() {
+    public ConsumptionsParser(CellReader cellReader) {
         extractors = new ArrayList<>();
-        Function<Cell, String> stringExtractor = cell -> {
-            Object value = getCellValue(cell);
+        Function<Object, Object> stringExtractor = cell -> {
+            Object value = cellReader.readCell(cell);
             if (value == null) {
                 return null;
             }
             return String.valueOf(value);
         };
         extractors.add(new IntervalCellExtractor(0, 8, stringExtractor));
-        Function<Cell, Double> doubleExtractor = cell -> {
-            Object value = getCellValue(cell);
+        Function<Object, Object> doubleExtractor = cell -> {
+            Object value = cellReader.readCell(cell);
             if (value == null) {
                 return null;
             }
@@ -62,15 +41,17 @@ public class StandardXlsxParser {
                 return (Double) value;
             }
             if (value instanceof String) {
+                if(((String) value).isEmpty())
+                    return null;
                 return Double.valueOf((String) value);
             }
-            throw new IllegalStateException("You cannot convert " + cell.getCellType().name() + " to double!");
+            throw new IllegalStateException("You cannot convert " + value + " to double!");
         };
         extractors.add(new IntervalCellExtractor(8, 11, doubleExtractor));
         extractors.add(new IntervalCellExtractor(11, 12, stringExtractor));
         extractors.add(new IntervalCellExtractor(12, 13, doubleExtractor));
-        Function<Cell, Date> dateExtractor = cell -> {
-            Object value = getCellValue(cell);
+        Function<Object, Object> dateExtractor = cell -> {
+            Object value = cellReader.readCell(cell);
             if (value == null) {
                 return null;
             }
@@ -81,7 +62,13 @@ public class StandardXlsxParser {
                 return (Date) value;
             }
 
-            throw new IllegalStateException("You cannot convert " + cell.getCellType().name() + " to date!");
+            if (value instanceof String) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate localDate = LocalDate.parse((String) value, formatter);
+                return Date.valueOf(localDate);
+            }
+
+            throw new IllegalStateException("You cannot convert " + value + " to date!");
         };
         extractors.add(new IntervalCellExtractor(13, 15, dateExtractor));
         extractors.add(new IntervalCellExtractor(15, 16, doubleExtractor));
@@ -90,34 +77,36 @@ public class StandardXlsxParser {
         extractors.add(new IntervalCellExtractor(18, 22, stringExtractor));
     }
 
-    public List<List<Object>> extractXlsxRows(InputStream is) throws IOException {
+    public List<List<Object>> extractRows(InputStream is) throws IOException {
         List<List<Object>> result = new ArrayList<>();
-        XSSFWorkbook workbook = new XSSFWorkbook(is);
-        XSSFSheet firstSheet = workbook.getSheetAt(0);
-        Iterator<Row> rowIterator = firstSheet.rowIterator();
+        TableReader tableReader = TableReaderFactory.create(is, tableFileType());
+        //skip header
+        tableReader.next();
 
-        //skip header row
-        rowIterator.next();
-
-        while (rowIterator.hasNext()) {
-            Row row = rowIterator.next();
+        while (tableReader.hasNext()) {
+            RowReader row = tableReader.next();
             List<Object> rowList = new ArrayList<>();
             for (int cellNumber = 0; cellNumber <= 21; ++cellNumber) {
-                Cell cell = row.getCell(cellNumber, MissingCellPolicy.RETURN_NULL_AND_BLANK);
-                int currentIndex = cellNumber;
+                Object cell = row.getCell(cellNumber);
+                int finalCellNumber = cellNumber;
                 Optional<IntervalCellExtractor> intervalCellExtractor = extractors.stream()
-                    .filter(extractor -> extractor.matchInterval(currentIndex)).findAny();
+                    .filter(extractor -> extractor.matchInterval(finalCellNumber)).findAny();
                 if (intervalCellExtractor.isPresent()) {
                     rowList.add(intervalCellExtractor.get().extract(cell));
                 } else {
                     throw new IllegalStateException("Bad configuration for interval cell extractors!");
                 }
             }
-            if (rowList.stream().filter(col -> col != null).findAny().isEmpty())
+            if (rowList.stream().filter(Objects::nonNull).findAny().isEmpty()) {
                 break;
+            }
             result.add(rowList);
         }
         return result;
 
     }
+
+    protected abstract TableFileType tableFileType();
+
+    public abstract boolean match(TableFileType tableFileType);
 }

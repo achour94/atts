@@ -20,8 +20,14 @@
         <apache.poi>5.2.4</apache.poi>
         <itextpdf.cre>8.0.2</itextpdf.cre>
 	    <apache.commons.text>1.11.0</apache.commons.text>
+        <apache.commons.csv>1.10.0</apache.commons.csv>
     </properties>
 	<dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${apache.commons.csv}</version>
+        </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext7-core</artifactId>
