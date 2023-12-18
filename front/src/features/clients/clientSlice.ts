@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../../services/axios'; // or your preferred HTTP client
+import axios from '../../services/axios'; 
 import { Client } from '../../lib/constants/ClientConstants';
 import { FetchStatus, Filter, Pagination, SortDirection } from '../../lib/constants/utilsConstants';
 import { formatClientsData } from '../../utils/utils';
@@ -28,7 +28,7 @@ const initialState: ClientsState = {
   status: FetchStatus.IDLE,
   error: null,
   filters: [],
-  pagination: { page: 0, pageSize: 20 },
+  pagination: { page: 0, pageSize: 25, totalElements: 0 },
   sort: null,
 };
 
@@ -49,7 +49,7 @@ export const fetchClients = createAsyncThunk(
        url += `&sortBy=${sort.sortBy}&sortDirection=${sort.sortDirection}`;
      }
      const response = await axios.get(url);
-     return formatClientsData(response.data.content);
+     return [formatClientsData(response.data.content), response.data.totalElements];
     } catch (error: any) {
       return error?.response?.data;
     }
@@ -79,7 +79,8 @@ export const clientSlice = createSlice({
       })
       .addCase(fetchClients.fulfilled, (state, action) => {
         state.status = FetchStatus.SUCCESS;
-        state.clients = action.payload;
+        state.clients = action.payload[0];
+        state.pagination.totalElements = action.payload[1];
       })
       .addCase(fetchClients.rejected, (state, action) => {
         state.status = FetchStatus.FAILED;

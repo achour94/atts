@@ -60,6 +60,7 @@ export enum SortDirection {
 export interface Pagination {
     page: number;
     pageSize: number;
+    totalElements: number;
 }
 
 export type CriteriaType = Record<FilterType, string | number | boolean>;

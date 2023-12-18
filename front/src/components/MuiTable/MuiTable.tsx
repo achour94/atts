@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import TableHeaderCell from "./TableHeaderCell";
-import { FetchStatus, SortDirection, TableColumn } from "../../lib/constants/utilsConstants";
+import { FetchStatus, Pagination, SortDirection, TableColumn } from "../../lib/constants/utilsConstants";
 import TablePagination from "@mui/material/TablePagination";
 
 interface MuiTableProps {
@@ -20,9 +20,12 @@ interface MuiTableProps {
   status: FetchStatus;
   sort?: { sortBy: string; sortDirection: SortDirection } | null;
   onSort?: (sortBy: string, sortDirection: SortDirection) => void;
+  pagination: Pagination;
+  onPageChange: (page: number) => void;
+  onRowsPerPageChange: (rowsPerPage: number) => void;
 }
 
-function MuiTable({ columns, rows, status, sort, onSort }: MuiTableProps) {
+function MuiTable({ columns, rows, status, sort, onSort, pagination, onPageChange, onRowsPerPageChange }: MuiTableProps) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
@@ -41,7 +44,7 @@ function MuiTable({ columns, rows, status, sort, onSort }: MuiTableProps) {
   };
 
   const isLoading = status === FetchStatus.LOADING;
-  const isSuccess = status === FetchStatus.SUCCESS && rows.length > 0;
+  const isSuccess = status === FetchStatus.SUCCESS && rows?.length > 0;
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -120,11 +123,11 @@ function MuiTable({ columns, rows, status, sort, onSort }: MuiTableProps) {
       </TableContainer>
       <TablePagination
         component="div"
-        count={100}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        count={pagination?.totalElements || 0}
+        page={pagination?.page || 0}
+        onPageChange={(event, page) => onPageChange(page)}
+        rowsPerPage={pagination?.pageSize || 0}
+        onRowsPerPageChange={(event) => onRowsPerPageChange(parseInt(event.target.value, 10))}
         labelRowsPerPage="Lignes par page"
       />
     </Paper>
