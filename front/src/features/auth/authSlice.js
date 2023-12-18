@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import UserService from '../../services/UserService';
 
 const initialState = {
     user: null,
@@ -14,6 +15,7 @@ const authSlice = createSlice({
     reducers: {
         setAuth(state, action) {
             state.isAuthenticated = action.payload.isAuthenticated;
+            state.user = action.payload.user;
             state.token = action.payload.token;
         },
         loginStart(state) {
@@ -22,7 +24,7 @@ const authSlice = createSlice({
         },
         loginSuccess(state, action) {
             state.isLoading = false;
-            state.isAuthenticated = true;
+            state.isAuthenticated = action.payload.isAuthenticated;
             state.user = action.payload.user;
             state.token = action.payload.token;
         },
@@ -40,6 +42,22 @@ const authSlice = createSlice({
 
 
 export const { setAuth, loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
+
+export const initializeAuth = (dispatch) => {
+    console.log("initializeAuth");
+    if (!UserService.isInitialized()) {
+        dispatch(loginStart());
+        UserService.initKeycloak(() => {
+            dispatch(loginSuccess({
+                isAuthenticated: UserService.isLoggedIn(),
+                user: UserService.getUsername(),
+                token: UserService.getToken(),
+            }));
+        }, (error) => {
+            dispatch(loginFailure(error));
+        });
+    }
+  };
 
 export default authSlice.reducer;
 

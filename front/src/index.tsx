@@ -21,15 +21,16 @@ const renderApp = () => root.render(
         <Provider store={store}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <BrowserRouter>
-                    <Routes>
+                    {/* <Routes>
                         <Route path="/*" element={
-                            < App />
-                        } />
-                    </Routes>
+                        } /> 
+                    </Routes> */}
+                        < App />
                 </BrowserRouter>
             </LocalizationProvider>
         </Provider>
     // </React.StrictMode>
 );
 
-UserService.initKeycloak(renderApp);
+renderApp();
+// UserService.initKeycloak(renderApp);

@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const BASE_URL = `http://${HOST}:${PORT}`;
 const INVOICES_API = `${BASE_URL}/api/invoice`;
-const PUT_INVOICES_API = `${BASE_URL}/invoice/upload`;
+const PUT_INVOICES_API = `${BASE_URL}/api/invoice/upload`;
 const CLIENTS_API = `${BASE_URL}/api/client`;
 
 interface apiOptions {
@@ -126,7 +126,7 @@ export function getClientsList(options: apiOptions | undefined): Promise<Clients
 
 export const handleUploadInvoices = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log("uploaded file");
-    
+
     if (!event.target.files?.length) {
         console.warn("no file uploaded");
         return;

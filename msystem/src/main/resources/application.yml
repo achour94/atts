@@ -1,10 +1,10 @@
 server:
-  port: 8081
+  port: 8082
 keycloak:
   realm: atts
   url: http://localhost:8080
   client-id: atts-application
-  client-secret: FFlMb8jBCCLvGmOnTraBu1jPaA72c3WG
+  client-secret: OkidE95rHmfnIvRI6ZWrAlO817BozgRl
 frontend:
   host: http://localhost:3000
 
@@ -36,5 +36,3 @@ spring:
     url: jdbc:mysql://localhost:3306/atts
     username: atts
     password: atts
-
-
