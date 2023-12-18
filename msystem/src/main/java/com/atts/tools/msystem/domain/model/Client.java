@@ -1,6 +1,8 @@
 package com.atts.tools.msystem.domain.model;
 
+import com.atts.tools.msystem.common.config.jackson.ClientReferenceSerialization;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +16,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Client implements ModelEntity {
+
     Integer id;
+    @JsonSerialize(using = ClientReferenceSerialization.class)
     ClientReference clientReference;
     List<Subscription> subscriptions;
     Double defaultSubscription;
