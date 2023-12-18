@@ -4,12 +4,15 @@ import com.atts.tools.msystem.application.parsers.TableFileType;
 import com.atts.tools.msystem.application.parsers.consumptions.ConsumptionsParser;
 import com.atts.tools.msystem.application.rest.request.invoice.GeneratePDFRequest;
 import com.atts.tools.msystem.application.rest.request.invoice.SendInvoiceByMailRequest;
+import com.atts.tools.msystem.common.exceptions.ErrorMessageUtil;
 import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
+import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageInvoicesUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceCriteriaPort;
+import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria.CriteriaMapper;
 
 import jakarta.activation.UnsupportedDataTypeException;
@@ -41,6 +44,7 @@ public class InvoicesController {
 
     private final ManageInvoicesUseCase manageInvoicesUseCase;
     private final List<ConsumptionsParser> consumptionsParsers;
+    private final InvoiceStoragePort invoiceStoragePort;
     private final InvoiceCriteriaPort invoiceCriteriaPort;
     private final CriteriaMapper criteriaMapper;
 
@@ -53,6 +57,13 @@ public class InvoicesController {
             consumptionsParsers.stream().filter(parser -> parser.match(tableFileType)).findAny().orElseThrow(
                 UnsupportedDataTypeException::new).extractRows(file.getInputStream()),
             file.getOriginalFilename());
+    }
+
+    @GetMapping("/{invoiceNumber}")
+    public ResponseEntity<Invoice> getInvoice(@PathVariable Integer invoiceNumber) throws NotFoundElementException {
+        return ResponseEntity.ok(
+            invoiceStoragePort.findById(invoiceNumber).orElseThrow(() -> new NotFoundElementException(
+                ErrorMessageUtil.invoiceWithIdNotFound(invoiceNumber))));
     }
 
     @GetMapping
