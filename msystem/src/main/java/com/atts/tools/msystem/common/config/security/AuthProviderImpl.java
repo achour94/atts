@@ -1,6 +1,6 @@
 package com.atts.tools.msystem.common.config.security;
 
-import com.atts.tools.msystem.common.exceptions.RegistrationException;
+import com.atts.tools.msystem.common.exceptions.types.RegistrationException;
 import com.atts.tools.msystem.domain.model.Role;
 import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.ports.out.auth.AuthProvider;
@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.*;
-import org.keycloak.admin.client.token.TokenManager;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;

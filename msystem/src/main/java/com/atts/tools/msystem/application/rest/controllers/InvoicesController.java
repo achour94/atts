@@ -4,6 +4,7 @@ import com.atts.tools.msystem.application.parsers.TableFileType;
 import com.atts.tools.msystem.application.parsers.consumptions.ConsumptionsParser;
 import com.atts.tools.msystem.application.rest.request.invoice.GeneratePDFRequest;
 import com.atts.tools.msystem.application.rest.request.invoice.SendInvoiceByMailRequest;
+import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
@@ -13,6 +14,7 @@ import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.cri
 
 import jakarta.activation.UnsupportedDataTypeException;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -45,8 +47,8 @@ public class InvoicesController {
 
     @PostMapping("/upload")
     @PreAuthorize("hasRole('admin')")
-    public void uploadFile(MultipartFile file) throws IOException {
-        TableFileType tableFileType = TableFileType.convert(file.getOriginalFilename());
+    public void uploadFile(MultipartFile file) throws IOException, IlegalRequestException {
+        TableFileType tableFileType = TableFileType.convert(Objects.requireNonNull(file.getOriginalFilename()));
         manageInvoicesUseCase.generateInvoices(
             consumptionsParsers.stream().filter(parser -> parser.match(tableFileType)).findAny().orElseThrow(
                 UnsupportedDataTypeException::new).extractRows(file.getInputStream()),
@@ -63,32 +65,26 @@ public class InvoicesController {
 
     @PutMapping
     @PreAuthorize("hasRole('admin')")
-    public void update(@RequestBody Invoice invoice) {
+    public void update(@RequestBody Invoice invoice) throws IlegalRequestException {
         manageInvoicesUseCase.update(invoice);
 
     }
 
     @GetMapping("/pdf/{invoiceNumber}")
     @PreAuthorize("@securityService.hasPermission('INVOICE', #invoiceNumber)")
-    public ResponseEntity<Resource> getPDF(@PathVariable Integer invoiceNumber) {
-        //TODO check authorization
+    public ResponseEntity<Resource> getPDF(@PathVariable Integer invoiceNumber) throws IlegalRequestException {
         InvoiceFile invoiceFile = manageInvoicesUseCase.getFile(invoiceNumber);
-        ByteArrayResource resource = new ByteArrayResource(invoiceFile.getContent());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION,
-            String.format("attachment; filename=%s", invoiceFile.getFilename()));
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
-        return ResponseEntity.ok()
-            .headers(headers)
-            .contentLength(invoiceFile.getContent().length)
-            .contentType(MediaType.APPLICATION_PDF)
-            .body(resource);
+        return getResourceResponseEntity(invoiceFile);
     }
 
     @PutMapping("/pdf")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Resource> generatePDF(@RequestBody GeneratePDFRequest request) {
         InvoiceFile invoiceFile = manageInvoicesUseCase.generateFile(request.id());
+        return getResourceResponseEntity(invoiceFile);
+    }
+
+    private ResponseEntity<Resource> getResourceResponseEntity(InvoiceFile invoiceFile) {
         ByteArrayResource resource = new ByteArrayResource(invoiceFile.getContent());
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION,
@@ -103,7 +99,7 @@ public class InvoicesController {
 
     @PutMapping("/email")
     @PreAuthorize("hasRole('admin')")
-    public void sendInvoice(@RequestBody SendInvoiceByMailRequest request) {
+    public void sendInvoice(@RequestBody SendInvoiceByMailRequest request) throws IlegalRequestException {
         manageInvoicesUseCase.sendInvoices(request.getInvoices());
     }
 }

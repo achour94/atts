@@ -1,6 +1,6 @@
 package com.atts.tools.msystem.domain.services.processors;
 
-import com.atts.tools.msystem.common.exceptions.ProcessException;
+import com.atts.tools.msystem.common.exceptions.types.ProcessException;
 import com.atts.tools.msystem.domain.model.Consumption;
 import com.atts.tools.msystem.domain.model.ConsumptionType;
 import com.atts.tools.msystem.domain.model.contants.InvoiceConstants;

@@ -1,6 +1,10 @@
 package com.atts.tools.msystem.domain.services;
 
 import com.atts.tools.msystem.common.annotations.UseCase;
+import com.atts.tools.msystem.common.exceptions.ErrorMessageUtil;
+import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
+import com.atts.tools.msystem.common.exceptions.types.IlegalRequestRuntimeException;
+import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageClientUseCase;
@@ -20,28 +24,33 @@ public class ClientService implements ManageClientUseCase {
     private final ClientStoragePort clientStoragePort;
 
     @Override
-    public Client create(Client client) {
+    public Client create(Client client) throws IlegalRequestException {
         if (client.getId() != null) {
-            throw new IllegalStateException("You cannot set an id for a new client!");
+            throw new IlegalRequestException("You cannot set an id for a new client!");
         }
         if (client.getSubscriptions().stream().anyMatch(subscription -> subscription.getId() != null)) {
-            throw new IllegalStateException("You cannot add an existing subscription to a new client!");
+            throw new IlegalRequestException("You cannot add an existing subscription to a new client!");
         }
         return clientStoragePort.save(client);
     }
 
     @Override
-    public Client update(Client updatedClient) {
+    public Client update(Client updatedClient) throws IlegalRequestException {
         Client currentClient = clientStoragePort.findById(updatedClient.getId())
             .orElseThrow(NoSuchElementException::new);
         List<Subscription> currentSubscriptionList = currentClient.getSubscriptions();
         if (updatedClient.getSubscriptions() != null) {
-            updatedClient.getSubscriptions().stream().filter(
-                    subscription -> subscription.getId() != null && (currentSubscriptionList == null || currentSubscriptionList.stream()
-                        .noneMatch(sub -> sub.getId().equals(subscription.getId()))))
-                .findAny().ifPresent(x -> {
-                    throw new IllegalStateException("You cannot connect a Subscription to another Client");
-                });
+            try {
+                updatedClient.getSubscriptions().stream().filter(
+                        subscription -> subscription.getId() != null && (currentSubscriptionList == null
+                            || currentSubscriptionList.stream()
+                            .noneMatch(sub -> sub.getId().equals(subscription.getId()))))
+                    .findAny().ifPresent(x -> {
+                        throw new IlegalRequestRuntimeException("You cannot connect a Subscription to another Client");
+                    });
+            } catch (IlegalRequestRuntimeException exception) {
+                throw new IlegalRequestException(exception.getMessage());
+            }
         }
         //delete no used subscription after update
         if (currentSubscriptionList != null) {
@@ -53,9 +62,9 @@ public class ClientService implements ManageClientUseCase {
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(Integer id) throws NotFoundElementException {
         Client client = clientStoragePort.findById(id)
-            .orElseThrow(NoSuchElementException::new);
+            .orElseThrow(() -> new NotFoundElementException(ErrorMessageUtil.clientWithIdNotFound(id)));
         clientStoragePort.delete(client);
     }
 }

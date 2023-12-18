@@ -2,7 +2,8 @@ package com.atts.tools.msystem.domain.services;
 
 import com.atts.tools.msystem.common.annotations.UseCase;
 import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
-import com.atts.tools.msystem.common.exceptions.RegistrationException;
+import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
+import com.atts.tools.msystem.common.exceptions.types.RegistrationException;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.EmailTemplate;
 import com.atts.tools.msystem.domain.model.Role;
@@ -43,7 +44,7 @@ public class UserService implements UserManagementUseCase {
             throw new RegistrationException("You cannot have client email different of user email!");
         }
         if (!client.getUsers().isEmpty()) {
-            throw new RuntimeException("You can add only one user per client!");
+            throw new RegistrationException("You can add only one user per client!");
         }
         client.setEmail(email);
         clientStoragePort.save(client);
@@ -66,6 +67,7 @@ public class UserService implements UserManagementUseCase {
 
     @Override
     public void deleteUser(String username) {
+        //TODO to see if we can use the keycloak to do this
         authProvider.deleteUser(username);
         try {
             userStoragePort.deleteUserByUsername(username);
@@ -75,20 +77,20 @@ public class UserService implements UserManagementUseCase {
     }
 
     @Override
-    public EmailTemplate createEmailTemplate(EmailTemplate emailTemplate) {
+    public EmailTemplate createEmailTemplate(EmailTemplate emailTemplate) throws IlegalRequestException {
         if (emailTemplate.getId() != null) {
-            throw new IllegalStateException("You cannot create an email template that has already an id");
+            throw new IlegalRequestException("You cannot create an email template that has already an id");
         }
         return emailTemplateStoragePort.save(emailTemplate);
     }
 
     @Override
-    public EmailTemplate updateEmailTemplate(EmailTemplate emailTemplate) {
-        if (emailTemplate.getId() != null) {
-            throw new IllegalStateException("You cannot update an email template without an id!");
+    public EmailTemplate updateEmailTemplate(EmailTemplate emailTemplate) throws IlegalRequestException {
+        if (emailTemplate.getId() == null) {
+            throw new IlegalRequestException("You cannot update an email template without an id!");
         }
         if (emailTemplateStoragePort.findById(emailTemplate.getId()).isEmpty()) {
-            throw new IllegalStateException("You cannot update an email template that doesn't exist!");
+            throw new IlegalRequestException("You cannot update an email template that doesn't exist!");
         }
         return emailTemplateStoragePort.save(emailTemplate);
     }

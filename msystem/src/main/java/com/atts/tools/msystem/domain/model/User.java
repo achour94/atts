@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder(toBuilder = true)
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements ModelEntity {
@@ -23,6 +23,7 @@ public class User implements ModelEntity {
     private String email;
     private String username;
     private String password;
+    @Builder.Default
     private List<EmailTemplate> emailTemplates = new ArrayList<>();
     @Override
     public boolean equals(Object o) {

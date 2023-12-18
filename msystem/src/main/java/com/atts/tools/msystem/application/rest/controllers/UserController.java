@@ -5,7 +5,8 @@ import com.atts.tools.msystem.application.rest.request.user.DeleteUserRequest;
 import com.atts.tools.msystem.application.rest.request.user.PasswordUpdateRequest;
 import com.atts.tools.msystem.application.rest.response.user.AddUserResponse;
 import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
-import com.atts.tools.msystem.common.exceptions.RegistrationException;
+import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
+import com.atts.tools.msystem.common.exceptions.types.RegistrationException;
 import com.atts.tools.msystem.common.runners.AdminsLoader;
 import com.atts.tools.msystem.domain.model.EmailTemplate;
 import com.atts.tools.msystem.domain.model.User;
@@ -62,7 +63,8 @@ public class UserController {
     }
 
     @PostMapping("/emailtemplate")
-    public ResponseEntity<EmailTemplate> addEmailTemplate(@RequestBody EmailTemplate emailTemplate) {
+    public ResponseEntity<EmailTemplate> addEmailTemplate(@RequestBody EmailTemplate emailTemplate)
+        throws IlegalRequestException {
         return ResponseEntity.ok(userManagementUseCase.createEmailTemplate(emailTemplate));
     }
 
@@ -74,7 +76,8 @@ public class UserController {
 
     @PutMapping("/emailtemplate")
     @PreAuthorize("@securityService.hasPermission('EMAIL_TEMPLATE', #emailTemplate)")
-    public ResponseEntity<EmailTemplate> updateEmailTemplate(@Valid @RequestBody EmailTemplate emailTemplate) {
+    public ResponseEntity<EmailTemplate> updateEmailTemplate(@Valid @RequestBody EmailTemplate emailTemplate)
+        throws IlegalRequestException {
         return ResponseEntity.ok(userManagementUseCase.updateEmailTemplate(emailTemplate));
     }
 

@@ -1,12 +1,14 @@
 package com.atts.tools.msystem.application.rest.controllers;
 
+import com.atts.tools.msystem.common.exceptions.ErrorMessageUtil;
+import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
+import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageClientUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientCriteriaPort;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria.CriteriaMapper;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -39,25 +41,26 @@ public class ClientController {
 
     @GetMapping("{clientId}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Client> getClient(@PathVariable Integer clientId) {
-        return ResponseEntity.ok(clientStoragePort.findById(clientId).orElseThrow(NoSuchElementException::new));
+    public ResponseEntity<Client> getClient(@PathVariable Integer clientId) throws NotFoundElementException {
+        return ResponseEntity.ok(clientStoragePort.findById(clientId).orElseThrow(() -> new NotFoundElementException(
+            ErrorMessageUtil.clientWithIdNotFound(clientId))));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Client> createClient(@RequestBody Client client) {
+    public ResponseEntity<Client> createClient(@RequestBody Client client) throws IlegalRequestException {
         return ResponseEntity.ok(manageClientUseCase.create(client));
     }
 
     @DeleteMapping("/{clientId}")
     @PreAuthorize("hasRole('admin')")
-    public void delete(@PathVariable Integer clientId) {
+    public void delete(@PathVariable Integer clientId) throws NotFoundElementException {
         manageClientUseCase.delete(clientId);
     }
 
     @PutMapping
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<Client> updateClient(@RequestBody Client client) {
+    public ResponseEntity<Client> updateClient(@RequestBody Client client) throws IlegalRequestException {
         return ResponseEntity.ok(manageClientUseCase.update(client));
     }
 }

@@ -1,4 +1,4 @@
-package com.atts.tools.msystem.common.exceptions;
+package com.atts.tools.msystem.common.exceptions.types;
 
 public class ProcessException extends Exception {
 

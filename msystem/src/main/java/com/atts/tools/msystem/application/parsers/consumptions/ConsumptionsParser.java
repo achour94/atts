@@ -6,6 +6,8 @@ import com.atts.tools.msystem.application.parsers.RowReader;
 import com.atts.tools.msystem.application.parsers.TableFileType;
 import com.atts.tools.msystem.application.parsers.TableReader;
 import com.atts.tools.msystem.application.parsers.TableReaderFactory;
+import com.atts.tools.msystem.common.exceptions.ErrorMessageUtil;
+import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -77,7 +79,7 @@ public abstract class ConsumptionsParser {
         extractors.add(new IntervalCellExtractor(18, 22, stringExtractor));
     }
 
-    public List<List<Object>> extractRows(InputStream is) throws IOException {
+    public List<List<Object>> extractRows(InputStream is) throws IOException, IlegalRequestException {
         List<List<Object>> result = new ArrayList<>();
         TableReader tableReader = TableReaderFactory.create(is, tableFileType());
         //skip header
@@ -94,7 +96,7 @@ public abstract class ConsumptionsParser {
                 if (intervalCellExtractor.isPresent()) {
                     rowList.add(intervalCellExtractor.get().extract(cell));
                 } else {
-                    throw new IllegalStateException("Bad configuration for interval cell extractors!");
+                    throw new IlegalRequestException(ErrorMessageUtil.fileTableColumnsConfigurationIsBad());
                 }
             }
             if (rowList.stream().filter(Objects::nonNull).findAny().isEmpty()) {

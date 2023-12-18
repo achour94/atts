@@ -2,6 +2,8 @@ package com.atts.tools.msystem.domain.services;
 
 import com.atts.tools.msystem.common.annotations.UseCase;
 import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
+import com.atts.tools.msystem.common.exceptions.ErrorMessageUtil;
+import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Consumption;
 import com.atts.tools.msystem.domain.model.EmailTemplate;
@@ -88,19 +90,23 @@ public class InvoiceService implements ManageInvoicesUseCase {
     }
 
     @Override
-    public void update(Invoice invoice) {
+    public void update(Invoice invoice) throws IlegalRequestException {
         Optional<Invoice> opInvoice = invoiceStoragePort.findById(invoice.getInvoiceNumber());
         if (invoice.getInvoiceNumber() == null || opInvoice.isEmpty()) {
-            throw new NoSuchElementException();
+            if (invoice.getInvoiceNumber() == null) {
+                throw new IlegalRequestException();
+            } else {
+                throw new IlegalRequestException(ErrorMessageUtil.invoiceWithIdNotFound(invoice.getInvoiceNumber()));
+            }
         }
         invoiceStoragePort.save(invoice);
     }
 
     @Override
-    public InvoiceFile getFile(Integer invoiceId) {
+    public InvoiceFile getFile(Integer invoiceId) throws IlegalRequestException {
         Optional<Invoice> opInvoice = invoiceStoragePort.findById(invoiceId);
         if (opInvoice.isEmpty()) {
-            throw new NoSuchElementException();
+            throw new IlegalRequestException(ErrorMessageUtil.invoiceWithIdNotFound(invoiceId));
         }
         Invoice invoice = opInvoice.get();
         if (invoice.getFileUri() == null) {
@@ -110,7 +116,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
     }
 
     @Override
-    public void sendInvoices(List<InvoiceAndTemplate> invoiceAndTemplates) {
+    public void sendInvoices(List<InvoiceAndTemplate> invoiceAndTemplates) throws IlegalRequestException {
         for (InvoiceAndTemplate invoiceAndTemplate : invoiceAndTemplates) {
             Invoice invoice = invoiceStoragePort.findById(invoiceAndTemplate.getInvoiceId()).orElse(null);
             if (invoice != null) {
@@ -121,7 +127,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
                 if (invoiceAndTemplate.getTemplateId() != null) {
                     User user = userStoragePort.findUserByUsername(authorizationUtil.getCurrentUserUsername());
                     if (user == null) {
-                        throw new IllegalStateException("You cannot use a template with an unknown user by app!");
+                        throw new IlegalRequestException("You cannot use a template with an unknown user by app!");
                     }
                     user.getEmailTemplates().stream()
                         .filter(emailTemplate -> invoiceAndTemplate.getTemplateId().equals(emailTemplate.getId()))
