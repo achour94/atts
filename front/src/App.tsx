@@ -20,6 +20,7 @@ import Clients from "./features/clients/Clients";
 import { ToastContainer } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
+import Logout from "./features/auth/Logout";
 
 function App() {
   const dispatch = useDispatch();
@@ -40,6 +41,7 @@ function App() {
               <Route index element={<Dashboard name="DASHBOARD" />} />
               <Route path="clients" element={<Clients />} />
               <Route path="client/:id" element={<ClientDetails />} />
+              <Route path="/logout" element={<Logout />} />
             </Route>
           </Route>
           {/* catch all */}
