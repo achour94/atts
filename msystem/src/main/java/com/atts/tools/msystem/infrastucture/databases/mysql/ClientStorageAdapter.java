@@ -36,6 +36,12 @@ public class ClientStorageAdapter implements ClientStoragePort {
     }
 
     @Override
+    public List<Client> findByIds(List<Integer> ids) {
+        return clientRepository.findAllById(ids).stream().map(transformer::transformToClient)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public void save(Collection<Client> clients) {
         clientRepository.saveAll(
             clients.stream().map(transformer::transformToClientEntity).collect(Collectors.toList()));
@@ -54,5 +60,11 @@ public class ClientStorageAdapter implements ClientStoragePort {
     @Override
     public void delete(Client client) {
         clientRepository.delete(transformer.transformToClientEntity(client));
+    }
+
+    @Override
+    public void delete(Collection<Client> clients) {
+        clientRepository.deleteAll(
+            clients.stream().map(transformer::transformToClientEntity).collect(Collectors.toList()));
     }
 }

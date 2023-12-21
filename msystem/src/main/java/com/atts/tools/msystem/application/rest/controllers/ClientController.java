@@ -9,6 +9,7 @@ import com.atts.tools.msystem.domain.ports.in.usecases.ManageClientUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientCriteriaPort;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria.CriteriaMapper;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -52,10 +53,10 @@ public class ClientController {
         return ResponseEntity.ok(manageClientUseCase.create(client));
     }
 
-    @DeleteMapping("/{clientId}")
+    @DeleteMapping("/{clientIds}")
     @PreAuthorize("hasRole('admin')")
-    public void delete(@PathVariable Integer clientId) throws NotFoundElementException {
-        manageClientUseCase.delete(clientId);
+    public void delete(@PathVariable List<Integer> clientIds) throws NotFoundElementException {
+        manageClientUseCase.delete(clientIds);
     }
 
     @PutMapping

@@ -1,5 +1,6 @@
 package com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,9 +15,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -74,7 +73,10 @@ public class InvoiceEntity implements DBEntity {
     @JoinColumn(name = "client_id", nullable = false)
     private ClientEntity client;
 
-    @OneToMany(mappedBy = "invoiceEntity")
+    //it's a bad idea to use cascade = ALL(but we will accept it for the moment),
+    // because in this way we make our project dependent on JPA (some database doesn't support JPA),
+    // so will be more difficult to change database
+    @OneToMany(mappedBy = "invoiceEntity", cascade = CascadeType.ALL)
     private Set<ConsumptionEntity> consumptions = new LinkedHashSet<>();
 
 }

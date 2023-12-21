@@ -9,10 +9,12 @@ import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageClientUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientStoragePort;
+import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
 import com.atts.tools.msystem.domain.ports.out.datastore.SubscriptionStoragePort;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
@@ -22,6 +24,7 @@ public class ClientService implements ManageClientUseCase {
 
     private final SubscriptionStoragePort subscriptionStoragePort;
     private final ClientStoragePort clientStoragePort;
+    private final InvoiceStoragePort invoiceStoragePort;
 
     @Override
     public Client create(Client client) throws IlegalRequestException {
@@ -62,9 +65,14 @@ public class ClientService implements ManageClientUseCase {
     }
 
     @Override
-    public void delete(Integer id) throws NotFoundElementException {
-        Client client = clientStoragePort.findById(id)
-            .orElseThrow(() -> new NotFoundElementException(ErrorMessageUtil.clientWithIdNotFound(id)));
-        clientStoragePort.delete(client);
+    public void delete(List<Integer> ids) throws NotFoundElementException {
+        List<Client> clients = clientStoragePort.findByIds(ids);
+        if (clients.size() != ids.size()) {
+            throw new NotFoundElementException();
+        }
+        subscriptionStoragePort.delete(clients.stream().flatMap(client -> client.getSubscriptions().stream()).collect(
+            Collectors.toList()));
+        invoiceStoragePort.delete(invoiceStoragePort.findByClients(clients));
+        clientStoragePort.delete(clients);
     }
 }

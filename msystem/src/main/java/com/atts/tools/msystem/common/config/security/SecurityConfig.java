@@ -81,7 +81,7 @@ public class SecurityConfig {
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
 //                .username("admin")
 //                .password("admin")
-                .clientSecret("OkidE95rHmfnIvRI6ZWrAlO817BozgRl")
+                .clientSecret("KwcliaYCQSAvlgN7klYWDo9O0htA0UQu")
 //                .clientId(keycloakClientId)
                 .build();
     }

@@ -4,6 +4,7 @@ import com.atts.tools.msystem.common.annotations.UseCase;
 import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
 import com.atts.tools.msystem.common.exceptions.ErrorMessageUtil;
 import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
+import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Consumption;
 import com.atts.tools.msystem.domain.model.EmailTemplate;
@@ -143,6 +144,12 @@ public class InvoiceService implements ManageInvoicesUseCase {
                 //TODO logg an error
             }
         }
+    }
+
+    @Override
+    public void deleteInvoices(List<Integer> invoiceIds) throws NotFoundElementException {
+        //TODO additional checks
+        invoiceStoragePort.delete(invoiceIds);
     }
 
 

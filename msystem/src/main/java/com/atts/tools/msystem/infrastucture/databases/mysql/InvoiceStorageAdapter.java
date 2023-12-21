@@ -1,5 +1,6 @@
 package com.atts.tools.msystem.infrastucture.databases.mysql;
 
+import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ConsumptionEntity;
@@ -8,6 +9,7 @@ import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.Con
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.InvoiceRepository;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils.Transformer;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +49,24 @@ public class InvoiceStorageAdapter implements InvoiceStoragePort {
     @Override
     public Optional<Invoice> findById(Integer id) {
         return invoiceRepository.findById(id).map(transformer::transformToInvoice);
+    }
+
+    @Override
+    public List<Invoice> findByClients(List<Client> clients) {
+        return clients.stream()
+            .flatMap(
+                client -> invoiceRepository.findAllByClientReference(client.getClientReference().reference()).stream()
+                    .map(transformer::transformToInvoice)).collect(
+                Collectors.toList());
+    }
+
+    @Override
+    public void delete(Collection<Invoice> invoices) {
+        invoiceRepository.deleteAllById(invoices.stream().map(Invoice::getInvoiceNumber).collect(Collectors.toList()));
+    }
+
+    @Override
+    public void delete(List<Integer> invoiceIds) {
+        invoiceRepository.deleteAllById(invoiceIds);
     }
 }
