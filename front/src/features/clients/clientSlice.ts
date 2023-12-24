@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../services/axios'; 
-import { Client } from '../../lib/constants/ClientConstants';
 import { FetchStatus, Filter, Pagination, SortDirection } from '../../lib/constants/utilsConstants';
 import { formatClientsData } from '../../utils/utils';
+import { IClient } from '../../lib/interfaces/IClient';
 
-const CLIENT_API_URL = '/api/client';
+export const CLIENT_API_URL = '/api/client';
 
 interface ClientsState {
-  clients: Client[];
+  clients: IClient[];
   status: FetchStatus;
   error: string | null | undefined;
   filters: Filter[];
@@ -90,7 +90,7 @@ export const clientSlice = createSlice({
 });
 
 // export selectors
-export const selectClients = (state: any): Client[] => state.client.clients;
+export const selectClients = (state: any): IClient[] => state.client.clients;
 export const selectStatus = (state: any): FetchStatus => state.client.status;
 export const selectError = (state: any): string | null | undefined => state.client.error;
 export const selectFilters = (state: any): Filter[] => state.client.filters;
