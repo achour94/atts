@@ -26,10 +26,10 @@ public class InvoiceStorageAdapter implements InvoiceStoragePort {
     @Override
     public void save(Collection<Invoice> invoices) {
         invoices.stream().map(transformer::transformToInvoiceEntity).forEach(invoiceEntity -> {
-                InvoiceEntity savedInvoice = invoiceRepository.save(invoiceEntity);
-                consumptionRepository.saveAll(invoiceEntity.getConsumptions().stream()
-                    .peek(consumptionEntity -> consumptionEntity.setInvoiceEntity(savedInvoice))
-                    .collect(Collectors.toList()));
+                invoiceEntity.setConsumptions(invoiceEntity.getConsumptions().stream()
+                    .peek(consumptionEntity -> consumptionEntity.setInvoiceEntity(invoiceEntity)).collect(
+                        Collectors.toSet()));
+                invoiceRepository.save(invoiceEntity);
             }
         );
     }
