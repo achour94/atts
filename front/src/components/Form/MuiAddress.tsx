@@ -52,7 +52,7 @@ function MuiAddress() {
             <Grid item xs={12} sm={12}>
                 <Grid container spacing={2}>
                     <Grid item xs={8}>
-                        {/* <Controller
+                        <Controller
                             name="city"
                             control={control}
                             render={({ field: { onChange, onBlur, value, ref }, fieldState: { error } }) => (
@@ -69,7 +69,7 @@ function MuiAddress() {
                                     helperText={error ? error.message : null}
                                 />
                             )}
-                        /> */}
+                        />
                     </Grid>
                     <Grid item xs={4}>
                         <Controller

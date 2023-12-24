@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Dashboard from "./components/pages/Dashboard";
 import History from "./components/pages/History";
 import Profile from "./components/pages/Profile";
-import ClientDetails from "./components/pages/ClientDetails";
+import ClientDetails from "./features/clients/ClientDetails";
 import Login from "./features/auth/Login";
 import ProtectedRoute from "./components/ProtectedRoutes";
 import { useDispatch } from "react-redux";

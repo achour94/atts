@@ -10,13 +10,14 @@ import axios from '../../services/axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchClients, selectClients, selectError, selectFilters, selectPagination, selectSort, selectStatus, setFilters, setPagination, setSort } from './clientSlice';
 import { ThunkDispatch } from 'redux-thunk';
-import { ClientConstants as CC, Client } from '../../lib/constants/ClientConstants';
+import { ClientConstants as CC } from '../../lib/constants/ClientConstants';
 import { toast } from 'react-toastify';
 import FilterButton from '../../components/Filters/FilterButton';
 import { ColumnType as CT } from '../../lib/constants/utilsConstants';
 import { getFiltersOptionsFromColumns } from '../../utils/utils';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import StyledLink from '../../components/utils/Typography/StyledLink';
+import { IClient } from '../../lib/interfaces/IClient';
 
 function Clients() {
     const columns: TableColumn[] = useMemo(() => [
@@ -42,7 +43,7 @@ function Clients() {
             columnType: CT.TEXT,
             filterOperators: [FilterType.EQUALS, FilterType.CONTAINS, FilterType.STARTS_WITH, FilterType.ENDS_WITH],
             isSortable: true,
-            renderCell: (row: Client) => {
+            renderCell: (row: IClient) => {
                 return <StyledLink to={`/client/${row.id}`}>{row.name}</StyledLink>
             }
         },
@@ -81,12 +82,13 @@ function Clients() {
     //   ];
 
     const dispatch: ThunkDispatch<any, void, any> = useDispatch();
-    const clients: Client[] = useSelector(selectClients);
+    const clients: IClient[] = useSelector(selectClients);
     const status: FetchStatus = useSelector(selectStatus);
     const error = useSelector(selectError);
     const filters = useSelector(selectFilters);
     const pagination = useSelector(selectPagination);
     const sort = useSelector(selectSort);
+    const navigate = useNavigate()
 
 
     const applyFiltersHandler = (filters: Filter[]) => {
@@ -126,6 +128,11 @@ function Clients() {
         }
     }, [error]);
 
+    const addClientClickHandler = () => {
+        //navigate to /client/add
+        navigate('/client/add')
+    }
+
   return (
     <Box sx={{
         width: "100%",
@@ -141,7 +148,7 @@ function Clients() {
                     <PageTitle title='Mes Clients' />
                 </Grid>
                 <Grid item>
-                    <MuiButton startIcon={<AddOutlinedIcon />} label="Ajouter un client" color="primary" />
+                    <MuiButton startIcon={<AddOutlinedIcon />} label="Ajouter un client" color="primary" onClick={() => addClientClickHandler()} />
                 </Grid>
             </Grid>
             <Grid container sx={{

@@ -23,7 +23,7 @@ function ClientInformations() {
                                 <MuiTextField name={CC.CLIENT_EMAIL} label='Email' placeholder='Email' />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                {/* <MuiTextField name="phoneNumber" label='Numéro de téléphone' placeholder='0033*********' /> */}
+                                <MuiTextField name="phone" label='Numéro de téléphone' placeholder='0033*********' />
                             </Grid>
                         </Grid>
                     </Grid>

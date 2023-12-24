@@ -1,23 +1,43 @@
-import { Client } from "../lib/constants/ClientConstants";
 import { ClientConstants as CC } from "../lib/constants/ClientConstants";
 import { IFilterOptions, TableColumn } from "../lib/constants/utilsConstants";
+import { IClient, ISubscription } from "../lib/interfaces/IClient";
 
-export const formatClientsData = (data: any): Client[] => {
+export const formatClientsData = (data: any): IClient[] => {
   return data.map((row: any) => {
-    return {
-      [CC.CLIENT_ACTIVEDIVERSE]: row[CC.CLIENT_ACTIVEDIVERSE],
-      [CC.CLIENT_ADDRESS]: row[CC.CLIENT_ADDRESS],
-      [CC.CLIENT_CITY]: row[CC.CLIENT_CITY],
-      [CC.CLIENT_CLIENTREFERENCE]: row[CC.CLIENT_CLIENTREFERENCE].reference,
-      [CC.CLIENT_DEFAULTSUBSCRIPTION]: row[CC.CLIENT_DEFAULTSUBSCRIPTION],
-      [CC.CLIENT_EMAIL]: row[CC.CLIENT_EMAIL],
-      [CC.CLIENT_ID]: row[CC.CLIENT_ID],
-      [CC.CLIENT_NAME]: row[CC.CLIENT_NAME],
-      [CC.CLIENT_PHONE]: row[CC.CLIENT_PHONE],
-      [CC.CLIENT_POSTALCODE]: row[CC.CLIENT_POSTALCODE],
-      [CC.CLIENT_SUBSCRIPTIONS]: row[CC.CLIENT_SUBSCRIPTIONS],
-      [CC.CLIENT_USERS]: row[CC.CLIENT_USERS],
-    };
+    return formatClientData(row);
+  });
+};
+
+export const formatClientData = (data: any): IClient => {
+  return {
+    [CC.CLIENT_ACTIVEDIVERSE]: data[CC.CLIENT_ACTIVEDIVERSE],
+    [CC.CLIENT_ADDRESS]: data[CC.CLIENT_ADDRESS],
+    [CC.CLIENT_CITY]: data[CC.CLIENT_CITY],
+    [CC.CLIENT_CLIENTREFERENCE]: data[CC.CLIENT_CLIENTREFERENCE],
+    [CC.CLIENT_DEFAULTSUBSCRIPTION]: data[CC.CLIENT_DEFAULTSUBSCRIPTION],
+    [CC.CLIENT_DIVERSESUBSCRIPTION]: data[CC.CLIENT_DIVERSESUBSCRIPTION],
+    [CC.CLIENT_EMAIL]: data[CC.CLIENT_EMAIL],
+    [CC.CLIENT_ID]: data[CC.CLIENT_ID],
+    [CC.CLIENT_NAME]: data[CC.CLIENT_NAME],
+    [CC.CLIENT_PHONE]: data[CC.CLIENT_PHONE],
+    [CC.CLIENT_POSTALCODE]: data[CC.CLIENT_POSTALCODE],
+    [CC.CLIENT_SUBSCRIPTIONS]: formatClientSubscriptionsData(data[CC.CLIENT_SUBSCRIPTIONS]),
+    // [CC.CLIENT_USERS]: data[CC.CLIENT_USERS],
+  };
+}
+
+export const formatClientSubscriptionData = (data: any): ISubscription => {
+  return {
+    [CC.CLIENT_SUBSCRIPTION_ID]: data?.id,
+    [CC.CLIENT_SUBSCRIPTION_NAME]: data?.name,
+    [CC.CLIENT_SUBSCRIPTION_DATA]: data[CC.CLIENT_SUBSCRIPTION_DATA],
+    [CC.CLIENT_SUBSCRIPTION_PRICE]: data[CC.CLIENT_SUBSCRIPTION_PRICE],
+  };
+}
+
+export const formatClientSubscriptionsData = (data: any): ISubscription[] => {
+  return data.map((row: any) => {
+    return formatClientSubscriptionData(row);
   });
 };
 
