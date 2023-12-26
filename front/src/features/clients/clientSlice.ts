@@ -34,7 +34,7 @@ const initialState: ClientsState = {
 
 // Async thunk for fetching clients
 export const fetchClients = createAsyncThunk(
-  'clients/fetchClients',
+  'client/fetchClients',
   async ({pageSize, pageNumber, criteria, sort}: FetchClientsParams) => {
     try {
       const mappedCriteria = criteria.map((c) => {
@@ -78,9 +78,11 @@ export const clientSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchClients.fulfilled, (state, action) => {
+        const clients = action?.payload && action.payload.length > 0 ? action.payload[0] : [];
+        const totalElements = action?.payload && action.payload.length > 0 ? action.payload[1] : 0;
         state.status = FetchStatus.SUCCESS;
-        state.clients = action.payload[0];
-        state.pagination.totalElements = action.payload[1];
+        state.clients = clients;
+        state.pagination.totalElements = totalElements;
       })
       .addCase(fetchClients.rejected, (state, action) => {
         state.status = FetchStatus.FAILED;
