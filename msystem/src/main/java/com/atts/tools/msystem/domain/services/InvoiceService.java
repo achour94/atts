@@ -22,6 +22,7 @@ import com.atts.tools.msystem.domain.model.contants.ClientConstants;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageInvoicesUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientStoragePort;
+import com.atts.tools.msystem.domain.ports.out.datastore.ConsumptionStoragePort;
 import com.atts.tools.msystem.domain.ports.out.datastore.LogStoragePort;
 import com.atts.tools.msystem.domain.ports.out.datastore.UserStoragePort;
 import com.atts.tools.msystem.domain.ports.out.file.FileGeneratorPort;
@@ -72,6 +73,8 @@ public class InvoiceService implements ManageInvoicesUseCase {
 
     private final LogStoragePort logStoragePort;
 
+    private final ConsumptionStoragePort consumptionStoragePort;
+
     @Override
     @Transactional
     public void generateInvoices(List<List<Object>> rows, String fileName) {
@@ -106,6 +109,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
     @Override
     public void update(Invoice invoice) throws IlegalRequestException {
         Optional<Invoice> opInvoice = invoiceStoragePort.findById(invoice.getId());
+
         if (invoice.getId() == null || opInvoice.isEmpty()) {
             if (invoice.getId() == null) {
                 throw new IlegalRequestException();
@@ -113,6 +117,11 @@ public class InvoiceService implements ManageInvoicesUseCase {
                 throw new IlegalRequestException(ErrorMessageUtil.invoiceWithIdNotFound(invoice.getId()));
             }
         }
+        List<Consumption> consumptionsToDelete = opInvoice.get().getConsumptions().stream().filter(
+                consumption -> invoice.getConsumptions().stream().noneMatch(con -> consumption.getId().equals(con.getId())))
+            .toList();
+
+        consumptionStoragePort.delete(consumptionsToDelete);
         invoiceStoragePort.save(invoice);
     }
 

@@ -152,7 +152,7 @@ public class Transformer {
 
     public Consumption transformToConsumption(ConsumptionEntity entity) {
         try {
-            return Consumption.builder().consumptionCount(entity.getCount()).consumptionDuration(entity.getDuration())
+            return Consumption.builder().id(entity.getId()).consumptionCount(entity.getCount()).consumptionDuration(entity.getDuration())
                 .startDate(Date.valueOf(entity.getStartPeriod())).endDate(Date.valueOf(entity.getEndPeriod()))
                 .type(ConsumptionType.convert(entity.getType()))
                 .htAmount(entity.getHtAmount())
