@@ -1,4 +1,4 @@
-package com.atts.tools.msystem.domain.model;
+package com.atts.tools.msystem.domain.model.enums;
 
 import java.util.Arrays;
 

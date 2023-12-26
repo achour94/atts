@@ -1,10 +1,11 @@
 package com.atts.tools.msystem.domain.services;
 
 import com.atts.tools.msystem.common.annotations.UseCase;
-import com.atts.tools.msystem.common.exceptions.ErrorMessageUtil;
 import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
 import com.atts.tools.msystem.common.exceptions.types.IlegalRequestRuntimeException;
 import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
+import com.atts.tools.msystem.domain.logging.InfoLog;
+import com.atts.tools.msystem.domain.logging.LogSource;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageClientUseCase;
@@ -65,6 +66,8 @@ public class ClientService implements ManageClientUseCase {
     }
 
     @Override
+    @InfoLog(source = LogSource.CLIENT, messageTemplate = "Clients with the following ids: %s were deleted", argsFunction = {
+        0})
     public void delete(List<Integer> ids) throws NotFoundElementException {
         List<Client> clients = clientStoragePort.findByIds(ids);
         if (clients.size() != ids.size()) {

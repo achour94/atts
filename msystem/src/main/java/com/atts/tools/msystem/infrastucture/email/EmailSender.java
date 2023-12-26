@@ -1,5 +1,8 @@
 package com.atts.tools.msystem.infrastucture.email;
 
+import com.atts.tools.msystem.domain.logging.ErrorLog;
+import com.atts.tools.msystem.domain.logging.InfoLog;
+import com.atts.tools.msystem.domain.logging.LogSource;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
 import com.atts.tools.msystem.domain.ports.out.smtp.EmailPort;
 import jakarta.mail.MessagingException;
@@ -30,7 +33,7 @@ public class EmailSender implements EmailPort {
     private final String HTML_PATTERN = "<(\"[^\"]*\"|'[^']*'|[^'\">])*>";
     private Pattern pattern = Pattern.compile(HTML_PATTERN);
 
-    public boolean hasHTMLTags(String text){
+    public boolean hasHTMLTags(String text) {
         Matcher matcher = pattern.matcher(text);
         return matcher.find();
     }
@@ -38,6 +41,8 @@ public class EmailSender implements EmailPort {
 
     @Override
     @Async
+    @ErrorLog(source = LogSource.INVOICE)
+    @InfoLog(source = LogSource.INVOICE, messageTemplate = "Invoice %s was sent to %s", argsFunction = {1, 2})
     public void sendInvoice(String bodyText, InvoiceFile invoiceFile, String to) {
         try {
             MimeMessage message = emailSender.createMimeMessage();
@@ -52,7 +57,8 @@ public class EmailSender implements EmailPort {
                 new ByteArrayDataSource(invoiceFile.getContent(), "application/octet-stream"));
             emailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(
+                "There was an issue related to sending invoice " + invoiceFile.getFilename() + " to " + to);
         }
 
     }

@@ -62,7 +62,7 @@ public class InvoiceStorageAdapter implements InvoiceStoragePort {
 
     @Override
     public void delete(Collection<Invoice> invoices) {
-        invoiceRepository.deleteAllById(invoices.stream().map(Invoice::getInvoiceNumber).collect(Collectors.toList()));
+        invoiceRepository.deleteAllById(invoices.stream().map(Invoice::getId).collect(Collectors.toList()));
     }
 
     @Override
