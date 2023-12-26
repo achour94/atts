@@ -29,6 +29,7 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.VerticalAlignment;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -48,7 +49,7 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
         Table table = new Table(twocolumnWidth).setBorder(Border.NO_BORDER);
         try {
             Image companyHeaderImage = new Image(
-                ImageDataFactory.create(resourceLoader.getResource("classpath:iplogLogo.png").getURL()));
+                ImageDataFactory.create(getResource("iplogLogo.png")));
             companyHeaderImage.scaleToFit(200, 200);
             table.addCell(new Cell().add(companyHeaderImage).setBorder(Border.NO_BORDER));
 
@@ -81,7 +82,7 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
         try {
             Table tableEmail = new Table(new float[]{15, 335});
             Image emailIcon = new Image(
-                ImageDataFactory.create(resourceLoader.getResource("classpath:emailIcon.png").getURL()));
+                ImageDataFactory.create(getResource("emailIcon.png")));
             emailIcon.scaleToFit(13,13);;
             tableEmail.addCell(new Cell().add(emailIcon).setBorder(Border.NO_BORDER).setVerticalAlignment(VerticalAlignment.MIDDLE));
             tableEmail.addCell(new Cell().add(new Paragraph(" contact@atts.fr")).setBorder(Border.NO_BORDER).setVerticalAlignment(VerticalAlignment.MIDDLE));
@@ -89,7 +90,7 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
 
             Table tableTelephone = new Table(new float[]{15, 335});
             Image telephoneIcon = new Image(
-                ImageDataFactory.create(resourceLoader.getResource("classpath:telephoneIcon.png").getURL()));
+                ImageDataFactory.create(getResource("telephoneIcon.png")));
             telephoneIcon.scaleToFit(13,13);;
             tableEmail.addCell(new Cell().add(telephoneIcon).setBorder(Border.NO_BORDER).setVerticalAlignment(VerticalAlignment.MIDDLE));
             tableEmail.addCell(new Cell().add(new Paragraph(" 03.59.25.09.10")).setVerticalAlignment(VerticalAlignment.MIDDLE).setBorder(Border.NO_BORDER));
@@ -111,6 +112,10 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
         table.addCell(rightCell);
         document.add(table);
 
+    }
+
+    private URL getResource(String resourceId) throws IOException {
+        return resourceLoader.getResource("classpath:pdfgen/" + resourceId).getURL();
     }
 
     @Override
