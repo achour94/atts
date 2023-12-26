@@ -5,19 +5,24 @@ import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
 import com.atts.tools.msystem.common.exceptions.ErrorMessageUtil;
 import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
 import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
+import com.atts.tools.msystem.domain.logging.InfoLog;
+import com.atts.tools.msystem.domain.logging.Log;
+import com.atts.tools.msystem.domain.logging.LogSource;
+import com.atts.tools.msystem.domain.logging.SecurityLevel;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Consumption;
 import com.atts.tools.msystem.domain.model.EmailTemplate;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.InvoiceAndTemplate;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
-import com.atts.tools.msystem.domain.model.InvoiceStatus;
+import com.atts.tools.msystem.domain.model.enums.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.model.contants.ClientConstants;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageInvoicesUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientStoragePort;
+import com.atts.tools.msystem.domain.ports.out.datastore.LogStoragePort;
 import com.atts.tools.msystem.domain.ports.out.datastore.UserStoragePort;
 import com.atts.tools.msystem.domain.ports.out.file.FileGeneratorPort;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
@@ -44,6 +49,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
+@Transactional
 public class InvoiceService implements ManageInvoicesUseCase {
 
     private final DefaultRowsProcessor defaultRowsProcessor;
@@ -64,13 +70,20 @@ public class InvoiceService implements ManageInvoicesUseCase {
 
     private final AuthorizationUtil authorizationUtil;
 
+    private final LogStoragePort logStoragePort;
+
     @Override
     @Transactional
     public void generateInvoices(List<List<Object>> rows, String fileName) {
         ClientsResults extractResults = defaultRowsProcessor.process(rows);
         List<Invoice> invoices = convertToInvoices(extractResults.getClientsSummary());
+
         invoiceStoragePort.save(invoices);
-        //TODO manage errors from extractResults
+        logStoragePort.save(extractResults.getErrors().stream().map(processError -> Log.builder()
+            .level(SecurityLevel.ERROR).source(LogSource.INVOICE_FILE_PROCESSING).message(
+                String.format("In file %s at line %s is the following error %s", fileName, processError.lineNr(),
+                    processError.message())).build()).collect(Collectors.toList()));
+
     }
 
     @Override
@@ -92,12 +105,12 @@ public class InvoiceService implements ManageInvoicesUseCase {
 
     @Override
     public void update(Invoice invoice) throws IlegalRequestException {
-        Optional<Invoice> opInvoice = invoiceStoragePort.findById(invoice.getInvoiceNumber());
-        if (invoice.getInvoiceNumber() == null || opInvoice.isEmpty()) {
-            if (invoice.getInvoiceNumber() == null) {
+        Optional<Invoice> opInvoice = invoiceStoragePort.findById(invoice.getId());
+        if (invoice.getId() == null || opInvoice.isEmpty()) {
+            if (invoice.getId() == null) {
                 throw new IlegalRequestException();
             } else {
-                throw new IlegalRequestException(ErrorMessageUtil.invoiceWithIdNotFound(invoice.getInvoiceNumber()));
+                throw new IlegalRequestException(ErrorMessageUtil.invoiceWithIdNotFound(invoice.getId()));
             }
         }
         invoiceStoragePort.save(invoice);
@@ -121,7 +134,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
         for (InvoiceAndTemplate invoiceAndTemplate : invoiceAndTemplates) {
             Invoice invoice = invoiceStoragePort.findById(invoiceAndTemplate.getInvoiceId()).orElse(null);
             if (invoice != null) {
-                InvoiceFile invoiceFile = getFile(invoice.getInvoiceNumber());
+                InvoiceFile invoiceFile = getFile(invoice.getId());
                 List<String> emails = invoice.getClient().getUsers().stream().map(User::getEmail)
                     .filter(Objects::nonNull).toList();
                 AtomicReference<String> emailContent = new AtomicReference<>(EmailTemplate.DEFAULT_TEMPLATE_INVOICE);
@@ -141,17 +154,18 @@ public class InvoiceService implements ManageInvoicesUseCase {
                     emailPort.sendInvoice(emailContent.get(), invoiceFile, email);
                 }
             } else {
-                //TODO logg an error
+                //DO NOTHING
             }
         }
     }
 
     @Override
+    @InfoLog(source = LogSource.INVOICE, messageTemplate = "Invoices with the following ids: %s were deleted", argsFunction = {
+        0})
     public void deleteInvoices(List<Integer> invoiceIds) throws NotFoundElementException {
         //TODO additional checks
         invoiceStoragePort.delete(invoiceIds);
     }
-
 
     public List<Invoice> convertToInvoices(Map<ClientReference, ClientSummary> clientsSummary) {
         List<Client> clients = new ArrayList<>();
@@ -198,7 +212,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
         Double ttcTotalAmount = totalHtAmount * (1 + invoice.getTva() / 100);
 
         invoice.setTtcAmount(keep2Digits(ttcTotalAmount));
-        invoice.setHttAmount(keep2Digits(totalHtAmount));
+        invoice.setHtAmount(keep2Digits(totalHtAmount));
         invoice.setStartPeriod(minStartDate);
         invoice.setEndPeriod(maxEndDate);
     }

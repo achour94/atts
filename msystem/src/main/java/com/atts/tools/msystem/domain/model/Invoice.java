@@ -1,5 +1,7 @@
 package com.atts.tools.msystem.domain.model;
 
+import com.atts.tools.msystem.domain.model.enums.InvoiceStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.sql.Date;
 import java.util.List;
 import lombok.Builder;
@@ -18,9 +20,10 @@ public class Invoice implements ModelEntity {
     Date startPeriod;
     InvoiceStatus status;
     Date endPeriod;
-    Double httAmount;
+    Double htAmount;
     Double tva;
     Double ttcAmount;
-    Integer invoiceNumber; //id
+    @JsonProperty("invoiceNumber")
+    Integer id; //id
     List<Consumption> consumptions;
 }

@@ -1,11 +1,14 @@
 package com.atts.tools.msystem.infrastucture.databases.mysql.jpa.utils;
 
+import com.atts.tools.msystem.domain.logging.Log;
+import com.atts.tools.msystem.domain.logging.LogSource;
+import com.atts.tools.msystem.domain.logging.SecurityLevel;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Consumption;
-import com.atts.tools.msystem.domain.model.ConsumptionType;
+import com.atts.tools.msystem.domain.model.enums.ConsumptionType;
 import com.atts.tools.msystem.domain.model.EmailTemplate;
 import com.atts.tools.msystem.domain.model.Invoice;
-import com.atts.tools.msystem.domain.model.InvoiceStatus;
+import com.atts.tools.msystem.domain.model.enums.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
@@ -13,6 +16,7 @@ import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ClientE
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ConsumptionEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.EmailTemplateEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.InvoiceEntity;
+import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.LogEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.SubscriptionEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.UserEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.ClientRepository;
@@ -129,9 +133,9 @@ public class Transformer {
         //TODO add all fields for invoice
         try {
             return Invoice.builder().startPeriod(Date.valueOf(entity.getStartPeriod()))
-                .endPeriod(Date.valueOf(entity.getEndPeriod())).invoiceNumber(entity.getId())
+                .endPeriod(Date.valueOf(entity.getEndPeriod())).id(entity.getId())
                 .client(transformToClient(entity.getClient()))
-                .httAmount(entity.getHtAmount())
+                .htAmount(entity.getHtAmount())
                 .ttcAmount(entity.getTtcAmount())
                 .proforma(entity.getProforma() == 1)
                 .tva(entity.getTva())
@@ -312,16 +316,36 @@ public class Transformer {
         invoiceEntity.getConsumptions().addAll(
             invoice.getConsumptions().stream().map(this::transformToConsumptionEntity).collect(
                 Collectors.toSet()));
-        invoiceEntity.setHtAmount(invoice.getHttAmount());
+        invoiceEntity.setHtAmount(invoice.getHtAmount());
         invoiceEntity.setTtcAmount(invoice.getTtcAmount());
         invoiceEntity.setProforma((byte) (invoice.getProforma() ? 1 : 0));
         invoiceEntity.setFileUri(invoice.getFileUri());
         invoiceEntity.setTva(invoice.getTva());
-        invoiceEntity.setId(invoice.getInvoiceNumber());
+        invoiceEntity.setId(invoice.getId());
         if (invoice.getStatus() != null) {
             invoiceEntity.setStatus(invoice.getStatus().name());
         }
         return invoiceEntity;
+    }
+
+    public LogEntity transformToLogEntity(Log log) {
+        LogEntity logEntity = new LogEntity();
+        logEntity.setId(log.getId());
+        logEntity.setMessage(log.getMessage());
+        logEntity.setLevel(log.getLevel().name());
+        logEntity.setSource(log.getSource().name());
+        return logEntity;
+    }
+
+    public Log transformToLog(LogEntity entity) {
+        try {
+            return Log.builder().id(entity.getId()).message(entity.getMessage())
+                .source(LogSource.convert(entity.getSource()))
+                .level(SecurityLevel.convert(entity.getLevel()))
+                .createdAt(entity.getCreatedAt()).build();
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

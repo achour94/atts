@@ -2,7 +2,7 @@ package com.atts.tools.msystem.common.config.security;
 
 import com.atts.tools.msystem.domain.model.EmailTemplate;
 import com.atts.tools.msystem.domain.model.Invoice;
-import com.atts.tools.msystem.domain.model.InvoiceStatus;
+import com.atts.tools.msystem.domain.model.enums.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
 import com.atts.tools.msystem.domain.ports.out.datastore.UserStoragePort;

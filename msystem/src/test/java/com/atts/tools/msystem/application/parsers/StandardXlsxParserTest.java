@@ -1,6 +1,7 @@
 package com.atts.tools.msystem.application.parsers;
 
 import com.atts.tools.msystem.application.parsers.consumptions.XlsxConsumptionsParser;
+import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Date;
@@ -19,7 +20,7 @@ public class StandardXlsxParserTest {
     private XlsxConsumptionsParser parser;
 
     @Test
-    public void extractRowsTest() throws IOException {
+    public void extractRowsTest() throws IOException, IlegalRequestException {
         FileInputStream fileInputStream = new FileInputStream("src/test/resources/goodInputExtractor.xlsx");
         List<List<Object>> results = parser.extractRows(fileInputStream);
 

@@ -2,7 +2,7 @@ package com.atts.tools.msystem.domain.services.processors;
 
 import com.atts.tools.msystem.common.exceptions.types.ProcessException;
 import com.atts.tools.msystem.domain.model.Consumption;
-import com.atts.tools.msystem.domain.model.ConsumptionType;
+import com.atts.tools.msystem.domain.model.enums.ConsumptionType;
 import com.atts.tools.msystem.domain.model.contants.InvoiceConstants;
 import com.atts.tools.msystem.domain.model.types.ClientReference;
 import java.sql.Date;

@@ -2,7 +2,7 @@ package com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.cr
 
 import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
 import com.atts.tools.msystem.domain.model.Invoice;
-import com.atts.tools.msystem.domain.model.InvoiceStatus;
+import com.atts.tools.msystem.domain.model.enums.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceCriteriaPort;

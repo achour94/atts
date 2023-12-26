@@ -234,10 +234,10 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
         table.addCell(new Cell().setBorder(Border.NO_BORDER));
 
         Cell totalCell = new Cell().setBorder(Border.NO_BORDER);
-        addTwoColumnsTotalTable(totalCell, "Total HT *", String.valueOf(invoice.getHttAmount()), false);
+        addTwoColumnsTotalTable(totalCell, "Total HT *", String.valueOf(invoice.getHtAmount()), false);
         addTwoColumnsTotalTable(totalCell,
             String.format("TVA %s", String.valueOf(InvoiceConstants.TVA)) + "%",
-            String.valueOf(invoice.getTtcAmount() - invoice.getHttAmount()), false);
+            String.valueOf(invoice.getTtcAmount() - invoice.getHtAmount()), false);
         addTwoColumnsTotalTable(totalCell, "Total TTC", String.valueOf(invoice.getTtcAmount()) + " €", true);
         table.addCell(totalCell);
 

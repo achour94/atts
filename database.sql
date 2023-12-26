@@ -167,6 +167,25 @@ AUTO_INCREMENT = 32
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
+-- -----------------------------------------------------
+-- Table `atts`.`log`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `atts`.`log` ;
+
+CREATE TABLE IF NOT EXISTS `atts`.`log` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `source` VARCHAR(45) NULL DEFAULT NULL,
+  `level` VARCHAR(45) NULL DEFAULT NULL,
+  `message` VARCHAR(150) NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)
+ENGINE = InnoDB
+AUTO_INCREMENT = 32
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

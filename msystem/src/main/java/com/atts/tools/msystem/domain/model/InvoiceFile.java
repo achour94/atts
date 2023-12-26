@@ -10,4 +10,9 @@ import lombok.Setter;
 public class InvoiceFile {
     byte[] content;
     String filename;
+
+    @Override
+    public String toString() {
+        return filename;
+    }
 }
