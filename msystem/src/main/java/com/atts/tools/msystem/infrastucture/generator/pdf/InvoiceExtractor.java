@@ -23,10 +23,22 @@ public class InvoiceExtractor {
         StringBuilder builder = new StringBuilder();
         builder.append("Point de facturation:");
         builder.append("\n");
-        builder.append(" " + invoice.getClient().getName());
+        builder.append(" ").append(invoice.getClient().getName());
         builder.append("\n");
-        builder.append(" " + invoice.getClient().getAddress() + ", " + (invoice.getClient().getPostalCode() != null
-            ? invoice.getClient().getPostalCode() : ""));
+        builder.append(" ").append(invoice.getClient().getAddress());
+        if (invoice.getClient().getPostalCode() != null || invoice.getClient().getCity() != null) {
+            builder.append("\n");
+        }
+        if (invoice.getClient().getPostalCode() != null) {
+            builder.append(invoice.getClient().getPostalCode()).append(", ");
+        }
+
+        if (invoice.getClient().getCity() != null) {
+            builder.append(invoice.getClient().getCity());
+        }
+
+        builder.append("\n\n");
+        builder.append(extractRefClient(invoice));
         return builder.toString();
     }
 

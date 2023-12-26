@@ -5,6 +5,7 @@ import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
 import com.atts.tools.msystem.common.exceptions.ErrorMessageUtil;
 import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
 import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
+import com.atts.tools.msystem.common.util.Math;
 import com.atts.tools.msystem.domain.logging.InfoLog;
 import com.atts.tools.msystem.domain.logging.Log;
 import com.atts.tools.msystem.domain.logging.LogSource;
@@ -220,14 +221,10 @@ public class InvoiceService implements ManageInvoicesUseCase {
 
         Double ttcTotalAmount = totalHtAmount * (1 + invoice.getTva() / 100);
 
-        invoice.setTtcAmount(keep2Digits(ttcTotalAmount));
-        invoice.setHtAmount(keep2Digits(totalHtAmount));
+        invoice.setTtcAmount(Math.keep2Digits(ttcTotalAmount));
+        invoice.setHtAmount(Math.keep2Digits(totalHtAmount));
         invoice.setStartPeriod(minStartDate);
         invoice.setEndPeriod(maxEndDate);
-    }
-
-    private Double keep2Digits(Double value) {
-        return Math.floor(value * 100) / 100;
     }
 
     private Date minDate(Date date1, Date date2) {

@@ -1,5 +1,6 @@
 package com.atts.tools.msystem.infrastucture.generator.pdf;
 
+import com.atts.tools.msystem.common.util.Math;
 import com.atts.tools.msystem.domain.model.Consumption;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.Subscription;
@@ -77,8 +78,27 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
         leftCell.add(new Paragraph("SARL ATTS"));
         leftCell.add(new Paragraph("2A rue du Général Leclerc"));
         leftCell.add(new Paragraph("59520 MARQUETTE-LEZ-LILLE"));
-        leftCell.add(new Paragraph(" @ : contact@atts.fr"));
-        leftCell.add(new Paragraph("téléphone : 03.59.25.09.10"));
+        try {
+            Table tableEmail = new Table(new float[]{15, 335});
+            Image emailIcon = new Image(
+                ImageDataFactory.create(resourceLoader.getResource("classpath:emailIcon.png").getURL()));
+            emailIcon.scaleToFit(13,13);;
+            tableEmail.addCell(new Cell().add(emailIcon).setBorder(Border.NO_BORDER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+            tableEmail.addCell(new Cell().add(new Paragraph(" contact@atts.fr")).setBorder(Border.NO_BORDER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+            leftCell.add(tableEmail);
+
+            Table tableTelephone = new Table(new float[]{15, 335});
+            Image telephoneIcon = new Image(
+                ImageDataFactory.create(resourceLoader.getResource("classpath:telephoneIcon.png").getURL()));
+            telephoneIcon.scaleToFit(13,13);;
+            tableEmail.addCell(new Cell().add(telephoneIcon).setBorder(Border.NO_BORDER).setVerticalAlignment(VerticalAlignment.MIDDLE));
+            tableEmail.addCell(new Cell().add(new Paragraph(" 03.59.25.09.10")).setVerticalAlignment(VerticalAlignment.MIDDLE).setBorder(Border.NO_BORDER));
+            leftCell.add(tableTelephone);
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         leftCell.setBorder(Border.NO_BORDER);
         table.addCell(leftCell);
 
@@ -87,8 +107,6 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
         rightCell.add(new Paragraph(invoiceExtractor.extractClientMainData(invoice)).setBackgroundColor(
             new DeviceRgb(250, 252, 255)).setTextAlignment(TextAlignment.LEFT).setBorder(solidBorder));
 
-        rightCell.add(new Paragraph("\n"));
-        rightCell.add(new Paragraph(invoiceExtractor.extractRefClient(invoice)).setTextAlignment(TextAlignment.LEFT));
         rightCell.setBorder(Border.NO_BORDER);
         table.addCell(rightCell);
         document.add(table);
@@ -174,7 +192,7 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
         float x = (pageSize.getLeft() + pageSize.getRight()) / 2;
         float y = (pageSize.getTop() + pageSize.getBottom()) / 1.6f;
         float xOffset = 100f / 2;
-        float rotationInRadians = (float) (Math.PI / 180 * 45f);
+        float rotationInRadians = (float) (java.lang.Math.PI / 180 * 45f);
         document.showTextAligned(paragraph, x - xOffset, y + verticalOffset,
             pageIndex, TextAlignment.CENTER, VerticalAlignment.TOP, rotationInRadians);
     }
@@ -237,7 +255,7 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
         addTwoColumnsTotalTable(totalCell, "Total HT *", String.valueOf(invoice.getHtAmount()), false);
         addTwoColumnsTotalTable(totalCell,
             String.format("TVA %s", String.valueOf(InvoiceConstants.TVA)) + "%",
-            String.valueOf(invoice.getTtcAmount() - invoice.getHtAmount()), false);
+            String.valueOf(Math.keep2Digits(invoice.getTtcAmount() - invoice.getHtAmount())), false);
         addTwoColumnsTotalTable(totalCell, "Total TTC", String.valueOf(invoice.getTtcAmount()) + " €", true);
         table.addCell(totalCell);
 
@@ -298,7 +316,7 @@ public class ATTSPDFGenerator implements FileGeneratorPort {
         Table table = new Table(new float[]{300, 100f, 200f});
         table.addCell(new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.LEFT).add(
             new Paragraph("Consommations Téléphoniques").setTextAlignment(
-                TextAlignment.LEFT)));
+                TextAlignment.LEFT)).setBold());
         table.addCell(new Cell().setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER).add(
             new Paragraph("Nbr. d'appels").setTextAlignment(
                 TextAlignment.CENTER)));

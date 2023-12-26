@@ -76,7 +76,7 @@ public class InvoiceEntity implements DBEntity {
     //it's a bad idea to use cascade = ALL(but we will accept it for the moment),
     // because in this way we make our project dependent on JPA (some database doesn't support JPA),
     // so will be more difficult to change database
-    @OneToMany(mappedBy = "invoiceEntity", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "invoiceEntity", cascade = CascadeType.REMOVE)
     private Set<ConsumptionEntity> consumptions = new LinkedHashSet<>();
 
 }
