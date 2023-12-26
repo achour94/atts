@@ -19,10 +19,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+
 
 @Getter
 @Setter
@@ -35,9 +33,8 @@ public class InvoiceEntity implements DBEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
+    private Instant createdAt = Instant.now();
 
     @UpdateTimestamp
     @Column(name = "updated_at")

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.sql.Date;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Builder
@@ -18,6 +19,7 @@ public class Consumption {
     Integer consumptionCount;
     Date startDate;
     Date endDate;
+    @Setter
     Double htAmount;
     @JsonSerialize(using = ConsumptionTypeSerializer.class)
     ConsumptionType type;

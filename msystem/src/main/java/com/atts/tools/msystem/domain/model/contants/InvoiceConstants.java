@@ -7,5 +7,6 @@ public class InvoiceConstants {
     }
 
     public static final Double TVA = 20.0;
+    public static final Boolean DEFAULT_PROFORMA = false;
 
 }

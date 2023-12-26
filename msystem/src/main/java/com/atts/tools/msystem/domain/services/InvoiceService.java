@@ -16,6 +16,8 @@ import com.atts.tools.msystem.domain.model.EmailTemplate;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.InvoiceAndTemplate;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
+import com.atts.tools.msystem.domain.model.contants.InvoiceConstants;
+import com.atts.tools.msystem.domain.model.enums.ConsumptionType;
 import com.atts.tools.msystem.domain.model.enums.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.Subscription;
 import com.atts.tools.msystem.domain.model.User;
@@ -37,7 +39,6 @@ import com.atts.tools.msystem.domain.services.processors.DefaultRowsProcessor;
 
 import jakarta.transaction.Transactional;
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -78,9 +79,9 @@ public class InvoiceService implements ManageInvoicesUseCase {
 
     @Override
     @Transactional
-    public void generateInvoices(List<List<Object>> rows, String fileName) {
+    public void generateInvoices(List<List<Object>> rows, String fileName, GenerationConfig config) {
         ClientsResults extractResults = defaultRowsProcessor.process(rows);
-        List<Invoice> invoices = convertToInvoices(extractResults.getClientsSummary());
+        List<Invoice> invoices = convertToInvoices(extractResults.getClientsSummary(), config);
 
         invoiceStoragePort.save(invoices);
         logStoragePort.save(extractResults.getErrors().stream().map(processError -> Log.builder()
@@ -177,11 +178,24 @@ public class InvoiceService implements ManageInvoicesUseCase {
         invoiceStoragePort.delete(invoiceIds);
     }
 
-    public List<Invoice> convertToInvoices(Map<ClientReference, ClientSummary> clientsSummary) {
+    public List<Invoice> convertToInvoices(Map<ClientReference, ClientSummary> clientsSummary,
+        GenerationConfig config) {
         List<Client> clients = new ArrayList<>();
         List<Invoice> results = clientsSummary.entrySet().stream().map(entry -> {
             ClientSummary summary = entry.getValue();
-            Date creationDate = Date.valueOf(LocalDate.now());
+            if (config.getReset() != null && config.getReset()) {
+                //set htAmount for resetable consumption to 0
+                for (Consumption consumption : summary.getConsumptions()) {
+                    if (ConsumptionType.isResetableConsumption(consumption.getType())) {
+                        consumption.setHtAmount(0.0);
+                    }
+                }
+            }
+            Date creationDate = null;
+            if (config.getCreationDate() != null) {
+                creationDate = Date.valueOf(config.getCreationDate());
+            }
+            Boolean proforma = config.getProforma() == null ? InvoiceConstants.DEFAULT_PROFORMA : config.getProforma();
             Optional<Client> opClient = clientStoragePort.findBy(entry.getKey());
             Client client;
             if (opClient.isPresent()) {
@@ -194,7 +208,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
                     .diverseSubscription(ClientConstants.DEFAULT_DIVERSE_AMOUNT).address(summary.getAddress()).build();
                 clients.add(client);
             }
-            Invoice invoice = Invoice.builder().status(InvoiceStatus.DRAFT).proforma(false).client(client)
+            Invoice invoice = Invoice.builder().status(InvoiceStatus.DRAFT).proforma(proforma).client(client)
                 .creationDate(creationDate)
                 .consumptions(summary.getConsumptions()).tva(summary.getTva()).consumptions(summary.getConsumptions())
                 .build();

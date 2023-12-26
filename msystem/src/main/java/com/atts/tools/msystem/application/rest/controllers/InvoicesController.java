@@ -13,6 +13,7 @@ import com.atts.tools.msystem.domain.model.pageable.RequestPage;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageInvoicesUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceCriteriaPort;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
+import com.atts.tools.msystem.domain.services.GenerationConfig;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria.CriteriaMapper;
 
 import jakarta.activation.UnsupportedDataTypeException;
@@ -52,12 +53,13 @@ public class InvoicesController {
 
     @PostMapping("/upload")
     @PreAuthorize("hasRole('admin')")
-    public void uploadFile(MultipartFile file) throws IOException, IlegalRequestException {
+    public void uploadFile(MultipartFile file, GenerationConfig generationConfig)
+        throws IOException, IlegalRequestException {
         TableFileType tableFileType = TableFileType.convert(Objects.requireNonNull(file.getOriginalFilename()));
         manageInvoicesUseCase.generateInvoices(
             consumptionsParsers.stream().filter(parser -> parser.match(tableFileType)).findAny().orElseThrow(
                 UnsupportedDataTypeException::new).extractRows(file.getInputStream()),
-            file.getOriginalFilename());
+            file.getOriginalFilename(), generationConfig);
     }
 
     @GetMapping("/{invoiceNumber}")

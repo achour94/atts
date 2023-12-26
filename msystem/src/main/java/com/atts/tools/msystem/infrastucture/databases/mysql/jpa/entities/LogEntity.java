@@ -36,7 +36,7 @@ public class LogEntity implements DBEntity {
     @Column(name = "message", length = 150)
     private String message;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     @CreationTimestamp
     private Instant createdAt;
 
