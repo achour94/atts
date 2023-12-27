@@ -71,6 +71,8 @@ public class Transformer {
             return "id";
         } else if (column.equals("creationDate")) {
             return "createdAt";
+        } else if (column.equals("clientReference")) {
+            return "reference";
         }
         return column;
     }
