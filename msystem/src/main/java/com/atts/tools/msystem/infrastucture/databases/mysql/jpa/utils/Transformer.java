@@ -21,6 +21,7 @@ import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.Subscri
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.UserEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.ClientRepository;
 import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.stream.Collectors;
@@ -70,6 +71,8 @@ public class Transformer {
             return "id";
         } else if (column.equals("creationDate")) {
             return "createdAt";
+        } else if (column.equals("clientReference")) {
+            return "reference";
         }
         return column;
     }
@@ -152,7 +155,8 @@ public class Transformer {
 
     public Consumption transformToConsumption(ConsumptionEntity entity) {
         try {
-            return Consumption.builder().id(entity.getId()).consumptionCount(entity.getCount()).consumptionDuration(entity.getDuration())
+            return Consumption.builder().id(entity.getId()).consumptionCount(entity.getCount())
+                .consumptionDuration(entity.getDuration())
                 .startDate(Date.valueOf(entity.getStartPeriod())).endDate(Date.valueOf(entity.getEndPeriod()))
                 .type(ConsumptionType.convert(entity.getType()))
                 .htAmount(entity.getHtAmount())
@@ -322,6 +326,9 @@ public class Transformer {
         invoiceEntity.setFileUri(invoice.getFileUri());
         invoiceEntity.setTva(invoice.getTva());
         invoiceEntity.setId(invoice.getId());
+        if (invoice.getCreationDate() != null) {
+            invoiceEntity.setCreatedAt(Instant.ofEpochMilli(invoice.getCreationDate().getTime()));
+        }
         if (invoice.getStatus() != null) {
             invoiceEntity.setStatus(invoice.getStatus().name());
         }

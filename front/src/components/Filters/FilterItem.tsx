@@ -2,13 +2,20 @@ import { CloseOutlined } from "@mui/icons-material";
 import { Grid, IconButton, MenuItem, TextField } from "@mui/material";
 import React from "react";
 import {
+  ColumnType,
   Filter,
   FilterType,
   FilterTypeLabel,
   IFilterOptions,
 } from "../../lib/constants/utilsConstants";
-import { Controller, useFormContext } from "react-hook-form";
+import {
+  Controller,
+  FieldError,
+  FieldValues,
+  useFormContext,
+} from "react-hook-form";
 import MuiSelect from "../Form/MuiSelect";
+import MuiDatePicker from "../Form/MuiDatePicker";
 
 interface IFilterItemProps {
   filtersOptions: IFilterOptions[];
@@ -30,6 +37,70 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
         filter.column === column && filter.operator === operator
     );
     return !!filter;
+  };
+
+  const getColumnType = (): ColumnType => {
+    const column = filtersOptions.find(
+      (filterOption) => filterOption.column === columnValue
+    );
+    return column?.columnType || ColumnType.TEXT;
+  };
+
+  const getValueField = (
+    field: FieldValues,
+    error: FieldError | undefined
+  ): JSX.Element => {
+    switch (getColumnType()) {
+      case ColumnType.TEXT:
+        return (
+          <TextField
+            variant="outlined"
+            label="Valeur"
+            size="small"
+            {...field}
+            error={!!error}
+            helperText={error ? error.message : null}
+            disabled={operatorValue === ""}
+          />
+        );
+      case ColumnType.NUMBER:
+        return (
+          <TextField
+            type="number"
+            InputProps={{
+              inputProps: { min: 0, step: "0.01" },
+            }}
+            variant="outlined"
+            label="Valeur"
+            size="small"
+            {...field}
+            error={!!error}
+            helperText={error ? error.message : null}
+            disabled={operatorValue === ""}
+          />
+        );
+      case ColumnType.DATE:
+        return (
+          <MuiDatePicker
+            field={field}
+            error={error}
+            label="Valeur"
+            disabled={operatorValue === ""}
+          />
+        );
+      default:
+        return (
+          <TextField
+            variant="outlined"
+            label="Valeur"
+            size="small"
+            {...field}
+            error={!!error}
+            helperText={error ? error.message : null}
+            disabled={operatorValue === ""}
+          />
+        );
+    }
   };
 
   return (
@@ -80,23 +151,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
             <Controller
               name={`filters[${index}].value`}
               control={control}
-              render={({
-                field: { onChange, onBlur, value, ref },
-                fieldState: { error },
-              }) => (
-                <TextField
-                  variant="outlined"
-                  label="Valeur"
-                  size="small"
-                  value={value}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  inputRef={ref}
-                  error={!!error}
-                  helperText={error ? error.message : null}
-                  disabled={operatorValue === ""}
-                />
-              )}
+              render={({ field, fieldState: { error } }) => getValueField(field, error)}
             />
           </Grid>
         </Grid>
