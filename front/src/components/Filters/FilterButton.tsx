@@ -113,6 +113,7 @@ export default function FilterButton({
           sx={{
             borderRadius: "2rem",
             px: "1rem",
+            textTransform: "none",
             // py: "0.5rem"
           }}
           size="small"

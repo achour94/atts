@@ -14,6 +14,7 @@ export enum ColumnType {
     DATE = 'date',
     BOOLEAN = 'boolean',
     LINK = 'link',
+    SELECT = 'select',
 }
 
 export interface IFilterOptions {

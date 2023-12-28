@@ -8,6 +8,7 @@ import {
   SortDirection,
 } from "../../lib/constants/utilsConstants";
 import { formatInvoiceData, formatInvoicesData } from "../../utils/utils";
+import { InvoiceStatus } from "../../lib/constants/InvoiceConstants";
 
 export const INVOICE_API_URL = "/api/invoice";
 
@@ -18,6 +19,7 @@ interface InvoicesState {
   filters: Filter[];
   pagination: Pagination;
   sort: { sortBy: string; sortDirection: SortDirection } | null;
+  statusFilter: InvoiceStatus;
 }
 
 interface FetchInvoicesParams {
@@ -25,6 +27,7 @@ interface FetchInvoicesParams {
   pageNumber: number;
   criteria: any[]; // Define the structure of criteria or leave as any
   sort: { sortBy: string; sortDirection: SortDirection } | null;
+  status: InvoiceStatus;
 }
 
 // Define the initial state with type
@@ -35,12 +38,13 @@ const initialState: InvoicesState = {
   filters: [],
   pagination: { page: 0, pageSize: 25, totalElements: 0 },
   sort: null,
+  statusFilter: InvoiceStatus.DRAFT,
 };
 
 // Async thunk for fetching invoices
 export const fetchInvoices = createAsyncThunk(
   "invoice/fetchInvoices",
-  async ({ pageSize, pageNumber, criteria, sort }: FetchInvoicesParams) => {
+  async ({ pageSize, pageNumber, criteria, sort, status = InvoiceStatus.DRAFT }: FetchInvoicesParams) => {
     try {
       const mappedCriteria = criteria.map((c) => {
         return {
@@ -51,7 +55,7 @@ export const fetchInvoices = createAsyncThunk(
       const encodedCriteria = encodeURIComponent(
         JSON.stringify(mappedCriteria)
       );
-      let url = `${INVOICE_API_URL}?pageSize=${pageSize}&pageNumber=${pageNumber}&criteria=${encodedCriteria}`;
+      let url = `${INVOICE_API_URL}?pageSize=${pageSize}&pageNumber=${pageNumber}&criteria=${encodedCriteria}&status=${status}`;
       if (sort) {
         url += `&sortBy=${sort.sortBy}&sortDirection=${sort.sortDirection}`;
       }
@@ -80,6 +84,9 @@ export const invoiceSlice = createSlice({
     setSort: (state, action) => {
       state.sort = action.payload;
     },
+    setStatusFilter: (state, action) => {
+      state.statusFilter = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(fetchInvoices.pending, (state) => {
@@ -107,9 +114,10 @@ export const selectInvoicesError = (state: any): string | null | undefined => st
 export const selectInvoicesFilters = (state: any): Filter[] => state.invoice.filters;
 export const selectInvoicesPagination = (state: any): Pagination => state.invoice.pagination;
 export const selectInvoicesSort = (state: any): { sortBy: string; sortDirection: SortDirection } | null => state.invoice.sort;
+export const selectInvoicesStatusFilter = (state: any): InvoiceStatus => state.invoice.statusFilter;
 
 // Export the actions
-export const { setFilters, setPagination, setSort } = invoiceSlice.actions;
+export const { setFilters, setPagination, setSort, setStatusFilter } = invoiceSlice.actions;
 
 // Export the reducer
 export default invoiceSlice.reducer;

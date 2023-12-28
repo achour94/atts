@@ -15,6 +15,7 @@ import {
   setFilters,
   setSort,
   setPagination,
+  selectInvoicesStatusFilter,
 } from "./invoiceSlice";
 import {
   FetchStatus,
@@ -36,12 +37,15 @@ import MuiTable from "../../components/MuiTable/MuiTable";
 import {
   formatNumberToEuro,
   formatTimestampToFrenchDate,
-  getInvoiceStatus,
+  getFiltersOptionsFromColumns,
   getInvoiceStatusColor,
+  getInvoiceStatusLabel,
 } from "../../utils/utils";
 import InvoiceStatusContainer from "../../components/utils/InvoiceStatusContainer";
 import { Upload } from "@mui/icons-material";
 import UploadInvoicesDialog from "../../components/UploadInvoicesDialog/UploadInvoicesDialog";
+import FilterButton from "../../components/Filters/FilterButton";
+import StatusFilterButton from "../../components/Filters/StatusFilterButton";
 
 function Invoices() {
   const dispatch: ThunkDispatch<any, void, any> = useDispatch();
@@ -51,6 +55,7 @@ function Invoices() {
   const filters = useSelector(selectInvoicesFilters);
   const pagination = useSelector(selectInvoicesPagination);
   const sort = useSelector(selectInvoicesSort);
+  const invoiceStatusFilter = useSelector(selectInvoicesStatusFilter)
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
@@ -145,19 +150,19 @@ function Invoices() {
       {
         field: IC.INVOICE_STATUS,
         label: "Statut",
-        columnType: CT.TEXT,
-        filterOperators: [
-          FilterType.EQUALS,
-          FilterType.CONTAINS,
-          FilterType.STARTS_WITH,
-          FilterType.ENDS_WITH,
-        ],
+        // columnType: CT.TEXT,
+        // filterOperators: [
+        //   FilterType.EQUALS,
+        //   FilterType.CONTAINS,
+        //   FilterType.STARTS_WITH,
+        //   FilterType.ENDS_WITH,
+        // ],
         isSortable: true,
         renderCell: (row: IInvoice) => {
           return (
             <>
               <InvoiceStatusContainer
-                status={getInvoiceStatus(
+                status={getInvoiceStatusLabel(
                   row[IC.INVOICE_STATUS] as InvoiceStatus
                 )}
                 bgColor={
@@ -177,6 +182,11 @@ function Invoices() {
       },
     ],
     []
+  );
+
+  const filtersOptions = useMemo(
+    () => getFiltersOptionsFromColumns(invoicesColumns),
+    [invoicesColumns]
   );
 
   const applyFiltersHandler = (filters: Filter[]) => {
@@ -207,9 +217,10 @@ function Invoices() {
         pageNumber: pagination.page,
         criteria: filters,
         sort: sort,
+        status: invoiceStatusFilter
       })
     );
-  }, [dispatch, pagination, filters, sort]);
+  }, [dispatch, pagination, filters, sort, invoiceStatusFilter]);
 
   useEffect(() => {
     if (error) {
@@ -265,10 +276,10 @@ function Invoices() {
             <PageTitle title="Mes factures" />
           </Grid>
           <Grid item>
-            <Input type="file" onChange={handleFileChange} />
+            {/* <Input type="file" onChange={handleFileChange} />
             <Button variant="contained" color="primary" onClick={handleUpload}>
               Upload File
-            </Button>
+            </Button> */}
             <Button onClick={() => setUploadDialogOpen(true)}>
               Importer des factures
             </Button>
@@ -284,13 +295,17 @@ function Invoices() {
             mt: 2,
           }}
         >
+          <Grid item mr={2}>
+            <StatusFilterButton
+            />
+          </Grid>
           <Grid item>
-            {/* <FilterButton 
-                        filters={filters} 
-                        applyFilters={applyFiltersHandler}  
-                        resetFilters={resetFiltersHandler}
-                        filtersOptions={filtersOptions}
-                    /> */}
+            <FilterButton
+              filters={filters}
+              applyFilters={applyFiltersHandler}
+              resetFilters={resetFiltersHandler}
+              filtersOptions={filtersOptions}
+            />
           </Grid>
         </Grid>
         <Grid mt={2}>
@@ -306,14 +321,12 @@ function Invoices() {
           />
         </Grid>
       </Box>
-      {
-        uploadDialogOpen && (
-          <UploadInvoicesDialog
-            open={uploadDialogOpen}
-            onClose={() => setUploadDialogOpen(false)}
-          />
-        )
-      }
+      {uploadDialogOpen && (
+        <UploadInvoicesDialog
+          open={uploadDialogOpen}
+          onClose={() => setUploadDialogOpen(false)}
+        />
+      )}
     </Box>
   );
 }

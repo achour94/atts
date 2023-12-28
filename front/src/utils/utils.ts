@@ -131,7 +131,7 @@ export function formatNumberToEuro(value: number, digits: number = 2): string {
   return `${value.toFixed(digits).replace('.', ',')} €`;
 }
 
-export function getInvoiceStatus (status: InvoiceStatus): string {
+export function getInvoiceStatusLabel (status: InvoiceStatus): string {
   switch (status) {
     case InvoiceStatus.DRAFT:
       return 'Brouillon';
