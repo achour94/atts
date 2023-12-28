@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../services/axios";
-import { Box, Button, Grid, Input } from "@mui/material";
+import { Box, Button, Checkbox, Grid, Input } from "@mui/material";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { IInvoice } from "../../lib/interfaces/IInvoice";
@@ -16,6 +16,13 @@ import {
   setSort,
   setPagination,
   selectInvoicesStatusFilter,
+  getSelectedInvoices,
+  selectAllInvoices,
+  deselectAllInvoices,
+  selectInvoice,
+  deselectInvoice,
+  getIsInvoiceSelected,
+  getIsAllInvoicesSelected,
 } from "./invoiceSlice";
 import {
   FetchStatus,
@@ -46,6 +53,11 @@ import { Upload } from "@mui/icons-material";
 import UploadInvoicesDialog from "../../components/UploadInvoicesDialog/UploadInvoicesDialog";
 import FilterButton from "../../components/Filters/FilterButton";
 import StatusFilterButton from "../../components/Filters/StatusFilterButton";
+import ActionsListMenu, { ActionListItem } from "../../components/utils/ActionsListMenu";
+import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
+import FolderZipOutlinedIcon from '@mui/icons-material/FolderZipOutlined';
+import AttachEmailOutlinedIcon from '@mui/icons-material/AttachEmailOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 function Invoices() {
   const dispatch: ThunkDispatch<any, void, any> = useDispatch();
@@ -55,12 +67,38 @@ function Invoices() {
   const filters = useSelector(selectInvoicesFilters);
   const pagination = useSelector(selectInvoicesPagination);
   const sort = useSelector(selectInvoicesSort);
-  const invoiceStatusFilter = useSelector(selectInvoicesStatusFilter)
+  const invoiceStatusFilter = useSelector(selectInvoicesStatusFilter);
+  const selectedInvoices = useSelector(getSelectedInvoices);
+  // const isAllInvoicesSelected = useSelector(getIsAllInvoicesSelected);
+  // const isInvoiceSelected = useSelector(state => getIsInvoiceSelected());
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   const invoicesColumns: TableColumn[] = useMemo(
     () => [
+      {
+        field: "checkmark",
+        renderHeader: () => {
+          return (
+            <Checkbox
+              sx={{ padding: 0 }}
+              checked={isAllInvoicesSelected()}
+              onChange={toggleSelectAllInvoices}
+            />
+          );
+        },
+        renderCell: (row: IInvoice) => {
+          return (
+            <Checkbox
+              sx={{ padding: 0 }}
+              checked={isInvoiceSelected(row[IC.INVOICE_NUMBER])}
+              onChange={(event) =>
+                selectInvoiceClickHandler(event, row[IC.INVOICE_NUMBER])
+              }
+            />
+          );
+        },
+      },
       {
         field: IC.INVOICE_NUMBER,
         label: "Numéro",
@@ -181,8 +219,74 @@ function Invoices() {
         },
       },
     ],
-    []
+    [isInvoiceSelected, isAllInvoicesSelected]
   );
+
+  const actionsListMenuItems: ActionListItem[] = [
+    {
+      icon: <CheckCircleOutlineOutlinedIcon />,
+      label: "Partager au client",
+      action: () => {
+        console.log("Partager au client");
+      },
+      isInDividedGroup: false,
+    },
+    {
+      icon: <FolderZipOutlinedIcon />,
+      label: "Exporter en Zip",
+      action: () => {
+        console.log("Exporter en Zip");
+      },
+      isInDividedGroup: false,
+    },
+    {
+      icon: <AttachEmailOutlinedIcon />,
+      label: "Envoyer par email",
+      action: () => {
+        console.log("Envoyer par email");
+      },
+      isInDividedGroup: false,
+    },
+    {
+      icon: <DeleteOutlinedIcon />,
+      label: "Supprimer",
+      action: () => {
+        console.log("Supprimer");
+      },
+      isInDividedGroup: true,
+    },
+  ];
+
+  function isInvoiceSelected(invoiceId: number) {
+    return selectedInvoices.includes(invoiceId);
+  }
+
+  function isAllInvoicesSelected() {
+    console.log(
+      "isAllInvoicesSelected",
+      selectedInvoices.length === invoices.length
+    );
+    return selectedInvoices.length === invoices.length;
+  }
+
+  function toggleSelectAllInvoices(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.checked) {
+      dispatch(selectAllInvoices());
+    } else {
+      dispatch(deselectAllInvoices());
+    }
+  }
+
+  function selectInvoiceClickHandler(
+    event: React.ChangeEvent<HTMLInputElement>,
+    invoiceId: number
+  ) {
+    if (event.target.checked) {
+      dispatch(selectInvoice(invoiceId));
+    } else {
+      dispatch(deselectInvoice(invoiceId));
+    }
+  }
 
   const filtersOptions = useMemo(
     () => getFiltersOptionsFromColumns(invoicesColumns),
@@ -204,10 +308,12 @@ function Invoices() {
 
   const onRowsPerPageChangeHandler = (rowsPerPage: number) => {
     dispatch(setPagination({ ...pagination, page: 0, pageSize: rowsPerPage }));
+    dispatch(deselectAllInvoices());
   };
 
   const onPageChangeHandler = (page: number) => {
     dispatch(setPagination({ ...pagination, page }));
+    dispatch(deselectAllInvoices());
   };
 
   useEffect(() => {
@@ -217,7 +323,7 @@ function Invoices() {
         pageNumber: pagination.page,
         criteria: filters,
         sort: sort,
-        status: invoiceStatusFilter
+        status: invoiceStatusFilter,
       })
     );
   }, [dispatch, pagination, filters, sort, invoiceStatusFilter]);
@@ -296,16 +402,18 @@ function Invoices() {
           }}
         >
           <Grid item mr={2}>
-            <StatusFilterButton
-            />
+            <StatusFilterButton />
           </Grid>
-          <Grid item>
+          <Grid item mr={2}>
             <FilterButton
               filters={filters}
               applyFilters={applyFiltersHandler}
               resetFilters={resetFiltersHandler}
               filtersOptions={filtersOptions}
             />
+          </Grid>
+          <Grid item>
+            <ActionsListMenu items={actionsListMenuItems} />
           </Grid>
         </Grid>
         <Grid mt={2}>
