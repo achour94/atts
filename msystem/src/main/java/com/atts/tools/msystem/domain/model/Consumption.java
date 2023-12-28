@@ -21,6 +21,5 @@ public class Consumption {
     Date endDate;
     @Setter
     Double htAmount;
-    @JsonSerialize(using = ConsumptionTypeSerializer.class)
     ConsumptionType type;
 }

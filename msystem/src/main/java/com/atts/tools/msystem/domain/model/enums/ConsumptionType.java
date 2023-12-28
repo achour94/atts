@@ -21,8 +21,13 @@ public enum ConsumptionType {
         return this.label;
     }
 
-    public static ConsumptionType convert(String type) throws IllegalAccessException {
+    public static ConsumptionType convertFromLabel(String type) throws IllegalAccessException {
         return Arrays.stream(ConsumptionType.values()).filter(enumEl -> enumEl.label.equals(type)).findAny()
+            .orElseThrow(IllegalAccessException::new);
+    }
+
+    public static ConsumptionType convertFromName(String type) throws IllegalAccessException {
+        return Arrays.stream(ConsumptionType.values()).filter(enumEl -> enumEl.name().equals(type)).findAny()
             .orElseThrow(IllegalAccessException::new);
     }
 

@@ -156,7 +156,7 @@ public class Transformer {
             return Consumption.builder().id(entity.getId()).consumptionCount(entity.getCount())
                 .consumptionDuration(entity.getDuration())
                 .startDate(Date.valueOf(entity.getStartPeriod())).endDate(Date.valueOf(entity.getEndPeriod()))
-                .type(ConsumptionType.convert(entity.getType()))
+                .type(ConsumptionType.convertFromName(entity.getType()))
                 .htAmount(entity.getHtAmount())
                 .build();
         } catch (IllegalAccessException e) {
@@ -211,7 +211,7 @@ public class Transformer {
         consumptionEntity.setCount(consumption.getConsumptionCount());
         consumptionEntity.setId(consumption.getId());
         consumptionEntity.setDuration(consumption.getConsumptionDuration());
-        consumptionEntity.setType(consumption.getType().getLabel());
+        consumptionEntity.setType(consumption.getType().name());
         consumptionEntity.setStartPeriod(consumption.getStartDate().toLocalDate());
         consumptionEntity.setEndPeriod(consumption.getEndDate().toLocalDate());
         consumptionEntity.setHtAmount(consumption.getHtAmount());
