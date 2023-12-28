@@ -10,6 +10,7 @@ import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
 import com.atts.tools.msystem.domain.model.Invoice;
 import com.atts.tools.msystem.domain.model.InvoiceFile;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
+import com.atts.tools.msystem.domain.model.pageable.SearchCriteria;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageInvoicesUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceCriteriaPort;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
@@ -17,6 +18,7 @@ import com.atts.tools.msystem.domain.services.GenerationConfig;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria.CriteriaMapper;
 
 import jakarta.activation.UnsupportedDataTypeException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -71,10 +73,13 @@ public class InvoicesController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('admin', 'client')")
-    public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, String criteria) {
-        //TODO return only minimum things that we need to view in the list of invoices
+    public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, String criteria, String status) {
+      List<SearchCriteria> criterias = new ArrayList<>(criteriaMapper.convert(criteria));
+        if (status != null) {
+            criterias.add(SearchCriteria.builder().column("status").equals(status).build());
+        }
         return ResponseEntity.ok(
-            invoiceCriteriaPort.findAllWithFiltersAndRestrictions(page, criteriaMapper.convert(criteria)));
+            invoiceCriteriaPort.findAllWithFiltersAndRestrictions(page, criterias));
     }
 
     @PutMapping

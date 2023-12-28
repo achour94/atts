@@ -21,7 +21,7 @@ public class DefaultRowsProcessor {
 
         public static ConsumptionType consumptionType(List<Object> row) throws ProcessException {
             try {
-                return ConsumptionType.convert((String) row.get(2));
+                return ConsumptionType.convertFromLabel((String) row.get(2));
             } catch (IllegalAccessException e) {
                 throw new ProcessException("bad consumption type column");
             }

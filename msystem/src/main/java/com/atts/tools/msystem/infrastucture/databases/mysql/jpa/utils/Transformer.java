@@ -21,7 +21,6 @@ import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.Subscri
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.UserEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.ClientRepository;
 import java.sql.Date;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.stream.Collectors;
@@ -67,14 +66,13 @@ public class Transformer {
     }
 
     public static String columnMapper(String column) {
-        if (column.equals("invoiceNumber")) {
-            return "id";
-        } else if (column.equals("creationDate")) {
-            return "createdAt";
-        } else if (column.equals("clientReference")) {
-            return "reference";
-        }
-        return column;
+        return switch (column) {
+            case "invoiceNumber" -> "id";
+            case "creationDate" -> "createdAt";
+            case "clientReference" -> "reference";
+            case "client" -> "client.name";
+            default -> column;
+        };
     }
 
     public User transformToUser(
@@ -158,7 +156,7 @@ public class Transformer {
             return Consumption.builder().id(entity.getId()).consumptionCount(entity.getCount())
                 .consumptionDuration(entity.getDuration())
                 .startDate(Date.valueOf(entity.getStartPeriod())).endDate(Date.valueOf(entity.getEndPeriod()))
-                .type(ConsumptionType.convert(entity.getType()))
+                .type(ConsumptionType.convertFromName(entity.getType()))
                 .htAmount(entity.getHtAmount())
                 .build();
         } catch (IllegalAccessException e) {
@@ -213,7 +211,7 @@ public class Transformer {
         consumptionEntity.setCount(consumption.getConsumptionCount());
         consumptionEntity.setId(consumption.getId());
         consumptionEntity.setDuration(consumption.getConsumptionDuration());
-        consumptionEntity.setType(consumption.getType().getLabel());
+        consumptionEntity.setType(consumption.getType().name());
         consumptionEntity.setStartPeriod(consumption.getStartDate().toLocalDate());
         consumptionEntity.setEndPeriod(consumption.getEndDate().toLocalDate());
         consumptionEntity.setHtAmount(consumption.getHtAmount());
@@ -327,7 +325,9 @@ public class Transformer {
         invoiceEntity.setTva(invoice.getTva());
         invoiceEntity.setId(invoice.getId());
         if (invoice.getCreationDate() != null) {
-            invoiceEntity.setCreatedAt(Instant.ofEpochMilli(invoice.getCreationDate().getTime()));
+            invoiceEntity.setCreatedAt(
+                invoice.getCreationDate().toLocalDate().atStartOfDay().atZone(ZoneId.of("Europe/Paris"))
+                    .toInstant());
         }
         if (invoice.getStatus() != null) {
             invoiceEntity.setStatus(invoice.getStatus().name());

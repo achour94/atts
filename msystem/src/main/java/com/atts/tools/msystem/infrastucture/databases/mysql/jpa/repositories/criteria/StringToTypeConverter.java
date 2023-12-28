@@ -1,7 +1,8 @@
 package com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.criteria;
 
-import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ClientEntity;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class StringToTypeConverter {
@@ -11,7 +12,7 @@ public class StringToTypeConverter {
     }
 
     public static LocalDate toLocalDate(String value) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         return LocalDate.parse(value, formatter);
     }
 
@@ -28,6 +29,8 @@ public class StringToTypeConverter {
             return value;
         } else if (clazz.equals(Integer.class)) {
             return toInteger(value);
+        } else if (clazz.equals(Instant.class)) {
+            return toLocalDate(value);
         }
         return null;
     }
