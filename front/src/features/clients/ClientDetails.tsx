@@ -74,7 +74,7 @@ function ClientDetails() {
 
   const goBack = () => {
     navigate("/clients");
-  }
+  };
   // Define initial form values
   const initialValues = {
     // Example initial values. Adjust based on your actual data structure
@@ -186,7 +186,7 @@ function ClientDetails() {
     >
       <Box>
         <IconButton onClick={goBack}>
-        <ArrowBackIos />
+          <ArrowBackIos />
         </IconButton>
       </Box>
       <Box>

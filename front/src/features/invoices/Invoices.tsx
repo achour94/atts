@@ -105,6 +105,9 @@ function Invoices() {
         columnType: CT.NUMBER,
         filterOperators: [FilterType.EQUALS, FilterType.MIN, FilterType.MAX],
         isSortable: true,
+        renderCell: (row: IInvoice) => {
+          return <StyledLink to={`/invoice/${row[IC.INVOICE_NUMBER]}`}>{row[IC.INVOICE_NUMBER]}</StyledLink>
+      }
       },
       {
         field: IC.INVOICE_CREATONDATE,
@@ -164,7 +167,7 @@ function Invoices() {
         isSortable: true,
         renderCell: (row: IInvoice) => {
           return (
-            <StyledLink to={`/client/${row?.client?.id}`}>
+            <StyledLink to={`/client/${row?.client?.clientId}`}>
               {row.client.name}
             </StyledLink>
           );
