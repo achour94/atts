@@ -67,14 +67,13 @@ public class Transformer {
     }
 
     public static String columnMapper(String column) {
-        if (column.equals("invoiceNumber")) {
-            return "id";
-        } else if (column.equals("creationDate")) {
-            return "createdAt";
-        } else if (column.equals("clientReference")) {
-            return "reference";
-        }
-        return column;
+      return switch (column) {
+        case "invoiceNumber" -> "id";
+        case "creationDate" -> "createdAt";
+        case "clientReference" -> "reference";
+        case "client" -> "client.name";
+        default -> column;
+      };
     }
 
     public User transformToUser(
