@@ -21,7 +21,6 @@ import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.Subscri
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.UserEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.repositories.ClientRepository;
 import java.sql.Date;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.stream.Collectors;
@@ -67,13 +66,13 @@ public class Transformer {
     }
 
     public static String columnMapper(String column) {
-      return switch (column) {
-        case "invoiceNumber" -> "id";
-        case "creationDate" -> "createdAt";
-        case "clientReference" -> "reference";
-        case "client" -> "client.name";
-        default -> column;
-      };
+        return switch (column) {
+            case "invoiceNumber" -> "id";
+            case "creationDate" -> "createdAt";
+            case "clientReference" -> "reference";
+            case "client" -> "client.name";
+            default -> column;
+        };
     }
 
     public User transformToUser(
@@ -326,7 +325,9 @@ public class Transformer {
         invoiceEntity.setTva(invoice.getTva());
         invoiceEntity.setId(invoice.getId());
         if (invoice.getCreationDate() != null) {
-            invoiceEntity.setCreatedAt(Instant.ofEpochMilli(invoice.getCreationDate().getTime()));
+            invoiceEntity.setCreatedAt(
+                invoice.getCreationDate().toLocalDate().atStartOfDay().atZone(ZoneId.of("Europe/Paris"))
+                    .toInstant());
         }
         if (invoice.getStatus() != null) {
             invoiceEntity.setStatus(invoice.getStatus().name());

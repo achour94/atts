@@ -13,6 +13,8 @@ import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -130,11 +132,20 @@ public class CriteriaRepository<T extends DBEntity, M extends ModelEntity> {
             for (SearchCriteria criteria : criterias) {
                 String column = Transformer.columnMapper(criteria.column());
                 Class columnType;
-                Path<? extends Comparable> path = extractPath(root, column);
                 try {
                     columnType = extractFieldType(column);
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
+                }
+                Expression path = extractPath(root, column);
+                if (Instant.class.equals(columnType)) {
+                    path = criteriaBuilder.function("DATE", LocalDate.class,
+                        criteriaBuilder.function(
+                            "CONVERT_TZ",
+                            Instant.class,
+                            path,
+                            criteriaBuilder.literal("+00:00"), //UTC
+                            criteriaBuilder.literal("+02:00"))); //"EUROPE/Paris
                 }
                 if (Objects.nonNull(criteria.equals())) {
                     predicates.add(
