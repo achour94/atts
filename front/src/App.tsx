@@ -1,10 +1,4 @@
-import { Routes, Route } from "react-router-dom";
-import Public from "./components/Public";
-import CssBaseline from "@mui/material/CssBaseline";
-import Box from "@mui/material/Box";
-import Dashboard from "./components/pages/Dashboard";
-import History from "./components/pages/History";
-import Profile from "./components/pages/Profile";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import ClientDetails from "./features/clients/ClientDetails";
 import Login from "./features/auth/Login";
 import ProtectedRoute from "./components/ProtectedRoutes";
@@ -28,7 +22,6 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("App.tsx: useEffect");
     initializeAuth(dispatch);
   }, []);
 
@@ -39,8 +32,8 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route path="login" element={<Login />} />
           <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Navigate to="/clients" replace />} />
             <Route element={<ProtectedLayout />}>
-              <Route index element={<Dashboard name="DASHBOARD" />} />
               <Route path="clients" element={<Clients />} />
               <Route path="client/:id" element={<ClientDetails />} />
               <Route path="/logout" element={<Logout />} />

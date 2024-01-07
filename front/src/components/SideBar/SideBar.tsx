@@ -14,11 +14,11 @@ import ToggleButton from './ToggleButton/ToggleButton';
 
 
 const menuItems: IMenuElement[] = [
-    {
-        label: "Mon dashboard",
-        icon: <SpaceDashboardIcon />,
-        path: "/"
-    },
+    // {
+    //     label: "Mon dashboard",
+    //     icon: <SpaceDashboardIcon />,
+    //     path: "/"
+    // },
     {
         label: "Mes clients",
         icon: <PeopleAltOutlinedIcon />,
