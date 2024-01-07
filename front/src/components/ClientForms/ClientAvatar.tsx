@@ -20,7 +20,7 @@ function ClientAvatar() {
         >
         <Avatar
             alt="Client avatar"
-            src="https://material-ui.com/static/images/avatar/1.jpg"
+            // src="https://material-ui.com/static/images/avatar/1.jpg"
             sx={{
                 height: "6.25rem",
                 width: "6.25rem",

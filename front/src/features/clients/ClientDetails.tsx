@@ -182,6 +182,7 @@ function ClientDetails() {
         width: "100%",
         height: "fit-content",
         p: 2,
+        mt: 2
       }}
     >
       <Box>
