@@ -36,7 +36,7 @@ export const subscriptionSchema = yup.object({
 });
 
 // Client Schema
-const clientSchema = yup.object({
+export const clientSchema = yup.object({
   [CC.CLIENT_ID]: yup.number().optional().typeError("L'ID doit être un nombre"),
   [CC.CLIENT_CLIENTREFERENCE]: yup
     .string()

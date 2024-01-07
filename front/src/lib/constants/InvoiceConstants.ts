@@ -9,7 +9,7 @@ export enum InvoiceConstants {
     INVOICE_CREATONDATE = 'creationDate',
     INVOICE_ENDPERIOD = 'endPeriod',
     INVOICE_FILEURI = 'fileUri',
-    INVOICE_HTAMOUNT = 'httAmount',
+    INVOICE_HTAMOUNT = 'htAmount',
     INVOICE_NUMBER = 'invoiceNumber',
     INVOICE_PROFORMA = 'proforma',
     INVOICE_STARTPERIOD = 'startPeriod',
@@ -28,10 +28,10 @@ export enum InvoiceStatus {
 
 export enum ConsumptionType {
     CDR_MOBILES = "CDR_MOBILES",
-    CDR_NATIONAUX = "CDR Nationaux",
-    CDR_INTERNATIONAUX = "CDR Internationaux",
-    CDR_SVA_A = "CDR SVA A",
-    CDR_SVA_B = "CDR SVA B",
-    CDR_SVA_D = "CDR SVA D",
-    ABONNEMENT_PERIODIQUE = "Abonnement périodique",
+    CDR_NATIONAUX = "CDR_NATIONAUX",
+    CDR_INTERNATIONAUX = "CDR_INTERNATIONAUX",
+    CDR_SVA_A = "CDR_SVA_A",
+    CDR_SVA_B = "CDR_SVA_B",
+    CDR_SVA_D = "CDR_SVA_D",
+    ABONNEMENT_PERIODIQUE = "ABONNEMENT_PERIODIQUE",
 }

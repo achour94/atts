@@ -1,8 +1,8 @@
 import { ClientConstants as CC } from "../lib/constants/ClientConstants";
 import { IFilterOptions, TableColumn } from "../lib/constants/utilsConstants";
 import { IClient, ISubscription } from "../lib/interfaces/IClient";
-import { InvoiceConstants as IC, InvoiceStatus } from "../lib/constants/InvoiceConstants";
-import { IConsumption, IInvoice } from "../lib/interfaces/IInvoice";
+import { ConsumptionType, InvoiceConstants as IC, InvoiceStatus } from "../lib/constants/InvoiceConstants";
+import { IConsumption, IInvoice, IInvoiceForm } from "../lib/interfaces/IInvoice";
 
 export const formatClientsData = (data: any): IClient[] => {
   return data.map((row: any) => {
@@ -69,7 +69,7 @@ export const formatConsumptionData = (data: any): IConsumption => {
     [IC.CONSUMPTION_DURATION]: data[IC.CONSUMPTION_DURATION],
     [IC.CONSUMPTION_ENDDATE]: data[IC.CONSUMPTION_ENDDATE],
     [IC.CONSUMPTION_HTAMOUNT]: data[IC.CONSUMPTION_HTAMOUNT],
-    [IC.CONSUMPTION_ID]: data?.id,
+    [IC.CONSUMPTION_ID]: data?.[IC.CONSUMPTION_ID],
     [IC.CONSUMPTION_STARTDATE]: data[IC.CONSUMPTION_STARTDATE],
     [IC.CONSUMPTION_TYPE]: data[IC.CONSUMPTION_TYPE],
   };
@@ -100,17 +100,24 @@ export const formatInvoiceData = (data: any): IInvoice => {
   };
 };
 
+export const formatDataToInvoiceForm = (data: any): IInvoiceForm => {
+  const invoiceData = formatInvoiceData(data);
+  // Create a copy of invoiceData without the IC.INVOICE_CLIENT field
+  const { [IC.INVOICE_CLIENT]: _, ...invoiceFormData } = invoiceData;
+  return invoiceFormData as IInvoiceForm;
+};
+
 export const formatInvoicesData = (data: any): IInvoice[] => {
   return data.map((row: any) => {
     return formatInvoiceData(row);
   });
 };
 
-export function formatTimestampToFrenchDate(timestamp: number): string {
+export function formatTimestampToFrenchDate(timestamp: number, monthStyle: "2-digit" | "numeric" | "long" | "short" | "narrow" | undefined = 'short'): string {
   const date = new Date(timestamp);
   const options: Intl.DateTimeFormatOptions = {
     day: "2-digit",
-    month: "short",
+    month: monthStyle,
     year: "numeric",
   };
   const dateFormatter = new Intl.DateTimeFormat("fr-FR", options);
@@ -129,6 +136,14 @@ export function formatTimestampToFrenchDate(timestamp: number): string {
 
 export function formatNumberToEuro(value: number, digits: number = 2): string {
   return `${value.toFixed(digits).replace('.', ',')} €`;
+}
+
+export function formatSeconds(seconds: number): string {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  return `${hours}h ${minutes}m ${remainingSeconds}s`;
 }
 
 export function getInvoiceStatusLabel (status: InvoiceStatus): string {
@@ -150,5 +165,26 @@ export function getInvoiceStatusColor (status: InvoiceStatus): [string, string] 
       return ['#E1FFDC', '#07A104'];
     default:
       return ['', ''];
+  }
+}
+
+export function getConsumptionTypeLabel(typeId: ConsumptionType): string {
+  switch (typeId) {
+      case ConsumptionType.CDR_MOBILES:
+          return "CDR Mobiles";
+      case ConsumptionType.CDR_NATIONAUX:
+          return "CDR Nationaux";
+      case ConsumptionType.CDR_INTERNATIONAUX:
+          return "CDR Internationaux";
+      case ConsumptionType.CDR_SVA_A:
+          return "CDR SVA A";
+      case ConsumptionType.CDR_SVA_B:
+          return "CDR SVA B";
+      case ConsumptionType.CDR_SVA_D:
+          return "CDR SVA D";
+      case ConsumptionType.ABONNEMENT_PERIODIQUE:
+          return "Abonnement Périodique";
+      default:
+          return "Unknown Type";
   }
 }

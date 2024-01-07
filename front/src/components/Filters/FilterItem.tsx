@@ -113,6 +113,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
               name={`filters[${index}].column`}
               label="Colonne"
               placeholder="Colonne"
+              size="small"
             >
               {filtersOptions.map(
                 (filterOption: IFilterOptions, index: number) => {
@@ -131,6 +132,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
               label="Opérateur"
               placeholder="Opérateur"
               disabled={columnValue === ""}
+              size="small"
             >
               {filtersOptions
                 .find((filterOption) => filterOption.column === columnValue)

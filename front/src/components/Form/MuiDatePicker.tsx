@@ -11,6 +11,8 @@ interface MuiDatePickerProps {
   label: string;
   disabled?: boolean;
 }
+
+// this component is used to display a date picker in a filter
 function MuiDatePicker({ field, error, label, disabled }: MuiDatePickerProps) {
 
   const dateValue = typeof field.value === 'string' ? parse(field.value, 'dd-MM-yyyy', new Date()) : field.value;
