@@ -1,10 +1,4 @@
-import { Routes, Route } from "react-router-dom";
-import Public from "./components/Public";
-import CssBaseline from "@mui/material/CssBaseline";
-import Box from "@mui/material/Box";
-import Dashboard from "./components/pages/Dashboard";
-import History from "./components/pages/History";
-import Profile from "./components/pages/Profile";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import ClientDetails from "./features/clients/ClientDetails";
 import Login from "./features/auth/Login";
 import ProtectedRoute from "./components/ProtectedRoutes";
@@ -22,12 +16,13 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Logout from "./features/auth/Logout";
 import Invoices from "./features/invoices/Invoices";
+import InvoiceDetail from "./features/invoice/InvoiceDetail";
+import Profile from "./features/profile/Profile";
 
 function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("App.tsx: useEffect");
     initializeAuth(dispatch);
   }, []);
 
@@ -38,12 +33,14 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route path="login" element={<Login />} />
           <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Navigate to="/clients" replace />} />
             <Route element={<ProtectedLayout />}>
-              <Route index element={<Dashboard name="DASHBOARD" />} />
               <Route path="clients" element={<Clients />} />
               <Route path="client/:id" element={<ClientDetails />} />
               <Route path="/logout" element={<Logout />} />
               <Route path="invoices" element={<Invoices />} />
+              <Route path="invoice/:id" element={<InvoiceDetail />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
           </Route>
           {/* catch all */}

@@ -36,7 +36,7 @@ export const subscriptionSchema = yup.object({
 });
 
 // Client Schema
-const clientSchema = yup.object({
+export const clientSchema = yup.object({
   [CC.CLIENT_ID]: yup.number().optional().typeError("L'ID doit être un nombre"),
   [CC.CLIENT_CLIENTREFERENCE]: yup
     .string()
@@ -74,7 +74,7 @@ function ClientDetails() {
 
   const goBack = () => {
     navigate("/clients");
-  }
+  };
   // Define initial form values
   const initialValues = {
     // Example initial values. Adjust based on your actual data structure
@@ -182,11 +182,12 @@ function ClientDetails() {
         width: "100%",
         height: "fit-content",
         p: 2,
+        mt: 2
       }}
     >
       <Box>
         <IconButton onClick={goBack}>
-        <ArrowBackIos />
+          <ArrowBackIos />
         </IconButton>
       </Box>
       <Box>

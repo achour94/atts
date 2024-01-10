@@ -4,43 +4,35 @@ import {
   FormHelperText,
   InputLabel,
   Select,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { Form } from "react-router-dom";
 
-interface SelectProps {
+interface SwitchProps {
   name: string;
-  label: string;
-  placeholder?: string;
-  children?: React.ReactNode;
   disabled?: boolean;
-  size?: "small" | "medium";
 }
 
-function MuiSelect({ name, label, placeholder, children, disabled, size }: SelectProps) {
+function MuiSwitch({ name, disabled }: SwitchProps) {
   const { control } = useFormContext();
   return (
-    <FormControl fullWidth size={size ?? "medium"}>
-      <InputLabel id="demo-simple-select-label">{label}</InputLabel>
+    <FormControl fullWidth size="small">
       <Controller
         name={name}
         control={control}
         defaultValue=""
         render={({ field, fieldState: { error } }) => (
           <>
-            <Select
+            <Switch
               {...field}
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              label={label}
+              checked={field.value}
               disabled={disabled}
-              error={!!error}
-            >
-              {children}
-            </Select>
+              size="small"
+              color="success" // This makes the switch green when checked
+            />
             <FormHelperText sx={{color: 'red'}} >{error ? error.message : null}</FormHelperText>
           </>
         )}
@@ -49,4 +41,4 @@ function MuiSelect({ name, label, placeholder, children, disabled, size }: Selec
   );
 }
 
-export default MuiSelect;
+export default MuiSwitch;

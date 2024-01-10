@@ -7,3 +7,20 @@ body {
   padding: 0;
   box-sizing: border-box;
 }
+
+/* This styles the entire scrollbar (track) */
+::-webkit-scrollbar {
+  width: 8px; /* width of the entire scrollbar */
+}
+
+/* This styles the scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background-color: #7E92A2; /* color of the scroll thumb */
+  border-radius: 10px; /* roundness of the scroll thumb */
+  /* border: 3px solid orange; creates border around scroll thumb */
+}
+
+/* This styles the scrollbar track (the part the thumb scrolls within) */
+::-webkit-scrollbar-track {
+  background: white; /* color of the scroll track */
+}

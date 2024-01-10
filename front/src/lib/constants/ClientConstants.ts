@@ -3,7 +3,7 @@ export enum ClientConstants {
     CLIENT_SUBSCRIPTION_NAME = 'subscriptionName',
     CLIENT_SUBSCRIPTION_DATA = 'data',
     CLIENT_SUBSCRIPTION_PRICE = 'price',
-    CLIENT_ID = 'id',
+    CLIENT_ID = 'clientId',
     CLIENT_CLIENTREFERENCE = 'clientReference',
     CLIENT_DEFAULTSUBSCRIPTION = 'defaultSubscription',
     CLIENT_DIVERSESUBSCRIPTION = 'diverseSubscription',

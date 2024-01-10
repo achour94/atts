@@ -6,7 +6,7 @@ export interface IConsumption {
     [IC.CONSUMPTION_DURATION]: number;
     [IC.CONSUMPTION_ENDDATE]: number;
     [IC.CONSUMPTION_HTAMOUNT]: number;
-    [IC.CONSUMPTION_ID]?: number | null;
+    [IC.CONSUMPTION_ID]?: number | undefined;
     [IC.CONSUMPTION_STARTDATE]: number;
     [IC.CONSUMPTION_TYPE]: string;
 }
@@ -24,4 +24,8 @@ export interface IInvoice {
     [IC.INVOICE_TVA]: number;
     [IC.INVOICE_CONSUMPTIONS]: IConsumption[];
     [IC.INVOICE_CLIENT]: IClient;
+}
+
+export interface IInvoiceForm extends Omit<IInvoice, typeof IC.INVOICE_CLIENT> {
+    // You can add additional properties specific to the form if needed
 }

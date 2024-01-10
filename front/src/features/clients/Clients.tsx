@@ -44,7 +44,7 @@ function Clients() {
             filterOperators: [FilterType.EQUALS, FilterType.CONTAINS, FilterType.STARTS_WITH, FilterType.ENDS_WITH],
             isSortable: true,
             renderCell: (row: IClient) => {
-                return <StyledLink to={`/client/${row.id}`}>{row.name}</StyledLink>
+                return <StyledLink to={`/client/${row.clientId}`}>{row.name}</StyledLink>
             }
         },
         {

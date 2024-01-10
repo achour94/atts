@@ -12,16 +12,6 @@ import { InvoiceStatus } from "../../lib/constants/InvoiceConstants";
 
 export const INVOICE_API_URL = "/api/invoice";
 
-interface InvoicesState {
-  invoices: IInvoice[];
-  status: FetchStatus;
-  error: string | null | undefined;
-  filters: Filter[];
-  pagination: Pagination;
-  sort: { sortBy: string; sortDirection: SortDirection } | null;
-  statusFilter: InvoiceStatus;
-}
-
 interface FetchInvoicesParams {
   pageSize: number;
   pageNumber: number;
@@ -30,6 +20,16 @@ interface FetchInvoicesParams {
   status: InvoiceStatus;
 }
 
+interface InvoicesState {
+  invoices: IInvoice[];
+  status: FetchStatus;
+  error: string | null | undefined;
+  filters: Filter[];
+  pagination: Pagination;
+  sort: { sortBy: string; sortDirection: SortDirection } | null;
+  statusFilter: InvoiceStatus;
+  selectedInvoices: number[];
+}
 // Define the initial state with type
 const initialState: InvoicesState = {
   invoices: [],
@@ -39,12 +39,19 @@ const initialState: InvoicesState = {
   pagination: { page: 0, pageSize: 25, totalElements: 0 },
   sort: null,
   statusFilter: InvoiceStatus.DRAFT,
+  selectedInvoices: [],
 };
 
 // Async thunk for fetching invoices
 export const fetchInvoices = createAsyncThunk(
   "invoice/fetchInvoices",
-  async ({ pageSize, pageNumber, criteria, sort, status = InvoiceStatus.DRAFT }: FetchInvoicesParams) => {
+  async ({
+    pageSize,
+    pageNumber,
+    criteria,
+    sort,
+    status = InvoiceStatus.DRAFT,
+  }: FetchInvoicesParams) => {
     try {
       const mappedCriteria = criteria.map((c) => {
         return {
@@ -86,16 +93,37 @@ export const invoiceSlice = createSlice({
     },
     setStatusFilter: (state, action) => {
       state.statusFilter = action.payload;
-    }
+    },
+    setSelectedInvoices: (state, action) => {
+      state.selectedInvoices = action.payload;
+    },
+    selectAllInvoices: (state) => {
+      state.selectedInvoices = state.invoices.map(
+        (invoice) => invoice.invoiceNumber
+      );
+    },
+    deselectAllInvoices: (state) => {
+      state.selectedInvoices = [];
+    },
+    selectInvoice: (state, action) => {
+      state.selectedInvoices.push(action.payload);
+    },
+    deselectInvoice: (state, action) => {
+      state.selectedInvoices = state.selectedInvoices.filter(
+        (invoiceNumber) => invoiceNumber !== action.payload
+      );
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchInvoices.pending, (state) => {
       state.status = FetchStatus.LOADING;
-        state.error = null;
+      state.error = null;
     });
     builder.addCase(fetchInvoices.fulfilled, (state, action) => {
-        const invoices = action?.payload && action.payload.length > 0 ? action.payload[0] : [];
-        const totalElements = action?.payload && action.payload.length > 0 ? action.payload[1] : 0;
+      const invoices =
+        action?.payload && action.payload.length > 0 ? action.payload[0] : [];
+      const totalElements =
+        action?.payload && action.payload.length > 0 ? action.payload[1] : 0;
       state.status = FetchStatus.SUCCESS;
       state.invoices = invoices;
       state.pagination.totalElements = totalElements;
@@ -108,17 +136,43 @@ export const invoiceSlice = createSlice({
 });
 
 // export selectors
-export const selectInvoices = (state: any): IInvoice[] => state.invoice.invoices;
-export const selectInvoicesStatus = (state: any): FetchStatus => state.invoice.status;
-export const selectInvoicesError = (state: any): string | null | undefined => state.invoice.error;
-export const selectInvoicesFilters = (state: any): Filter[] => state.invoice.filters;
-export const selectInvoicesPagination = (state: any): Pagination => state.invoice.pagination;
-export const selectInvoicesSort = (state: any): { sortBy: string; sortDirection: SortDirection } | null => state.invoice.sort;
-export const selectInvoicesStatusFilter = (state: any): InvoiceStatus => state.invoice.statusFilter;
+export const selectInvoices = (state: any): IInvoice[] =>
+  state.invoice.invoices;
+export const selectInvoicesStatus = (state: any): FetchStatus =>
+  state.invoice.status;
+export const selectInvoicesError = (state: any): string | null | undefined =>
+  state.invoice.error;
+export const selectInvoicesFilters = (state: any): Filter[] =>
+  state.invoice.filters;
+export const selectInvoicesPagination = (state: any): Pagination =>
+  state.invoice.pagination;
+export const selectInvoicesSort = (
+  state: any
+): { sortBy: string; sortDirection: SortDirection } | null =>
+  state.invoice.sort;
+export const selectInvoicesStatusFilter = (state: any): InvoiceStatus =>
+  state.invoice.statusFilter;
+export const getSelectedInvoices = (state: any): number[] =>
+  state.invoice.selectedInvoices;
+export const getIsAllInvoicesSelected = (state: any): boolean =>
+  state.invoice.selectedInvoices.length === state.invoice.invoices.length;
+export const getIsInvoiceSelected = (
+  state: any,
+  invoiceNumber: number
+): boolean => state.invoice.selectedInvoices.includes(invoiceNumber);
 
 // Export the actions
-export const { setFilters, setPagination, setSort, setStatusFilter } = invoiceSlice.actions;
+export const {
+  setFilters,
+  setPagination,
+  setSort,
+  setStatusFilter,
+  deselectAllInvoices,
+  deselectInvoice,
+  selectAllInvoices,
+  selectInvoice,
+  setSelectedInvoices,
+} = invoiceSlice.actions;
 
 // Export the reducer
 export default invoiceSlice.reducer;
-
