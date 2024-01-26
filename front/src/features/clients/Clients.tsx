@@ -18,6 +18,7 @@ import { getFiltersOptionsFromColumns } from '../../utils/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import StyledLink from '../../components/utils/Typography/StyledLink';
 import { IClient } from '../../lib/interfaces/IClient';
+import DeleteModifyOptions from '../../components/utils/DeleteModifyOptions';
 
 function Clients() {
     const columns: TableColumn[] = useMemo(() => [
@@ -61,13 +62,13 @@ function Clients() {
             filterOperators: [FilterType.EQUALS, FilterType.MIN, FilterType.MAX],
             isSortable: true,
         },
-        {
-            field: "options",
-            label: "Options",
-            renderCell: (value: any) => {
-                return <Typography>Options</Typography>
-            }
-        },
+        // {
+        //     field: "options",
+        //     label: "Options",
+        //     renderCell: (value: any) => {
+        //         return <DeleteModifyOptions onDelete={() => {}} onModify={() => {}} />
+        //     }
+        // },
     ], []);
     const filtersOptions = useMemo(() => getFiltersOptionsFromColumns(columns), [columns]);
     // const rows = [
