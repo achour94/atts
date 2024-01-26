@@ -16,6 +16,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../services/axios";
 import { CLIENT_API_URL } from "./clientSlice";
 import { formatClientData } from "../../utils/utils";
+import { toast } from "react-toastify";
 
 // Subscription Schema
 export const subscriptionSchema = yup.object({
@@ -116,15 +117,33 @@ function ClientDetails() {
     if (id && !isAddMode) getClient(parseInt(id));
   }, [id]);
 
+  const deleteClient = (): void => {
+    setLoading(true);
+    axiosInstance
+      .delete(`${CLIENT_API_URL}/${id}`)
+      .then((response) => {
+        toast.success("Client supprimé avec succès");
+        goBack();
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Erreur lors de la suppression du client");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
   const updateClient = (client: IClient): void => {
     setLoading(true);
     axiosInstance
       .put(`${CLIENT_API_URL}`, client)
       .then((response) => {
-        console.log(response);
+        toast.success("Client modifié avec succès");
       })
       .catch((error) => {
         console.log(error);
+        toast.error("Erreur lors de la modification du client");
       })
       .finally(() => {
         setLoading(false);
@@ -136,10 +155,11 @@ function ClientDetails() {
     axiosInstance
       .post(`${CLIENT_API_URL}`, client)
       .then((response) => {
-        console.log(response);
+        toast.success("Client ajouté avec succès");
       })
       .catch((error) => {
         console.log(error);
+        toast.error("Erreur lors de l'ajout du client");
       })
       .finally(() => {
         setLoading(false);
@@ -194,7 +214,7 @@ function ClientDetails() {
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             <Box>
-              <ClientActions isAddMode={isAddMode} />
+              <ClientActions isAddMode={isAddMode} onDelete={deleteClient} />
             </Box>
             <Box>
               <TabContext value={activeTab}>
