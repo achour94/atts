@@ -17,7 +17,7 @@ function ClientInformations() {
                     <Grid item xs={12}>
                         <MuiTextField name={CC.CLIENT_NAME} label='Nom' placeholder='Nom' />
                     </Grid>
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <MuiTextField name={CC.CLIENT_EMAIL} label='Email' placeholder='Email' />
@@ -26,7 +26,7 @@ function ClientInformations() {
                                 <MuiTextField name="phone" label='Numéro de téléphone' placeholder='0033*********' />
                             </Grid>
                         </Grid>
-                    </Grid>
+                    </Grid> */}
                     <Grid item xs={12}>
                         <MuiAddress />
                     </Grid>

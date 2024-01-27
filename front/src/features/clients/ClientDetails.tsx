@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Box, Grid, Icon, IconButton, Tab } from "@mui/material";
-import { ArrowBackIos } from "@mui/icons-material";
+import { ArrowBackIos, GroupOutlined } from "@mui/icons-material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import ClientInformations from "../../components/ClientForms/ClientInformations";
 import { IClient, ISubscription } from "../../lib/interfaces/IClient";
 import { ClientConstants as CC } from "../../lib/constants/ClientConstants";
+import { UserConstants as UC } from "../../lib/constants/UserConstants";
+import { EmailTemplateConstants as ETC } from "../../lib/constants/EmailTemplateConstants";
 import { SubmitHandler, FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -17,6 +19,8 @@ import axiosInstance from "../../services/axios";
 import { CLIENT_API_URL } from "./clientSlice";
 import { formatClientData } from "../../utils/utils";
 import { toast } from "react-toastify";
+import { IUser } from "../../lib/interfaces/IUser";
+import ClientUsers from "../../components/ClientForms/ClientUsers";
 
 // Subscription Schema
 export const subscriptionSchema = yup.object({
@@ -34,6 +38,15 @@ export const subscriptionSchema = yup.object({
     .number()
     .required("Le prix de l'abonnement est requis")
     .typeError("Le prix doit être un nombre"),
+});
+
+// User Schema
+export const userSchema = yup.object({
+  [UC.USER_ID]: yup.number().optional().typeError("L'ID doit être un nombre"),
+  [UC.USER_FIRSTNAME]: yup.string().required("Le prénom est requis"),
+  [UC.USER_LASTNAME]: yup.string().required("Le nom est requis"),
+  [UC.USER_EMAIL]: yup.string().email("Doit être un email valide").required("L'email est requis"),
+  [UC.USER_PHONE]: yup.string().required("Le téléphone est requis"),
 });
 
 // Client Schema
@@ -58,6 +71,7 @@ export const clientSchema = yup.object({
   [CC.CLIENT_EMAIL]: yup.string().email("Doit être un email valide").required(),
   [CC.CLIENT_PHONE]: yup.string().required("Le téléphone est requis"),
   [CC.CLIENT_SUBSCRIPTIONS]: yup.array().of(subscriptionSchema).optional(),
+  [CC.CLIENT_USERS]: yup.array().of(userSchema).optional(),
 });
 
 function ClientDetails() {
@@ -91,6 +105,7 @@ function ClientDetails() {
     [CC.CLIENT_PHONE]: "",
     [CC.CLIENT_EMAIL]: "",
     [CC.CLIENT_SUBSCRIPTIONS]: [] as ISubscription[],
+    [CC.CLIENT_USERS]: [] as IUser[],
   };
   const methods = useForm({
     resolver: yupResolver(clientSchema),
@@ -107,6 +122,7 @@ function ClientDetails() {
       })
       .catch((error) => {
         console.log(error);
+        toast.error("Erreur lors de la récupération du client");
       })
       .finally(() => {
         setLoading(false);
@@ -235,6 +251,12 @@ function ClientDetails() {
                       icon={<BarChartIcon />}
                       iconPosition="start"
                     />
+                    <Tab
+                      label="UTILISATEUR"
+                      value="users"
+                      icon={<GroupOutlined />}
+                      iconPosition="start"
+                    />
                   </TabList>
                 </Box>
                 <TabPanel value="informations">
@@ -242,6 +264,9 @@ function ClientDetails() {
                 </TabPanel>
                 <TabPanel value="subscriptions">
                   <ClientSubscriptions />
+                </TabPanel>
+                <TabPanel value="users">
+                  <ClientUsers />
                 </TabPanel>
               </TabContext>
             </Box>

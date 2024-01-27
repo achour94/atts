@@ -3,6 +3,8 @@ import { IFilterOptions, TableColumn } from "../lib/constants/utilsConstants";
 import { IClient, ISubscription } from "../lib/interfaces/IClient";
 import { ConsumptionType, InvoiceConstants as IC, InvoiceStatus } from "../lib/constants/InvoiceConstants";
 import { IConsumption, IInvoice, IInvoiceForm } from "../lib/interfaces/IInvoice";
+import { IUser } from "../lib/interfaces/IUser";
+import { UserConstants as UC } from "../lib/constants/UserConstants";
 
 export const formatClientsData = (data: any): IClient[] => {
   return data.map((row: any) => {
@@ -26,9 +28,38 @@ export const formatClientData = (data: any): IClient => {
     [CC.CLIENT_SUBSCRIPTIONS]: formatClientSubscriptionsData(
       data[CC.CLIENT_SUBSCRIPTIONS]
     ),
-    // [CC.CLIENT_USERS]: data[CC.CLIENT_USERS],
+    [CC.CLIENT_USERS]: formatClientUsersData(data[CC.CLIENT_USERS]),
   };
 };
+
+export const formatClientUserData = (data: any): IUser => {
+  return {
+    [UC.USER_ID]: data[UC.USER_ID],
+    [UC.USER_FIRSTNAME]: data[UC.USER_FIRSTNAME],
+    [UC.USER_LASTNAME]: data[UC.USER_LASTNAME],
+    [UC.USER_EMAIL]: data[UC.USER_EMAIL],
+    // [UC.USER_ROLES]: data[UC.USER_ROLES],
+    [UC.USER_PHONE]: data[UC.USER_PHONE],
+    // [UC.USER_EMAILTEMPLATES]: data[UC.USER_EMAILTEMPLATES],
+  }
+}
+
+export const formatClientUsersData = (data: any): IUser[] => {
+  if (!data || data.length === 0) return [createEmptyClientUser()];
+  return data.map((row: any) => {
+    return formatClientUserData(row);
+  });
+};
+
+export const createEmptyClientUser = (): IUser => {
+  return {
+    [UC.USER_FIRSTNAME]: '',
+    [UC.USER_LASTNAME]: '',
+    [UC.USER_EMAIL]: '',
+    [UC.USER_PHONE]: '',
+  }
+}
+
 
 export const formatClientSubscriptionData = (data: any): ISubscription => {
   return {
