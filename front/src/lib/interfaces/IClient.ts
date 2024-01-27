@@ -1,4 +1,5 @@
 import { ClientConstants as CC } from '../constants/ClientConstants';
+import { IUser } from './IUser';
 
 export interface ISubscription {
     [CC.CLIENT_SUBSCRIPTION_ID]?: number;
@@ -20,5 +21,5 @@ export interface IClient {
     [CC.CLIENT_PHONE]: string;
     [CC.CLIENT_POSTALCODE]: string;
     [CC.CLIENT_SUBSCRIPTIONS]: any[];
-    [CC.CLIENT_USERS]?: any[];
+    [CC.CLIENT_USERS]?: IUser[];
 }
