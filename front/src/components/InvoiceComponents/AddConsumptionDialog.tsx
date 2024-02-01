@@ -8,7 +8,7 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { IConsumption } from "../../lib/interfaces/IInvoice";
@@ -25,6 +25,7 @@ interface IAddConsumptionDialogProps {
   open: boolean;
   handleClose: () => void;
   onSubmit: (data: IConsumption) => void;
+  consumptions?: IConsumption[];
 }
 const initialValues: IConsumption = {
   [IC.CONSUMPTION_COUNT]: 0,
@@ -38,19 +39,31 @@ function AddConsumptionDialog({
   open,
   handleClose,
   onSubmit,
+  consumptions,
 }: IAddConsumptionDialogProps) {
   const methods = useForm<IConsumption>({
     resolver: yupResolver(consumptionSchema),
     defaultValues: initialValues,
   });
 
+  //calculate consumption types that does not exist in consumptions
+  const consumptionTypes = useMemo(() => {
+    const consumptionTypes = Object.values(ConsumptionType);
+    const consumptionTypesInConsumptions = consumptions?.map(
+      (consumption) => consumption[IC.CONSUMPTION_TYPE]
+    );
+    const consumptionTypesNotInConsumptions = consumptionTypes.filter(
+      (consumptionType) =>
+        !consumptionTypesInConsumptions?.includes(consumptionType)
+    );
+    return consumptionTypesNotInConsumptions;
+  }
+  , [consumptions]);
+
   const addClickHandler = (data: IConsumption) => {
-    console.log(data);
-    console.log(methods.formState.errors);
     //check if thers is no error
     const hasNoErrors = Object.keys(methods.formState.errors).length === 0;
     if (hasNoErrors) {
-      console.log("no error");
       onSubmit(data);
     }
   };
@@ -77,11 +90,13 @@ function AddConsumptionDialog({
                 label="Type"
                 placeholder="Type"
               >
-                {Object.entries(ConsumptionType).map(([key, value]) => (
-                  <MenuItem key={key} value={key}>
-                    {getConsumptionTypeLabel(key as ConsumptionType)}
-                  </MenuItem>
-                ))}
+                {
+                  consumptionTypes?.map((consumptionType) => (
+                    <MenuItem key={consumptionType} value={consumptionType}>
+                      {getConsumptionTypeLabel(consumptionType)}
+                    </MenuItem>
+                  ))
+                }
               </MuiSelect>
             </Grid>
             <Grid item xs={3}>

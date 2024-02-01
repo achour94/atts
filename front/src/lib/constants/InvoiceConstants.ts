@@ -33,5 +33,5 @@ export enum ConsumptionType {
     CDR_SVA_A = "CDR_SVA_A",
     CDR_SVA_B = "CDR_SVA_B",
     CDR_SVA_D = "CDR_SVA_D",
-    ABONNEMENT_PERIODIQUE = "ABONNEMENT_PERIODIQUE",
+    CDR_SVA_G = "CDR_SVA_G",
 }

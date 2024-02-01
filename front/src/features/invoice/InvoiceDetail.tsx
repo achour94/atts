@@ -35,6 +35,7 @@ import InvoiceDetailsFormContainer from "../../components/InvoiceComponents/Invo
 import ClientInformationsCard from "../../components/InvoiceComponents/ClientInformationsCard";
 import { IClient } from "../../lib/interfaces/IClient";
 import InvoiceInformationsCard from "../../components/InvoiceComponents/InvoiceInformationsCard";
+import ConfirmationPopup from "../../components/utils/ConfirmationPopup";
 
 //styled box Container
 const StyledBoxContainer = styled(Box)(({ theme }) => ({
@@ -114,6 +115,7 @@ function InvoiceDetail() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [invoice, setInvoice] = useState<IInvoice>();
+  const [openConfirmation, setOpenConfirmation] = useState(false);
 
   const goBack = () => {
     navigate("/invoices");
@@ -143,7 +145,7 @@ function InvoiceDetail() {
     axiosInstance
       .get(`${INVOICE_API_URL}/${id}`)
       .then((response) => {
-        console.log(response.data);
+        console.log('invoice', response?.data)
         const invoice: IInvoice = formatInvoiceData(response?.data);
         const { [IC.INVOICE_CLIENT]: _, ...invoiceFormData } = invoice;
         methods.reset(invoiceFormData as IInvoiceForm);
@@ -162,15 +164,73 @@ function InvoiceDetail() {
     if (id) getInvoice(parseInt(id));
   }, [id]);
 
+  const deleteInvoice = useCallback((id: number): void => {
+    setLoading(true);
+    axiosInstance
+      .delete(`${INVOICE_API_URL}`, { data: [id] })
+      .then((response) => {
+        toast.success("La facture a été supprimée");
+        console.log(response);
+        goBack();
+      })
+      .catch((error) => {
+        toast.error("Une erreur est survenue");
+        console.log(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+  , []);
+
+  const updateInvoice = useCallback((data: IInvoiceForm): void => {
+    setLoading(true);
+    axiosInstance
+      .put(`${INVOICE_API_URL}`, data)
+      .then((response) => {
+        toast.success("La facture a été mise à jour");
+        if(id) getInvoice(parseInt(id));
+        console.log(response);
+      })
+      .catch((error) => {
+        toast.error("Une erreur est survenue");
+        console.log(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+  , []);
+
+  const formatInvoiceBeforeUpdate = useCallback((data: any) => {
+    //format invoice consumptions, remove property 'id' if exist
+    const consumptions = data[IC.INVOICE_CONSUMPTIONS].map((consumption: any) => {
+      const { id: _, ...consumptionData } = consumption;
+      return consumptionData;
+    });
+    const invoiceToUpdate = {
+      ...data,
+      [IC.INVOICE_CONSUMPTIONS]: consumptions,
+      [IC.INVOICE_CLIENT]: {
+        ...invoice?.[IC.INVOICE_CLIENT],
+        [CC.CLIENT_USERS]: [],
+      }
+    }
+    return invoiceToUpdate;
+  }
+  , [invoice]);
+
   const onSubmit: SubmitHandler<any> = (data) => {
     console.log("data", data);
     console.log(data);
     console.log(methods.formState.errors);
     //check if thers is no error
     const hasNoErrors = Object.keys(methods.formState.errors).length === 0;
+    if (hasNoErrors) {
+      const invoiceToUpdate = formatInvoiceBeforeUpdate(data);
+      updateInvoice(invoiceToUpdate);
+    }
   };
-  console.log("errors", methods.formState.errors);
-  console.log("invoice form values", methods.getValues());
 
   return (
     <Box
@@ -210,6 +270,7 @@ function InvoiceDetail() {
                         color="error"
                         startIcon={<DeleteIcon />}
                         label="Supprimer"
+                        onClick={() => setOpenConfirmation(true)}
                       />
                     </Stack>
                   </Grid>
@@ -250,6 +311,14 @@ function InvoiceDetail() {
           </Grid>
         </form>
       </FormProvider>
+
+      <ConfirmationPopup
+        open={openConfirmation}
+        title="Confirmer la suppression"
+        message="Êtes-vous sûr de vouloir supprimer cette facture ?"
+        onConfirm={() => deleteInvoice(parseInt(id as string))}
+        onCancel={() => setOpenConfirmation(false)}
+      />
     </Box>
   );
 }

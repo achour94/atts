@@ -188,6 +188,7 @@ export function getInvoiceStatusLabel (status: InvoiceStatus): string {
   }
 }
 
+// Returns a tuple containing the background color and the text color [backgroundColor, textColor]
 export function getInvoiceStatusColor (status: InvoiceStatus): [string, string] {
   switch (status) {
     case InvoiceStatus.DRAFT:
@@ -213,8 +214,8 @@ export function getConsumptionTypeLabel(typeId: ConsumptionType): string {
           return "CDR SVA B";
       case ConsumptionType.CDR_SVA_D:
           return "CDR SVA D";
-      case ConsumptionType.ABONNEMENT_PERIODIQUE:
-          return "Abonnement Périodique";
+      case ConsumptionType.CDR_SVA_G:
+          return "CDR_SVA_G";
       default:
           return "Unknown Type";
   }

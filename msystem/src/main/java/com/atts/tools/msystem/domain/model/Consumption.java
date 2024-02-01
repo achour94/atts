@@ -5,12 +5,14 @@ import com.atts.tools.msystem.domain.model.enums.ConsumptionType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.sql.Date;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+
+import lombok.*;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
 public class Consumption {
 
     @JsonProperty("consumptionId")

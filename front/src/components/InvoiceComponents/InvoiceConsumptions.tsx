@@ -35,6 +35,10 @@ function InvoiceConsumptions() {
     control,
     formState: { errors },
   } = useFormContext<IInvoice>();
+  //get the invoice data
+  const invoice = useFormContext<IInvoice>().watch();
+
+  //get the consumption fields
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: IC.INVOICE_CONSUMPTIONS,
@@ -60,8 +64,14 @@ function InvoiceConsumptions() {
 
   // Handle adding a new consumption
     const handleAddConsumption = (consumption: IConsumption) => {
-      console.log(consumption);
-      append(consumption);
+      const consumptionToAdd = {
+        ...consumption,
+        [IC.CONSUMPTION_STARTDATE]: invoice?.[IC.INVOICE_STARTPERIOD],
+        [IC.CONSUMPTION_ENDDATE]: invoice?.[IC.INVOICE_ENDPERIOD],
+      };
+      console.log('consumption to add', consumptionToAdd);
+      console.log('invoice', invoice);
+      append(consumptionToAdd);
       handleCloseAddModal();
     };
 
@@ -353,6 +363,7 @@ function InvoiceConsumptions() {
           open={openAddModal}
           handleClose={handleCloseAddModal}
           onSubmit={handleAddConsumption}
+          consumptions={fields}
         />
       )}
 

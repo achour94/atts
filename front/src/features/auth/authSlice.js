@@ -44,7 +44,6 @@ const authSlice = createSlice({
 export const { setAuth, loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
 
 export const initializeAuth = (dispatch) => {
-    console.log("initializeAuth");
     if (!UserService.isInitialized()) {
         dispatch(loginStart());
         UserService.initKeycloak(() => {
