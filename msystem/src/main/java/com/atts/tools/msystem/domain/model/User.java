@@ -1,5 +1,6 @@
 package com.atts.tools.msystem.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -17,11 +18,14 @@ import java.util.List;
 @NoArgsConstructor
 public class User implements ModelEntity {
 
+    @JsonProperty("userId")
     private Integer id;
     private Client client;
     private List<Role> roles;
     private String email;
-    private String username;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
     private String password;
     @Builder.Default
     private List<EmailTemplate> emailTemplates = new ArrayList<>();
@@ -34,12 +38,11 @@ public class User implements ModelEntity {
             return false;
         }
         User user = (User) o;
-        return Objects.equals(email, user.email) && Objects.equals(username,
-            user.username);
+        return Objects.equals(email, user.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, email);
+        return Objects.hash(email);
     }
 }

@@ -24,12 +24,12 @@ public class UserStorageAdapter implements UserStoragePort {
 
     @Override
     public User findUserByUsername(String username) {
-        return transformer.transformToUser(userRepository.findUserEntityByUsername(username).get());
+        return transformer.transformToUser(userRepository.findUserEntityByEmail(username).get());
     }
 
     @Override
     public Set<User> findUsersByUsernames(List<String> usernames) {
-        return userRepository.findUsersByUsernameIsIn(usernames).stream().map(
+        return userRepository.findUsersByEmailIsIn(usernames).stream().map(
             transformer::transformToUser
         ).collect(Collectors.toSet());
     }
@@ -41,6 +41,6 @@ public class UserStorageAdapter implements UserStoragePort {
 
     @Override
     public void deleteUserByUsername(String username) {
-        userRepository.deleteUserByUsername(username);
+        userRepository.deleteUserByEmail(username);
     }
 }

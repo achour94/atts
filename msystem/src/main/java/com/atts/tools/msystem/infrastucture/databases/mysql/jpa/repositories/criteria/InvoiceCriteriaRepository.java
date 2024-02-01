@@ -49,7 +49,7 @@ public class InvoiceCriteriaRepository implements InvoiceCriteriaPort {
     public Page<Invoice> findAllWithFiltersAndRestrictions(RequestPage page, Collection<SearchCriteria> criteria) {
         BiFunction<Root<InvoiceEntity>, CriteriaBuilder, Predicate> securityPredicateGen = null;
         if (!authorizationUtil.currentUserIsAdmin()) {
-            UserEntity userEntity = userRepository.findUserEntityByUsername(authorizationUtil.getCurrentUserUsername())
+            UserEntity userEntity = userRepository.findUserEntityByEmail(authorizationUtil.getCurrentUserUsername())
                 .stream().findAny().orElseThrow(() -> new ForbiddenException(
                     "You cannot access this endpoint with a non admin that is not known by application!"));
             securityPredicateGen = (invoiceEntityRoot, criteriaBuilder) -> criteriaBuilder.and(criteriaBuilder.equal(

@@ -33,12 +33,20 @@ public class UserEntity implements DBEntity {
     private Integer id;
 
     @Size(max = 45)
-    @Column(name = "username", length = 45)
-    private String username;
-
-    @Size(max = 45)
     @Column(name = "email", length = 45)
     private String email;
+
+    @Size(max = 45)
+    @Column(name = "first_name", length = 45)
+    private String firstName;
+
+    @Size(max = 45)
+    @Column(name = "last_name", length = 45)
+    private String lastName;
+
+    @Size(max = 45)
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")

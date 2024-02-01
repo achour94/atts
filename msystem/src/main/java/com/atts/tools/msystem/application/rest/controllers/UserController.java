@@ -44,15 +44,17 @@ public class UserController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<AddUserResponse> addUser(@Valid @RequestBody AddUserRequest request)
         throws RegistrationException {
-        User user = userManagementUseCase.addUser(request.getClientId(), request.getEmail());
-        logger.info(String.format("An user with the username: %s was created!", user.getUsername()));
+        User user = userManagementUseCase.addUser(request.getClientId(),
+            User.builder().email(request.getEmail()).firstName(request.getFirstName()).lastName(request.getLastName())
+                .phoneNumber(request.getPhoneNumber()).build());
+        logger.info(String.format("An user with the username: %s was created!", user.getEmail()));
         return ResponseEntity.ok().body(AddUserResponse.builder()
-            .username(user.getUsername()).id(user.getId()).build());
+            .username(user.getEmail()).id(user.getId()).build());
     }
 
     @PutMapping("/password")
     public void updatePassword(@RequestBody PasswordUpdateRequest request) {
-         userManagementUseCase.updatePassword(request.getOldPassword(), request.getNewPassword());
+        userManagementUseCase.updatePassword(request.getOldPassword(), request.getNewPassword());
     }
 
     @PutMapping("/delete")

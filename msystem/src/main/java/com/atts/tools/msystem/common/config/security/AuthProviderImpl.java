@@ -51,7 +51,7 @@ public class AuthProviderImpl implements AuthProvider {
         CredentialRepresentation credentialRepresentation = createPasswordCredentials(registrationUser.getPassword());
 
         UserRepresentation user = new UserRepresentation();
-        user.setUsername(registrationUser.getUsername());
+        user.setUsername(registrationUser.getEmail());
         user.setEmail(user.getEmail());
         user.setEnabled(true);
         user.setCredentials(Collections.singletonList(credentialRepresentation));
@@ -90,24 +90,24 @@ public class AuthProviderImpl implements AuthProvider {
 
 
     @Override
-    public void deleteUser(String username) throws IllegalStateException {
+    public void deleteUser(String email) throws IllegalStateException {
         RealmResource realmResource = this.keycloak.realm(realm);
         UsersResource usersResource = realmResource.users();
-        UserRepresentation userRepresentation = usersResource.search(username).stream().findAny().orElse(null);
+        UserRepresentation userRepresentation = usersResource.search(email).stream().findAny().orElse(null);
         if (userRepresentation == null) {
-            throw new IllegalStateException("There isn't an account with usnername: " + username);
+            throw new IllegalStateException("There isn't an account with usnername: " + email);
         }
         Response response = usersResource.delete(userRepresentation.getId());
         if (!Status.NO_CONTENT.equals(response.getStatusInfo())) {
             throw new RuntimeException(
-                String.format("There was a problem at deleting account for user [%s]!", username));
+                String.format("There was a problem at deleting account for user [%s]!", email));
         }
     }
 
     @Override
     public List<User> findAllAdminUsers() {
         return getRoleRepresentation(Role.ADMIN).getUserMembers().stream().map(
-            userRepresentation -> User.builder().username(userRepresentation.getUsername())
+            userRepresentation -> User.builder().email(userRepresentation.getUsername())
                 .email(userRepresentation.getEmail()).build()
         ).collect(Collectors.toList());
     }
@@ -116,7 +116,7 @@ public class AuthProviderImpl implements AuthProvider {
     public void updatePasswordForUser(String oldPassword, User newUser) {
         RealmResource realmResource = this.keycloak.realm(realm);
         UsersResource usersResource = realmResource.users();
-        UserRepresentation userRepresentation = usersResource.search(newUser.getUsername()).stream().findAny()
+        UserRepresentation userRepresentation = usersResource.search(newUser.getEmail()).stream().findAny()
             .orElseThrow(NoSuchElementException::new);
         UserResource userResource = usersResource.get(userRepresentation.getId());
         CredentialRepresentation passwordCredential = new CredentialRepresentation();

@@ -6,7 +6,7 @@ import com.atts.tools.msystem.domain.model.EmailTemplate;
 import com.atts.tools.msystem.domain.model.User;
 
 public interface UserManagementUseCase {
-    User addUser(Integer clientId, String email) throws RegistrationException;
+    User addUser(Integer clientId, User user) throws RegistrationException;
     void deleteUser(String username) throws RegistrationException;
     EmailTemplate createEmailTemplate(EmailTemplate emailTemplate) throws IlegalRequestException;
     EmailTemplate updateEmailTemplate(EmailTemplate emailTemplate) throws IlegalRequestException;
