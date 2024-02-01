@@ -4,13 +4,14 @@ import com.atts.tools.msystem.domain.model.enums.InvoiceStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.sql.Date;
 import java.util.List;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+
+import lombok.*;
 
 @Builder
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Invoice implements ModelEntity {
 
     Client client;

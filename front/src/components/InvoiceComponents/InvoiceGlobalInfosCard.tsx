@@ -1,12 +1,18 @@
 import { Box, Grid, Typography } from "@mui/material";
 import React from "react";
-import { formatTimestampToFrenchDate } from "../../utils/utils";
+import {
+  formatTimestampToFrenchDate,
+  getInvoiceStatusColor,
+  getInvoiceStatusLabel,
+} from "../../utils/utils";
 import styled from "@emotion/styled";
+import { InvoiceStatus } from "../../lib/constants/InvoiceConstants";
+import InvoiceStatusContainer from "../utils/InvoiceStatusContainer";
 
 interface InvoiceGlobalInfosCardProps {
   invoiceNumber: number | string;
   clientName: string;
-  invoiceDate: number;
+  invoiceStatus: string;
 }
 
 //create styled item title
@@ -29,7 +35,7 @@ const StyledItemValue = styled(Typography)(({ theme }) => ({
 function InvoiceGlobalInfosCard({
   invoiceNumber,
   clientName,
-  invoiceDate,
+  invoiceStatus,
 }: InvoiceGlobalInfosCardProps) {
   return (
     <Box
@@ -39,11 +45,12 @@ function InvoiceGlobalInfosCard({
         justifyContent: "space-between",
         alignItems: "flex-start",
         width: "100%",
-        padding: '1rem 2rem 1rem 1rem',
-        borderRadius: '0.625rem',
-        border: '0.6px solid var(--Neutral-Colors-300, #EBEFF6)',
-        background:'var(--Neutral-Colors-White, #FFF)',
-        boxShadow: '0px 1px 3px 0px rgba(25, 33, 61, 0.05), 0px 2px 8px 0px rgba(25, 33, 61, 0.04)',
+        padding: "1rem 2rem 1rem 1rem",
+        borderRadius: "0.625rem",
+        border: "0.6px solid var(--Neutral-Colors-300, #EBEFF6)",
+        background: "var(--Neutral-Colors-White, #FFF)",
+        boxShadow:
+          "0px 1px 3px 0px rgba(25, 33, 61, 0.05), 0px 2px 8px 0px rgba(25, 33, 61, 0.04)",
       }}
     >
       <Grid container justifyContent={"space-between"}>
@@ -79,9 +86,15 @@ function InvoiceGlobalInfosCard({
               alignItems: "flex-start",
             }}
           >
-            <StyledItemTitle>DATE D’ÉCHEANCE</StyledItemTitle>
-            <StyledItemValue>
-              {formatTimestampToFrenchDate(invoiceDate, "long")}
+            <StyledItemTitle>STATUT</StyledItemTitle>
+            <StyledItemValue
+              sx={{
+                color: `${
+                  getInvoiceStatusColor(invoiceStatus as InvoiceStatus)[1]
+                } !important`,
+              }}
+            >
+              {getInvoiceStatusLabel(invoiceStatus as InvoiceStatus)}
             </StyledItemValue>
           </Box>
         </Grid>

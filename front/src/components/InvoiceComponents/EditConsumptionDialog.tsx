@@ -71,6 +71,7 @@ function EditConsumptionDialog({
                 name={IC.CONSUMPTION_TYPE}
                 label="Type"
                 placeholder="Type"
+                disabled
               >
                 {Object.entries(ConsumptionType).map(([key, value]) => (
                   <MenuItem key={key} value={key}>

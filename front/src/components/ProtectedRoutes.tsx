@@ -6,8 +6,6 @@ import { useLocation, Navigate, Outlet } from "react-router-dom"
 
 const ProtectedRoute: React.FC = () => {
     const { isAuthenticated, isLoading } = useSelector((state: any) => state.auth);
-    console.log("ProtectedRoute: isLoading: ", isLoading)
-    console.log("ProtectedRoute: isAuthenticated: ", isAuthenticated)
     const location = useLocation();
 
     return (

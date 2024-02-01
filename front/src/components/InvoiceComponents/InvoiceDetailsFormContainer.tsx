@@ -5,7 +5,7 @@ import InvoiceGlobalInfosCard from "./InvoiceGlobalInfosCard";
 import MuiSwitch from "../Form/MuiSwitch";
 import MuiDate from "../Form/MuiDate";
 import { IInvoice } from "../../lib/interfaces/IInvoice";
-import { InvoiceConstants as IC } from "../../lib/constants/InvoiceConstants";
+import { InvoiceConstants as IC, InvoiceStatus } from "../../lib/constants/InvoiceConstants";
 import { ClientConstants as CC } from "../../lib/constants/ClientConstants";
 import InvoiceConsumptions from "./InvoiceConsumptions";
 
@@ -21,7 +21,7 @@ function InvoiceDetailsFormContainer({ invoice }: InvoiceDetailsFormContainerPro
         <InvoiceGlobalInfosCard
           invoiceNumber={invoice?.[IC.INVOICE_NUMBER] || 0}
           clientName={invoice?.[IC.INVOICE_CLIENT]?.[CC.CLIENT_NAME] || ""}
-          invoiceDate={invoice?.[IC.INVOICE_CREATONDATE] || 0}
+          invoiceStatus={invoice?.[IC.INVOICE_STATUS] || InvoiceStatus.DRAFT}
         />
       </Box>
       <Box mb={2}>
