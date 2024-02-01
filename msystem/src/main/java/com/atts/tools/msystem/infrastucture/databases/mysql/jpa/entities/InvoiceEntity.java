@@ -33,7 +33,7 @@ public class InvoiceEntity implements DBEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at")
     private Instant createdAt = Instant.now();
 
     @UpdateTimestamp
