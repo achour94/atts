@@ -11,5 +11,12 @@ import lombok.Setter;
 public class AddUserRequest {
     @NotNull
     private Integer clientId;
+    @NotNull
+    private String firstName;
+    @NotNull
+    private String lastName;
+    @NotNull
+    private String phoneNumber;
+    @NotNull
     private String email; //email that will be set for client if it doesn't exists
 }

@@ -21,7 +21,7 @@ public class AdminsLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         List<User> users = authProvider.findAllAdminUsers();
         Set<User> adminsFromDb = userStoragePort.findUsersByUsernames(
-            users.stream().map(User::getUsername).collect(Collectors.toList()));
+            users.stream().map(User::getEmail).collect(Collectors.toList()));
         userStoragePort.addUsers(users.stream().filter(user -> !adminsFromDb.contains(user)).collect(Collectors.toList()));
     }
 }

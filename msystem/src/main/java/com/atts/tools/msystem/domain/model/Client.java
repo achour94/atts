@@ -31,14 +31,12 @@ public class Client implements ModelEntity {
     Double defaultSubscription;
     Double diverseSubscription;
     String postalCode;
-    String phone;
     String city;
     @Builder.Default
     List<User> users = new ArrayList<>();
     Boolean activeDiverse;
     String name;
     String address;
-    String email;
 
     @Override
     public String toString() {

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
-    void deleteUserByUsername(String username);
-    List<UserEntity> findUsersByUsernameIsIn(List<String> usernames);
-    Optional<UserEntity> findUserEntityByUsername(String username);
+    void deleteUserByEmail(String username);
+    List<UserEntity> findUsersByEmailIsIn(List<String> usernames);
+    Optional<UserEntity> findUserEntityByEmail(String username);
 }

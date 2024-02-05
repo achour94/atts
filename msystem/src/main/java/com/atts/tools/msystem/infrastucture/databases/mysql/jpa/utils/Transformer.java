@@ -61,7 +61,9 @@ public class Transformer {
                 user.getEmailTemplates().stream().map(this::transformtoEmailTemplateEntityWithoutUser).collect(
                     Collectors.toList()));
         }
-        userEntity.setUsername(user.getUsername());
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+        userEntity.setPhoneNumber(user.getPhoneNumber());
         return userEntity;
     }
 
@@ -80,7 +82,8 @@ public class Transformer {
         if (userEntity == null) {
             return null;
         }
-        return User.builder().username(userEntity.getUsername()).id(userEntity.getId()).email(userEntity.getEmail())
+        return User.builder().firstName(userEntity.getFirstName()).lastName(userEntity.getLastName()).phoneNumber(
+                userEntity.getPhoneNumber()).id(userEntity.getId()).email(userEntity.getEmail())
             .client(transformToClientWithoutUsers(userEntity.getClient())).emailTemplates(
                 userEntity.getEmailTemplateEntities().stream().map(this::transformToEmailTemplateWithoutUser).collect(
                     Collectors.toList()))
@@ -115,7 +118,9 @@ public class Transformer {
 
     public User transformToUserWithRel(
         UserEntity userEntity, boolean withClient, boolean withEmailTemplate) {
-        User user = User.builder().username(userEntity.getUsername()).id(userEntity.getId())
+        User user = User.builder().firstName(userEntity.getFirstName()).lastName(userEntity.getLastName())
+            .phoneNumber(userEntity.getPhoneNumber())
+            .id(userEntity.getId())
             .email(userEntity.getEmail())
             .client(transformToClient(userEntity.getClient()))
             .build();
@@ -229,14 +234,13 @@ public class Transformer {
         Client client = Client.builder().id(clientEntity.getId())
             .clientReference(new ClientReference(clientEntity.getReference()))
             .defaultSubscription(clientEntity.getDefaultSubscription())
-            .activeDiverse(clientEntity.getDiverse() == 1).email(clientEntity.getEmail())
+            .activeDiverse(clientEntity.getDiverse() == 1)
             .address(clientEntity.getAddress())
             .name(clientEntity.getName())
             .subscriptions(
                 clientEntity.getSubscriptions().stream().map(this::transformToSubscriptionWithoutClient).collect(
                     Collectors.toList()))
             .diverseSubscription(clientEntity.getDiverseAmount())
-            .phone(clientEntity.getPhone())
             .city(clientEntity.getCity())
             .postalCode(clientEntity.getPostalCode()).build();
         if (addUsers) {
@@ -267,7 +271,6 @@ public class Transformer {
         entity.setDiverseAmount(client.getDiverseSubscription());
         entity.setPostalCode(client.getPostalCode());
         entity.setDiverse(Integer.valueOf(client.getActiveDiverse() ? 1 : 0).byteValue());
-        entity.setEmail(client.getEmail());
         entity.setName(client.getName());
         entity.setReference(client.getClientReference().reference());
         if (client.getSubscriptions() != null) {
@@ -276,7 +279,6 @@ public class Transformer {
                     Collectors.toSet()));
         }
         entity.setAddress(client.getAddress());
-        entity.setPhone(client.getPhone());
         entity.setCity(client.getCity());
 
         if (addUsers && client.getUsers() != null) {

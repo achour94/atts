@@ -124,6 +124,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
             .toList();
 
         consumptionStoragePort.delete(consumptionsToDelete);
+        updateInvoiceBasedOnConsumptions(invoice);
         invoiceStoragePort.save(invoice);
     }
 

@@ -33,34 +33,24 @@ public class UserService implements UserManagementUseCase {
     private final AuthorizationUtil authorizationUtil;
 
     @Override
-    public User addUser(Integer clientId, String email) throws RegistrationException {
-        User user = new User();
+    public User addUser(Integer clientId, User user) throws RegistrationException {
         user.setRoles(List.of(Role.CLIENT));
         Client client = clientStoragePort.findById(clientId).orElseThrow(NoSuchElementException::new);
-        if (client.getEmail() == null && email == null) {
-            throw new RegistrationException("You should set an email if the client doesn't have one!");
-        }
-        if (client.getEmail() != null && !client.getEmail().equals(email)) {
-            throw new RegistrationException("You cannot have client email different of user email!");
-        }
+
         if (!client.getUsers().isEmpty()) {
             throw new RegistrationException("You can add only one user per client!");
         }
-        client.setEmail(email);
-        clientStoragePort.save(client);
         user.setClient(client);
 
-        user.setUsername(client.getEmail());
         String temporaryPassword = UUID.randomUUID().toString();
         user.setPassword(temporaryPassword);
-        user.setEmail(client.getEmail());
         authProvider.addUser(user);
         try {
             User createdUser = userStoragePort.createUser(user);
-            emailPort.sendLoginMailToChangePassword(user.getUsername(), user.getPassword(), user.getEmail());
+            emailPort.sendLoginMailToChangePassword(user.getEmail(), user.getPassword(), user.getEmail());
             return createdUser;
         } catch (Exception e) {
-            authProvider.deleteUser(user.getUsername());
+            authProvider.deleteUser(user.getEmail());
             throw new RuntimeException(e);
         }
     }
@@ -102,7 +92,7 @@ public class UserService implements UserManagementUseCase {
 
     @Override
     public void updatePassword(String oldPassword, String newPassword) {
-        User user = User.builder().username(authorizationUtil.getCurrentUserUsername()).password(newPassword).build();
+        User user = User.builder().email(authorizationUtil.getCurrentUserUsername()).password(newPassword).build();
         authProvider.updatePasswordForUser(oldPassword, user);
     }
 }
