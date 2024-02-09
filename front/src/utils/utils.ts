@@ -220,3 +220,24 @@ export function getConsumptionTypeLabel(typeId: ConsumptionType): string {
           return "Unknown Type";
   }
 }
+
+/**
+ * Triggers a download of a PDF file from a blob.
+ * @param blob - The blob containing the PDF data.
+ * @param filename - The name of the file to be downloaded.
+ */
+export const downloadPDF = (blob: Blob, filename: string): void => {
+  // Create a URL for the blob
+  const url = window.URL.createObjectURL(blob);
+
+  // Create a temporary link element
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+
+  // Append the link to the body, click it, and then remove it
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  a.remove();
+};

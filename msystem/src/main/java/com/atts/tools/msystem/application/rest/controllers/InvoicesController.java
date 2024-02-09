@@ -109,6 +109,10 @@ public class InvoicesController {
         headers.add(HttpHeaders.CONTENT_DISPOSITION,
             String.format("attachment; filename=%s", invoiceFile.getFilename()));
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
+
+        // Exposing Content-Disposition header to the client
+        headers.add("Access-Control-Expose-Headers", HttpHeaders.CONTENT_DISPOSITION);
+
         return ResponseEntity.ok()
             .headers(headers)
             .contentLength(invoiceFile.getContent().length)
