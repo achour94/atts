@@ -36,9 +36,7 @@ import ClientInformationsCard from "../../components/InvoiceComponents/ClientInf
 import { IClient } from "../../lib/interfaces/IClient";
 import InvoiceInformationsCard from "../../components/InvoiceComponents/InvoiceInformationsCard";
 import ConfirmationPopup from "../../components/utils/ConfirmationPopup";
-import PDFViewer from "../../components/utils/PDFViewer";
 import PDFDialog from "../../components/utils/PDFDialog";
-import { ca } from "date-fns/locale";
 
 //styled box Container
 const StyledBoxContainer = styled(Box)(({ theme }) => ({
