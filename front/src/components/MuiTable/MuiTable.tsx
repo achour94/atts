@@ -113,7 +113,7 @@ function MuiTable({ columns, rows, status, sort, onSort, pagination, onPageChang
                   sx={{ textAlign: "center" }}
                 >
                   <Typography variant="body1" sx={{ color: "#696969" }}>
-                    Aucun client trouvé
+                    Aucune donnée trouvée
                   </Typography>
                 </TableCell>
               </TableRow>

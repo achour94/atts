@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../services/axios";
 import { Box, Button, Checkbox, Grid, Input } from "@mui/material";
+import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
+import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { IInvoice } from "../../lib/interfaces/IInvoice";
@@ -47,17 +49,20 @@ import {
   getFiltersOptionsFromColumns,
   getInvoiceStatusColor,
   getInvoiceStatusLabel,
+  hasSVAConsumptions,
 } from "../../utils/utils";
 import InvoiceStatusContainer from "../../components/utils/InvoiceStatusContainer";
 import { Upload } from "@mui/icons-material";
 import UploadInvoicesDialog from "../../components/UploadInvoicesDialog/UploadInvoicesDialog";
 import FilterButton from "../../components/Filters/FilterButton";
 import StatusFilterButton from "../../components/Filters/StatusFilterButton";
-import ActionsListMenu, { ActionListItem } from "../../components/utils/ActionsListMenu";
-import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
-import FolderZipOutlinedIcon from '@mui/icons-material/FolderZipOutlined';
-import AttachEmailOutlinedIcon from '@mui/icons-material/AttachEmailOutlined';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import ActionsListMenu, {
+  ActionListItem,
+} from "../../components/utils/ActionsListMenu";
+import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
+import FolderZipOutlinedIcon from "@mui/icons-material/FolderZipOutlined";
+import AttachEmailOutlinedIcon from "@mui/icons-material/AttachEmailOutlined";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
 function Invoices() {
   const dispatch: ThunkDispatch<any, void, any> = useDispatch();
@@ -106,8 +111,12 @@ function Invoices() {
         filterOperators: [FilterType.EQUALS, FilterType.MIN, FilterType.MAX],
         isSortable: true,
         renderCell: (row: IInvoice) => {
-          return <StyledLink to={`/invoice/${row[IC.INVOICE_NUMBER]}`}>{row[IC.INVOICE_NUMBER]}</StyledLink>
-      }
+          return (
+            <StyledLink to={`/invoice/${row[IC.INVOICE_NUMBER]}`}>
+              {row[IC.INVOICE_NUMBER]}
+            </StyledLink>
+          );
+        },
       },
       {
         field: IC.INVOICE_CREATONDATE,
@@ -170,6 +179,28 @@ function Invoices() {
             <StyledLink to={`/client/${row?.client?.clientId}`}>
               {row.client.name}
             </StyledLink>
+          );
+        },
+      },
+      {
+        field: IC.INVOICE_SPECIAL_NUMBERS,
+        label: "Numéros spéciaux",
+        columnType: CT.BOOLEAN,
+        filterOperators: [FilterType.EQUALS],
+        // isSortable: true,
+        renderCell: (row: IInvoice) => {
+          return (
+            <Box>
+              <Grid container>
+                <Grid item>
+                  {hasSVAConsumptions(row) ? (
+                    <CheckCircleOutlineRoundedIcon color="success" />
+                  ) : (
+                    <HighlightOffRoundedIcon color="error" />
+                  )}
+                </Grid>
+              </Grid>
+            </Box>
           );
         },
       },
