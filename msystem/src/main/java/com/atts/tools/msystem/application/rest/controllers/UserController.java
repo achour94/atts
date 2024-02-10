@@ -68,7 +68,7 @@ public class UserController {
     }
 
     @GetMapping("/{email}")
-    public User getUser(String email) {
+    public User getUser(@PathVariable String email) {
         return userStoragePort.findUserByUsername(email);
     }
 
