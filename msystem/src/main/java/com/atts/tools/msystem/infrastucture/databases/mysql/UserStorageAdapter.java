@@ -18,13 +18,13 @@ public class UserStorageAdapter implements UserStoragePort {
     private final Transformer transformer;
 
     @Override
-    public User createUser(User user) {
+    public User save(User user) {
         return transformer.transformToUser(userRepository.save(transformer.transformToUserEntity(user)));
     }
 
     @Override
     public User findUserByUsername(String username) {
-        return transformer.transformToUser(userRepository.findUserEntityByEmail(username).get());
+        return transformer.transformToUser(userRepository.findUserEntityByEmail(username).orElse(null));
     }
 
     @Override

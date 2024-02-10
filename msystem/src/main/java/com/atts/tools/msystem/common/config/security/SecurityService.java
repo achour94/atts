@@ -24,6 +24,8 @@ public class SecurityService {
             return hasPermissionToInvoice((Integer) element);
         } else if (ElementSecurityType.EMAIL_TEMPLATE.equals(elementSecurityType)) {
             return hasPermissionToEmailTemplate(element);
+        } else if (ElementSecurityType.USER.equals(elementSecurityType)) {
+            return hasPermissionUser(element);
         }
         return false;
     }
@@ -38,7 +40,7 @@ public class SecurityService {
         }
 
         String username = authorizationUtil.getCurrentUserUsername();
-      Invoice invoice = invoiceStoragePort.findById(element)
+        Invoice invoice = invoiceStoragePort.findById(element)
             .orElseThrow(NoSuchElementException::new);
         User user = userStoragePort.findUserByUsername(username);
         return invoice.getClient().getClientReference().equals(user.getClient().getClientReference())
@@ -57,5 +59,9 @@ public class SecurityService {
             }
         }
         return false;
+    }
+
+    private boolean hasPermissionUser(Object element) {
+        return authorizationUtil.currentUserIsAdmin() || authorizationUtil.getCurrentUserUsername().equals(element);
     }
 }
