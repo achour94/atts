@@ -14,9 +14,11 @@ import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 
 interface IInvoiceInfosProps {
   invoice: IInvoice;
+  onVisualize: () => void;
+  onDownload: () => void;
 }
 
-function InvoiceInformationsCard({ invoice }: IInvoiceInfosProps) {
+function InvoiceInformationsCard({ invoice, onVisualize, onDownload }: IInvoiceInfosProps) {
   return (
     <Box p={1}>
       <SecondaryTitle
@@ -47,7 +49,7 @@ function InvoiceInformationsCard({ invoice }: IInvoiceInfosProps) {
                 px: "1.5rem",
                 py: "0.5rem",
               }}
-              // onClick={() => goToClientDetails(client?.[CC.CLIENT_ID] as number)}
+              onClick={onVisualize}
             >
               <Typography
                 sx={{
@@ -71,7 +73,7 @@ function InvoiceInformationsCard({ invoice }: IInvoiceInfosProps) {
                 px: "1.5rem",
                 py: "0.5rem",
               }}
-              // onClick={() => goToClientDetails(client?.[CC.CLIENT_ID] as number)}
+              onClick={onDownload}
             >
               <Typography
                 sx={{

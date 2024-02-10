@@ -231,8 +231,8 @@ public class InvoiceService implements ManageInvoicesUseCase {
             totalHtAmount += consumption.getHtAmount();
         }
         totalHtAmount += computeAmountForClient(invoice.getClient());
-        totalHtAmount += invoice.getClient().getDefaultSubscription();
-        totalHtAmount += invoice.getClient().getDiverseSubscription();
+//        totalHtAmount += invoice.getClient().getDefaultSubscription();
+//        totalHtAmount += invoice.getClient().getDiverseSubscription();
 
         Double ttcTotalAmount = totalHtAmount * (1 + invoice.getTva() / 100);
 

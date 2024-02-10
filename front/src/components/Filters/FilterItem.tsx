@@ -1,5 +1,14 @@
 import { CloseOutlined } from "@mui/icons-material";
-import { Grid, IconButton, MenuItem, TextField } from "@mui/material";
+import {
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import React from "react";
 import {
   ColumnType,
@@ -88,6 +97,28 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
             disabled={operatorValue === ""}
           />
         );
+      case ColumnType.BOOLEAN:
+        return (
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-helper-label">Valeur</InputLabel>
+            <Select
+              labelId="demo-simple-select-helper-label"
+              id="demo-simple-select-helper"
+              {...field}
+              label="Valeur"
+              disabled={operatorValue === ""}
+              error={!!error}
+              size="small"
+              fullWidth
+            >
+              <MenuItem value="true">Oui</MenuItem>
+              <MenuItem value="false">Non</MenuItem>
+            </Select>
+            <FormHelperText sx={{ color: "red" }}>
+              {error ? error.message : null}
+            </FormHelperText>
+          </FormControl>
+        );
       default:
         return (
           <TextField
@@ -153,7 +184,9 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
             <Controller
               name={`filters[${index}].value`}
               control={control}
-              render={({ field, fieldState: { error } }) => getValueField(field, error)}
+              render={({ field, fieldState: { error } }) =>
+                getValueField(field, error)
+              }
             />
           </Grid>
         </Grid>

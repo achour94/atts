@@ -5,3 +5,4 @@
 *.ipr
 ## ignore mysql folder ##
 mysql/*
+invoices/*
