@@ -18,6 +18,7 @@ export enum InvoiceConstants {
     INVOICE_TVA = 'tva',
     INVOICE_CONSUMPTIONS = 'consumptions',
     INVOICE_CLIENT = 'client',
+    INVOICE_SPECIAL_NUMBERS = 'specialNumbers',
 }
 
 export enum InvoiceStatus {

@@ -241,3 +241,17 @@ export const downloadPDF = (blob: Blob, filename: string): void => {
   window.URL.revokeObjectURL(url);
   a.remove();
 };
+
+/** 
+ * check if an invoice have consumptions of type CDR_SVA_A, CDR_SVA_B, CDR_SVA_D or CDR_SVA_G
+ * and if it's the case, calculate the total amount of these consumptions and check if it's greater than 0
+ * @param invoice - The invoice to check
+ * @returns true if the invoice has SVA consumptions and the total amount is greater than 0, false otherwise
+ * */
+export const hasSVAConsumptions = (invoice: IInvoice): boolean => {
+  const svaConsumptions = invoice?.[IC.INVOICE_CONSUMPTIONS]?.filter(consumption => {
+    return [ConsumptionType.CDR_SVA_A, ConsumptionType.CDR_SVA_B, ConsumptionType.CDR_SVA_D, ConsumptionType.CDR_SVA_G].includes(consumption?.[IC.CONSUMPTION_TYPE] as ConsumptionType);
+  });
+  const totalSVAConsumptionsAmount = svaConsumptions.reduce((acc, consumption) => acc + consumption?.[IC.CONSUMPTION_HTAMOUNT], 0);
+  return totalSVAConsumptionsAmount > 0;
+}
