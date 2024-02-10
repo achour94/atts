@@ -4,10 +4,12 @@ export enum UserConstants {
   USER_LASTNAME = 'lastName',
   USER_EMAIL = 'email',
   USER_ROLES = 'roles',
-  USER_PHONE = 'phone',
+  USER_PHONE = 'phoneNumber',
   USER_EMAILTEMPLATES = 'emailTemplates',
   USER_PASSWORD = 'password',
 }
+
+export const USER_API_URL = "/api/user";
   
 
 
