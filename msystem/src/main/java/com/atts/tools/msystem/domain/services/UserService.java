@@ -17,6 +17,7 @@ import com.atts.tools.msystem.domain.ports.out.smtp.EmailPort;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
@@ -36,22 +37,33 @@ public class UserService implements UserManagementUseCase {
     public User addUser(Integer clientId, User user) throws RegistrationException {
         user.setRoles(List.of(Role.CLIENT));
         Client client = clientStoragePort.findById(clientId).orElseThrow(NoSuchElementException::new);
-
-        if (!client.getUsers().isEmpty()) {
-            throw new RegistrationException("You can add only one user per client!");
+        User userWithSameEmail = userStoragePort.findUserByUsername(user.getEmail());
+        if (userWithSameEmail != null && userWithSameEmail.getClient() != null && !userWithSameEmail.getClient().getId()
+            .equals(clientId)) {
+            throw new RegistrationException("You cannot assign a user to another client!");
         }
-        user.setClient(client);
+        Optional<User> userToDelete = client.getUsers().stream()
+            .filter(clientUser -> !user.getEmail().equals(clientUser.getEmail())).findAny();
+        if (userToDelete.isPresent() || client.getUsers().isEmpty()) {
+            userToDelete.ifPresent(us -> deleteUser(us.getEmail()));
+            user.setClient(client);
 
-        String temporaryPassword = UUID.randomUUID().toString();
-        user.setPassword(temporaryPassword);
-        authProvider.addUser(user);
-        try {
-            User createdUser = userStoragePort.createUser(user);
-            emailPort.sendLoginMailToChangePassword(user.getEmail(), user.getPassword(), user.getEmail());
-            return createdUser;
-        } catch (Exception e) {
-            authProvider.deleteUser(user.getEmail());
-            throw new RuntimeException(e);
+            String temporaryPassword = UUID.randomUUID().toString();
+            user.setPassword(temporaryPassword);
+            authProvider.addUser(user);
+            try {
+                User createdUser = userStoragePort.save(user);
+                emailPort.sendLoginMailToChangePassword(user.getEmail(), user.getPassword(), user.getEmail());
+                return createdUser;
+            } catch (Exception e) {
+                authProvider.deleteUser(user.getEmail());
+                throw new RuntimeException(e);
+            }
+        } else {
+            user.setClient(client);
+            user.setId(
+                client.getUsers().stream().filter(us -> us.getEmail().equals(user.getEmail())).findAny().get().getId());
+            return userStoragePort.save(user);
         }
     }
 

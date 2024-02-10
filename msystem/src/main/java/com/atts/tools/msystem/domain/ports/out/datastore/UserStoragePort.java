@@ -6,7 +6,7 @@ import java.util.Set;
 
 public interface UserStoragePort {
 
-    User createUser(User user);
+    User save(User user);
 
     Set<User> findUsersByUsernames(List<String> usernames);
 
