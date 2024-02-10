@@ -43,7 +43,7 @@ export const formatClientUserData = (data: any): IUser => {
 }
 
 export const formatClientUsersData = (data: any): IUser[] => {
-  if (!data || data.length === 0) return [createEmptyClientUser()];
+  // if (!data || data.length === 0) return [createEmptyClientUser()];
   return data.map((row: any) => {
     return formatClientUserData(row);
   });

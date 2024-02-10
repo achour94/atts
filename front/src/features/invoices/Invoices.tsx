@@ -1,6 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../services/axios";
-import { Box, Button, Checkbox, Grid, Input } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Grid,
+  Input,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import { ThunkDispatch } from "@reduxjs/toolkit";
@@ -177,7 +185,17 @@ function Invoices() {
         renderCell: (row: IInvoice) => {
           return (
             <StyledLink to={`/client/${row?.client?.clientId}`}>
-              {row.client.name}
+              <Tooltip title={row.client.name} placement="top">
+                <Typography
+                  variant="body1"
+                  noWrap
+                  sx={{
+                    maxWidth: "200px",
+                  }}
+                >
+                  {row.client.name}
+                </Typography>
+              </Tooltip>
             </StyledLink>
           );
         },
@@ -296,11 +314,7 @@ function Invoices() {
   }
 
   function isAllInvoicesSelected() {
-    console.log(
-      "isAllInvoicesSelected",
-      selectedInvoices.length === invoices.length
-    );
-    return selectedInvoices.length === invoices.length;
+    return (invoices.length > 0) && (selectedInvoices.length === invoices.length);
   }
 
   function toggleSelectAllInvoices(event: React.ChangeEvent<HTMLInputElement>) {
@@ -447,7 +461,10 @@ function Invoices() {
             />
           </Grid>
           <Grid item>
-            <ActionsListMenu items={actionsListMenuItems} />
+            <ActionsListMenu
+            items={actionsListMenuItems}
+            disabled={selectedInvoices.length === 0}
+            />
           </Grid>
         </Grid>
         <Grid mt={2}>
