@@ -3,9 +3,11 @@ package com.atts.tools.msystem.application.rest.controllers;
 import com.atts.tools.msystem.application.rest.request.user.AddUserRequest;
 import com.atts.tools.msystem.application.rest.request.user.DeleteUserRequest;
 import com.atts.tools.msystem.application.rest.request.user.PasswordUpdateRequest;
+import com.atts.tools.msystem.application.rest.request.user.UpdateUserRequest;
 import com.atts.tools.msystem.application.rest.response.user.AddUserResponse;
 import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
 import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
+import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
 import com.atts.tools.msystem.common.exceptions.types.RegistrationException;
 import com.atts.tools.msystem.common.runners.AdminsLoader;
 import com.atts.tools.msystem.domain.model.EmailTemplate;
@@ -50,6 +52,24 @@ public class UserController {
         logger.info(String.format("An user with the username: %s was created!", user.getEmail()));
         return ResponseEntity.ok().body(AddUserResponse.builder()
             .username(user.getEmail()).id(user.getId()).build());
+    }
+
+    @PutMapping("/")
+    @PreAuthorize("@securityService.hasPermission('USER', #updateUserRequest.email)")
+    public User updateUser(@Valid @RequestBody UpdateUserRequest updateUserRequest) throws NotFoundElementException {
+        User user = userStoragePort.findUserByUsername(updateUserRequest.getEmail());
+        if (user == null) {
+            throw new NotFoundElementException("There isn't an user with email " + updateUserRequest.getEmail());
+        }
+        user.setPhoneNumber(updateUserRequest.getPhoneNumber());
+        user.setFirstName(updateUserRequest.getFirstName());
+        user.setLastName(updateUserRequest.getLastName());
+        return userStoragePort.save(user);
+    }
+
+    @GetMapping("/{email}")
+    public User getUser(String email) {
+        return userStoragePort.findUserByUsername(email);
     }
 
     @PutMapping("/password")
