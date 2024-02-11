@@ -74,12 +74,25 @@ public class InvoicesController {
     @GetMapping
     @PreAuthorize("hasAnyRole('admin', 'client')")
     public ResponseEntity<Page<Invoice>> getInvoices(RequestPage page, String criteria, String status) {
-      List<SearchCriteria> criterias = new ArrayList<>(criteriaMapper.convert(criteria));
+        List<SearchCriteria> criterias = new ArrayList<>(criteriaMapper.convert(criteria));
         if (status != null) {
             criterias.add(SearchCriteria.builder().column("status").equals(status).build());
         }
         return ResponseEntity.ok(
             invoiceCriteriaPort.findAllWithFiltersAndRestrictions(page, criterias));
+    }
+
+    @PutMapping("/share/{invoiceIds}")
+    @PreAuthorize("hasRole('admin')")
+    public void shareInvoices(@PathVariable List<Integer> invoiceIds) {
+        manageInvoicesUseCase.shareInvoices(invoiceIds);
+    }
+
+    @GetMapping("/zip/{invoiceIds}")
+    @PreAuthorize("@securityService.hasPermission('INVOICE', #invoiceIds)")
+    public ResponseEntity<Resource> exportZip(@PathVariable List<Integer> invoiceIds) {
+        InvoiceFile invoiceFile = manageInvoicesUseCase.generateZipWithInvoices(invoiceIds);
+        return getResourceResponseEntity(invoiceFile, "application/zip");
     }
 
     @PutMapping
@@ -93,22 +106,22 @@ public class InvoicesController {
     @PreAuthorize("@securityService.hasPermission('INVOICE', #invoiceNumber)")
     public ResponseEntity<Resource> getPDF(@PathVariable Integer invoiceNumber) throws IlegalRequestException {
         InvoiceFile invoiceFile = manageInvoicesUseCase.getFile(invoiceNumber);
-        return getResourceResponseEntity(invoiceFile);
+        return getResourceResponseEntity(invoiceFile, MediaType.APPLICATION_PDF_VALUE);
     }
 
     @PutMapping("/pdf")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Resource> generatePDF(@RequestBody GeneratePDFRequest request) {
         InvoiceFile invoiceFile = manageInvoicesUseCase.generateFile(request.id());
-        return getResourceResponseEntity(invoiceFile);
+        return getResourceResponseEntity(invoiceFile, MediaType.APPLICATION_PDF_VALUE);
     }
 
-    private ResponseEntity<Resource> getResourceResponseEntity(InvoiceFile invoiceFile) {
+    private ResponseEntity<Resource> getResourceResponseEntity(InvoiceFile invoiceFile, String mediaType) {
         ByteArrayResource resource = new ByteArrayResource(invoiceFile.getContent());
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION,
             String.format("attachment; filename=%s", invoiceFile.getFilename()));
-        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
+        headers.add(HttpHeaders.CONTENT_TYPE, mediaType);
 
         // Exposing Content-Disposition header to the client
         headers.add("Access-Control-Expose-Headers", HttpHeaders.CONTENT_DISPOSITION);
@@ -116,7 +129,6 @@ public class InvoicesController {
         return ResponseEntity.ok()
             .headers(headers)
             .contentLength(invoiceFile.getContent().length)
-            .contentType(MediaType.APPLICATION_PDF)
             .body(resource);
     }
 

@@ -52,6 +52,12 @@ public class InvoiceStorageAdapter implements InvoiceStoragePort {
     }
 
     @Override
+    public List<Invoice> findAllByIds(Collection<Integer> ids) {
+        return invoiceRepository.findAllById(ids).stream().map(transformer::transformToInvoice)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Invoice> findByClients(List<Client> clients) {
         return clients.stream()
             .flatMap(

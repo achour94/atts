@@ -11,6 +11,7 @@ public interface InvoiceStoragePort {
     void save(Collection<Invoice> invoices);
     void save(Invoice invoice);
     Optional<Invoice> findById(Integer id);
+    List<Invoice> findAllByIds(Collection<Integer> ids);
     List<Invoice> findByClients(List<Client> clients);
     void delete(Collection<Invoice> invoices);
     void delete(List<Integer> invoiceIds);

@@ -6,6 +6,7 @@ import com.atts.tools.msystem.domain.model.enums.InvoiceStatus;
 import com.atts.tools.msystem.domain.model.User;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
 import com.atts.tools.msystem.domain.ports.out.datastore.UserStoragePort;
+import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,9 @@ public class SecurityService {
 
     public boolean hasPermission(ElementSecurityType elementSecurityType, Object element) {
         if (ElementSecurityType.INVOICE.equals(elementSecurityType)) {
+            if (element instanceof List<?>) {
+                return hasPermissionToInvoices((List<Integer>) element);
+            }
             return hasPermissionToInvoice((Integer) element);
         } else if (ElementSecurityType.EMAIL_TEMPLATE.equals(elementSecurityType)) {
             return hasPermissionToEmailTemplate(element);
@@ -45,6 +49,15 @@ public class SecurityService {
         User user = userStoragePort.findUserByUsername(username);
         return invoice.getClient().getClientReference().equals(user.getClient().getClientReference())
             && InvoiceStatus.SHARED.equals(invoice.getStatus());
+    }
+
+    private boolean hasPermissionToInvoices(List<Integer> elements) {
+        for (Integer invoiceId : elements) {
+            if (!hasPermissionToInvoice(invoiceId)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean hasPermissionToEmailTemplate(Object element) {
