@@ -240,6 +240,18 @@ export const downloadPDF = (blob: Blob, filename: string): void => {
   a.remove();
 };
 
+export const downloadZip = (blob: Blob, filename: string): void => {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href =
+    url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  a.remove();
+}
+
 /** 
  * check if an invoice have consumptions of type CDR_SVA_A, CDR_SVA_B, CDR_SVA_D or CDR_SVA_G
  * and if it's the case, calculate the total amount of these consumptions and check if it's greater than 0
