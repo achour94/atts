@@ -33,6 +33,7 @@ import {
   deselectInvoice,
   getIsInvoiceSelected,
   getIsAllInvoicesSelected,
+  INVOICE_API_URL,
 } from "./invoiceSlice";
 import {
   FetchStatus,
@@ -52,6 +53,7 @@ import { ColumnType as CT } from "../../lib/constants/utilsConstants";
 import StyledLink from "../../components/utils/Typography/StyledLink";
 import MuiTable from "../../components/MuiTable/MuiTable";
 import {
+  downloadZip,
   formatNumberToEuro,
   formatTimestampToFrenchDate,
   getFiltersOptionsFromColumns,
@@ -274,6 +276,22 @@ function Invoices() {
     [isInvoiceSelected, isAllInvoicesSelected]
   );
 
+  const exportZipHandler = () => {
+    axiosInstance.get(`${INVOICE_API_URL}/zip/${selectedInvoices.join(",")}`, {
+      responseType: "blob",
+      // params: {
+      //   invoiceIds: selectedInvoices.join(",")
+      // }
+    })
+      .then((response) => {
+        downloadZip(response.data, "factures.zip");
+      })
+      .catch((error) => {
+        console.error("Error exporting invoices:", error);
+        toast.error("Erreur lors de l'export des factures");
+      });
+  }
+
   const actionsListMenuItems: ActionListItem[] = [
     {
       icon: <CheckCircleOutlineOutlinedIcon />,
@@ -288,6 +306,7 @@ function Invoices() {
       label: "Exporter en Zip",
       action: () => {
         console.log("Exporter en Zip");
+        exportZipHandler();
       },
       isInDividedGroup: false,
     },
