@@ -38,6 +38,8 @@ import com.atts.tools.msystem.domain.services.processors.ClientsResults;
 import com.atts.tools.msystem.domain.services.processors.DefaultRowsProcessor;
 
 import jakarta.transaction.Transactional;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +49,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import lombok.RequiredArgsConstructor;
 
 
@@ -179,6 +183,42 @@ public class InvoiceService implements ManageInvoicesUseCase {
         invoiceStoragePort.delete(invoiceIds);
     }
 
+    @Override
+    public void shareInvoices(List<Integer> invoiceIds) {
+        invoiceStoragePort.save(invoiceStoragePort.findAllByIds(invoiceIds).stream()
+            .peek(invoice -> invoice.setStatus(InvoiceStatus.SHARED)).collect(Collectors.toList()));
+    }
+
+    @Override
+    public InvoiceFile generateZipWithInvoices(List<Integer> invoiceIds) {
+        List<InvoiceFile> invoiceFiles = invoiceIds.stream().map(id -> {
+            try {
+                return getFile(id);
+            } catch (IlegalRequestException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(outputStream);
+        for (InvoiceFile file : invoiceFiles) {
+            ZipEntry zipEntry = new ZipEntry(file.getFilename());
+            try {
+                zos.putNextEntry(zipEntry);
+                zos.write(file.getContent());
+                zos.closeEntry();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            zos.close();
+            outputStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return InvoiceFile.builder().content(outputStream.toByteArray()).filename("invoices.zip").build();
+    }
+
     public List<Invoice> convertToInvoices(Map<ClientReference, ClientSummary> clientsSummary,
         GenerationConfig config) {
         List<Client> clients = new ArrayList<>();
@@ -224,11 +264,14 @@ public class InvoiceService implements ManageInvoicesUseCase {
         Date minStartDate = null;
         Date maxEndDate = null;
         Double totalHtAmount = 0.0;
-
+        Double totalSvaConsumptionsHtAmount = 0.0;
         for (Consumption consumption : invoice.getConsumptions()) {
             minStartDate = minDate(minStartDate, consumption.getStartDate());
             maxEndDate = maxDate(maxEndDate, consumption.getEndDate());
             totalHtAmount += consumption.getHtAmount();
+            if (consumption.getType().getLabel().contains("SVA")) {
+                totalSvaConsumptionsHtAmount += consumption.getHtAmount();
+            }
         }
         totalHtAmount += computeAmountForClient(invoice.getClient());
 //        totalHtAmount += invoice.getClient().getDefaultSubscription();
@@ -240,6 +283,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
         invoice.setHtAmount(Math.keep2Digits(totalHtAmount));
         invoice.setStartPeriod(minStartDate);
         invoice.setEndPeriod(maxEndDate);
+        invoice.setSpecialNumbers(totalSvaConsumptionsHtAmount > 0.0);
     }
 
     private Date minDate(Date date1, Date date2) {
