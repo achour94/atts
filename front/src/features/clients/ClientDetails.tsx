@@ -71,7 +71,13 @@ export const clientSchema = yup.object({
     .test(
       "is-unique",
       "La référence client doit être unique",
-      async (value) => {
+      async (value, context) => {
+        // console.log('context', context);
+        // console.log('value', value);
+        const isAddMode = context?.options?.context?.isAddMode;
+        const originalValue = context?.options?.context?.originalReference;
+        const isSameValue = value === originalValue;
+        if (!isAddMode && isSameValue) return true;
         if (value) {
           return await validateClientReference(value);
         }
@@ -102,6 +108,7 @@ function ClientDetails() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("informations");
   const [loading, setLoading] = useState(false);
+  const [originalReference, setOriginalReference] = useState("");
   const navigate = useNavigate();
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: string) => {
@@ -133,6 +140,10 @@ function ClientDetails() {
   const methods = useForm({
     resolver: yupResolver(clientSchema),
     defaultValues: initialValues,
+    context: {
+      isAddMode,
+      originalReference,
+    }
   });
 
   const getClient = (id: number): void => {
@@ -142,6 +153,7 @@ function ClientDetails() {
       .then((response) => {
         const client: IClient = formatClientData(response.data);
         methods.reset(client);
+        setOriginalReference(client[CC.CLIENT_CLIENTREFERENCE]);
       })
       .catch((error) => {
         console.log(error);
