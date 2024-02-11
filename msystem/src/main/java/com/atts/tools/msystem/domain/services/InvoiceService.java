@@ -224,7 +224,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
         Date minStartDate = null;
         Date maxEndDate = null;
         Double totalHtAmount = 0.0;
-
+        Double totalSvaConsumptionsHtAmount = 0.0;
         for (Consumption consumption : invoice.getConsumptions()) {
             minStartDate = minDate(minStartDate, consumption.getStartDate());
             maxEndDate = maxDate(maxEndDate, consumption.getEndDate());
