@@ -229,6 +229,9 @@ public class InvoiceService implements ManageInvoicesUseCase {
             minStartDate = minDate(minStartDate, consumption.getStartDate());
             maxEndDate = maxDate(maxEndDate, consumption.getEndDate());
             totalHtAmount += consumption.getHtAmount();
+            if (consumption.getType().getLabel().contains("SVA")) {
+                totalSvaConsumptionsHtAmount += consumption.getHtAmount();
+            }
         }
         totalHtAmount += computeAmountForClient(invoice.getClient());
 //        totalHtAmount += invoice.getClient().getDefaultSubscription();
@@ -240,6 +243,7 @@ public class InvoiceService implements ManageInvoicesUseCase {
         invoice.setHtAmount(Math.keep2Digits(totalHtAmount));
         invoice.setStartPeriod(minStartDate);
         invoice.setEndPeriod(maxEndDate);
+        invoice.setSpecialNumbers(totalSvaConsumptionsHtAmount > 0.0);
     }
 
     private Date minDate(Date date1, Date date2) {

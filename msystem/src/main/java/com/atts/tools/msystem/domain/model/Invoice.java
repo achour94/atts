@@ -16,6 +16,7 @@ public class Invoice implements ModelEntity {
 
     Client client;
     Boolean proforma;
+    Boolean specialNumbers;
     Date creationDate; //first time is inserted by database automatically
     String fileUri;
     Date startPeriod;
