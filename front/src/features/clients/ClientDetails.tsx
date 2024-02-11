@@ -49,12 +49,41 @@ export const userSchema = yup.object({
   [UC.USER_PHONE]: yup.string().required("Le téléphone est requis"),
 });
 
+// Asynchronous validation function to check client reference uniqueness
+export const validateClientReference = async (clientReference: string) => {
+  return await axiosInstance
+    .get(`${CLIENT_API_URL}/exists/${clientReference}`)
+    .then((response) => {
+      return !response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      return false;
+    });
+};
+
 // Client Schema
 export const clientSchema = yup.object({
   [CC.CLIENT_ID]: yup.number().optional().typeError("L'ID doit être un nombre"),
   [CC.CLIENT_CLIENTREFERENCE]: yup
     .string()
-    .required("La référence client est requise"),
+    .required("La référence client est requise")
+    .test(
+      "is-unique",
+      "La référence client doit être unique",
+      async (value, context) => {
+        // console.log('context', context);
+        // console.log('value', value);
+        const isAddMode = context?.options?.context?.isAddMode;
+        const originalValue = context?.options?.context?.originalReference;
+        const isSameValue = value === originalValue;
+        if (!isAddMode && isSameValue) return true;
+        if (value) {
+          return await validateClientReference(value);
+        }
+        return true;
+      }
+    ),
   [CC.CLIENT_DEFAULTSUBSCRIPTION]: yup
     .number()
     .optional()
@@ -79,6 +108,7 @@ function ClientDetails() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("informations");
   const [loading, setLoading] = useState(false);
+  const [originalReference, setOriginalReference] = useState("");
   const navigate = useNavigate();
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: string) => {
@@ -102,14 +132,18 @@ function ClientDetails() {
     [CC.CLIENT_NAME]: "",
     [CC.CLIENT_ADDRESS]: "",
     [CC.CLIENT_CITY]: "",
-    [CC.CLIENT_PHONE]: "",
-    [CC.CLIENT_EMAIL]: "",
+    // [CC.CLIENT_PHONE]: "",
+    // [CC.CLIENT_EMAIL]: "",
     [CC.CLIENT_SUBSCRIPTIONS]: [] as ISubscription[],
     [CC.CLIENT_USERS]: [] as IUser[],
   };
   const methods = useForm({
     resolver: yupResolver(clientSchema),
     defaultValues: initialValues,
+    context: {
+      isAddMode,
+      originalReference,
+    }
   });
 
   const getClient = (id: number): void => {
@@ -119,6 +153,7 @@ function ClientDetails() {
       .then((response) => {
         const client: IClient = formatClientData(response.data);
         methods.reset(client);
+        setOriginalReference(client[CC.CLIENT_CLIENTREFERENCE]);
       })
       .catch((error) => {
         console.log(error);
@@ -251,12 +286,16 @@ function ClientDetails() {
                       icon={<BarChartIcon />}
                       iconPosition="start"
                     />
-                    <Tab
-                      label="UTILISATEUR"
-                      value="users"
-                      icon={<GroupOutlined />}
-                      iconPosition="start"
-                    />
+                    {
+                      !isAddMode && (
+                        <Tab
+                          label="UTILISATEUR"
+                          value="users"
+                          icon={<GroupOutlined />}
+                          iconPosition="start"
+                        />
+                      )
+                    }
                   </TabList>
                 </Box>
                 <TabPanel value="informations">
