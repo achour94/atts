@@ -292,12 +292,34 @@ function Invoices() {
       });
   }
 
+  const shareSelectedInvoicesHandler = () => {
+    axiosInstance.put(`${INVOICE_API_URL}/share/${selectedInvoices.join(",")}`)
+      .then((response) => {
+        console.log(response);
+        toast.success("Factures partagées avec succès");
+        dispatch(
+          fetchInvoices({
+            pageSize: pagination.pageSize,
+            pageNumber: pagination.page,
+            criteria: filters,
+            sort: sort,
+            status: invoiceStatusFilter,
+          })
+        );
+      })
+      .catch((error) => {
+        console.error("Error sharing invoices:", error);
+        toast.error("Erreur lors du partage des factures");
+      });
+  }
+
   const actionsListMenuItems: ActionListItem[] = [
     {
       icon: <CheckCircleOutlineOutlinedIcon />,
       label: "Partager au client",
       action: () => {
         console.log("Partager au client");
+        shareSelectedInvoicesHandler();
       },
       isInDividedGroup: false,
     },
