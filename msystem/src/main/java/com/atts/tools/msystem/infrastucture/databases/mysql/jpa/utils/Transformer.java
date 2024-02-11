@@ -52,6 +52,7 @@ public class Transformer {
     public UserEntity transformToUserEntityWithRel(User user,
         boolean addClient, boolean withEmailTemplate) {
         UserEntity userEntity = new UserEntity();
+        userEntity.setId(user.getId());
         userEntity.setEmail(user.getEmail());
         if (addClient) {
             userEntity.setClient(transformToClientEntityWithoutUser(user.getClient()));

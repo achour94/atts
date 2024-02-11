@@ -6,9 +6,10 @@ interface TextFieldProps {
     name: string;
     label: string;
     placeholder?: string;
+    disabled?: boolean;
 }
 
-function MuiTextField({name, label, placeholder}: TextFieldProps) {
+function MuiTextField({name, label, placeholder, disabled}: TextFieldProps) {
     const { control } = useFormContext();
   return (
     <Box sx={{
@@ -40,6 +41,7 @@ function MuiTextField({name, label, placeholder}: TextFieldProps) {
                         inputRef={ref}
                         error={!!error}
                         helperText={error ? error.message : null}
+                        disabled={disabled}
                     />
                 )}
             />

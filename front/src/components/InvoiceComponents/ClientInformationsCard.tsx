@@ -3,8 +3,10 @@ import { IClient } from "../../lib/interfaces/IClient";
 import { Avatar, Box, Button, Grid, Typography } from "@mui/material";
 import SecondaryTitle from "../utils/Typography/SecondaryTitle";
 import { ClientConstants as CC } from "../../lib/constants/ClientConstants";
+import { UserConstants as UC } from "../../lib/constants/UserConstants";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+import { IUser } from "../../lib/interfaces/IUser";
 
 interface IClientInfosProps {
   client: IClient;
@@ -13,13 +15,29 @@ interface IClientInfosProps {
 function ClientInformationsCard({ client }: IClientInfosProps) {
     const navigate = useNavigate()
 
-  const getFirstUserInfos = (users: any[]) => {
+  const getFirstUserInfos = (users: IUser[]) => {
     if (users && users?.length > 0) {
       const user = users[0];
       return `${user?.lastName} ${user?.firstName}`;
     }
     return "Sans utilisateur";
   };
+
+  const getClientEmail = (users: IUser[]) => {
+    if (users && users?.length > 0) {
+      const user = users[0];
+      return user?.[UC.USER_EMAIL];
+    }
+    return "Email non renseigné";
+  }
+
+  const getClientPhone = (users: IUser[]) => {
+    if (users && users?.length > 0) {
+      const user = users[0];
+      return user?.[UC.USER_PHONE];
+    }
+    return "Tél non renseigné";
+  }
 
   const goToClientDetails = (clientId: number) => {
     navigate(`/client/${clientId}`)
@@ -53,7 +71,7 @@ function ClientInformationsCard({ client }: IClientInfosProps) {
               lineHeight: "1.7rem",
             }}
           >
-            {getFirstUserInfos(client?.[CC.CLIENT_USERS] as any[])}
+            {getFirstUserInfos(client?.[CC.CLIENT_USERS] as IUser[])}
           </Typography>
           <Typography
             sx={{
@@ -64,7 +82,7 @@ function ClientInformationsCard({ client }: IClientInfosProps) {
               lineHeight: "1.7rem",
             }}
           >
-            {client?.[CC.CLIENT_EMAIL] || "Email non renseigné"}
+            {getClientEmail(client?.[CC.CLIENT_USERS] as IUser[])}
           </Typography>
           <Typography
             sx={{
@@ -75,7 +93,7 @@ function ClientInformationsCard({ client }: IClientInfosProps) {
               lineHeight: "1.7rem",
             }}
           >
-            {client?.[CC.CLIENT_PHONE] || "Tél non renseigné"}
+            {getClientPhone(client?.[CC.CLIENT_USERS] as IUser[])}
           </Typography>
         </Grid>
       </Grid>

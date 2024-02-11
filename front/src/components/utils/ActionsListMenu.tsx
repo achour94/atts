@@ -65,9 +65,10 @@ export interface ActionListItem {
 
 interface ActionsListProps {
   items: ActionListItem[];
+  disabled?: boolean;
 }
 
-export default function ActionsListMenu({ items }: ActionsListProps) {
+export default function ActionsListMenu({ items, disabled }: ActionsListProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -95,6 +96,7 @@ export default function ActionsListMenu({ items }: ActionsListProps) {
           px: "1rem",
           textTransform: "none",
         }}
+        disabled={disabled}
       >
         Actions
       </Button>

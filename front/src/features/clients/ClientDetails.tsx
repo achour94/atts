@@ -68,10 +68,10 @@ export const clientSchema = yup.object({
   [CC.CLIENT_ADDRESS]: yup.string().required("L'adresse est requise"),
   [CC.CLIENT_CITY]: yup.string().required("La ville est requise"),
   [CC.CLIENT_POSTALCODE]: yup.string().required("Le code postal est requis"),
-  [CC.CLIENT_EMAIL]: yup.string().email("Doit être un email valide").required(),
-  [CC.CLIENT_PHONE]: yup.string().required("Le téléphone est requis"),
+  // [CC.CLIENT_EMAIL]: yup.string().email("Doit être un email valide").required(),
+  // [CC.CLIENT_PHONE]: yup.string().required("Le téléphone est requis"),
   [CC.CLIENT_SUBSCRIPTIONS]: yup.array().of(subscriptionSchema).optional(),
-  [CC.CLIENT_USERS]: yup.array().of(userSchema).optional(),
+  // [CC.CLIENT_USERS]: yup.array().of(userSchema).optional(),
 });
 
 function ClientDetails() {
@@ -266,7 +266,7 @@ function ClientDetails() {
                   <ClientSubscriptions />
                 </TabPanel>
                 <TabPanel value="users">
-                  <ClientUsers />
+                  <ClientUsers getClient={getClient} />
                 </TabPanel>
               </TabContext>
             </Box>
