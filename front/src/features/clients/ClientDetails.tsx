@@ -266,7 +266,7 @@ function ClientDetails() {
                   <ClientSubscriptions />
                 </TabPanel>
                 <TabPanel value="users">
-                  <ClientUsers />
+                  <ClientUsers getClient={getClient} />
                 </TabPanel>
               </TabContext>
             </Box>

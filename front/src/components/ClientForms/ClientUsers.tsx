@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useFormContext,
   useFieldArray,
@@ -21,7 +21,10 @@ import { useNavigate } from "react-router-dom";
 
 export const USER_API_URL = "/api/user";
 
-function ClientUsers() {
+interface ClientUsersProps {
+  getClient: (clientId: number) => void;
+}
+function ClientUsers({ getClient }: ClientUsersProps) {
   const {
     control,
     formState: { errors },
@@ -32,7 +35,6 @@ function ClientUsers() {
     name: CC.CLIENT_USERS,
   });
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   console.log("fields", fields);
 
@@ -51,11 +53,26 @@ function ClientUsers() {
     defaultValues: getUserInitialValues(),
   });
 
+  // reset user form when client users change
+  useEffect(() => {
+    methods.reset(getUserInitialValues());
+  }
+  , [fields]);
+
   const isNewUser = methods.watch(UC.USER_ID) === undefined;
 
-  const formatUserForApi = (data: IUser) => {
+  const formatUserForAdd = (data: IUser) => {
     return {
       [CC.CLIENT_ID]: watch(CC.CLIENT_ID),
+      [UC.USER_FIRSTNAME]: data[UC.USER_FIRSTNAME],
+      [UC.USER_LASTNAME]: data[UC.USER_LASTNAME],
+      [UC.USER_EMAIL]: data[UC.USER_EMAIL],
+      [UC.USER_PHONE]: data[UC.USER_PHONE],
+    };
+  }
+
+  const formatUserForUpdate = (data: IUser) => {
+    return {
       [UC.USER_FIRSTNAME]: data[UC.USER_FIRSTNAME],
       [UC.USER_LASTNAME]: data[UC.USER_LASTNAME],
       [UC.USER_EMAIL]: data[UC.USER_EMAIL],
@@ -68,13 +85,14 @@ function ClientUsers() {
     const hasNoErrors = Object.keys(methods.formState.errors).length === 0;
     if (hasNoErrors) {
       console.log("data", data);
-      const formattedData = formatUserForApi(data);
+      const formattedData = formatUserForAdd(data);
       console.log("formattedData", formattedData);
       setLoading(true);
       axiosInstance.post(`${USER_API_URL}/add`, formattedData)
         .then((response) => {
           toast.success("Utilisateur ajouté avec succès");
-          navigate(`/client/${watch(CC.CLIENT_ID)}`);
+          //refresh the page
+          getClient(Number(watch(CC.CLIENT_ID)));
         })
         .catch((error) => {
           console.log(error);
@@ -90,9 +108,22 @@ function ClientUsers() {
     //check if thers is no error
     const hasNoErrors = Object.keys(methods.formState.errors).length === 0;
     if (hasNoErrors) {
-      console.log("data", data);
-      const formattedData = formatUserForApi(data);
+      const formattedData = formatUserForUpdate(data);
       console.log("formattedData", formattedData);
+      setLoading(true);
+      axiosInstance.put(`${USER_API_URL}/`, formattedData)
+        .then((response) => {
+          toast.success("Utilisateur modifié avec succès");
+          //refresh the page
+          getClient(Number(watch(CC.CLIENT_ID)));
+        })
+        .catch((error) => {
+          console.log(error);
+          toast.error("Erreur lors de la modification de l'utilisateur");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }
 
