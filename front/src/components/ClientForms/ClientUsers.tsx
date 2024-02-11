@@ -36,10 +36,6 @@ function ClientUsers({ getClient }: ClientUsersProps) {
   });
   const [loading, setLoading] = useState(false);
 
-  console.log("fields", fields);
-
-  console.log(watch());
-
   const getUserInitialValues = (): IUser => {
     const existingUser = fields[0];
     if (existingUser) {
@@ -56,8 +52,7 @@ function ClientUsers({ getClient }: ClientUsersProps) {
   // reset user form when client users change
   useEffect(() => {
     methods.reset(getUserInitialValues());
-  }
-  , [fields]);
+  }, [fields]);
 
   const isNewUser = methods.watch(UC.USER_ID) === undefined;
 
@@ -69,7 +64,7 @@ function ClientUsers({ getClient }: ClientUsersProps) {
       [UC.USER_EMAIL]: data[UC.USER_EMAIL],
       [UC.USER_PHONE]: data[UC.USER_PHONE],
     };
-  }
+  };
 
   const formatUserForUpdate = (data: IUser) => {
     return {
@@ -78,25 +73,28 @@ function ClientUsers({ getClient }: ClientUsersProps) {
       [UC.USER_EMAIL]: data[UC.USER_EMAIL],
       [UC.USER_PHONE]: data[UC.USER_PHONE],
     };
-  }
+  };
 
   const addUserClickHandler = (data: IUser) => {
     //check if thers is no error
     const hasNoErrors = Object.keys(methods.formState.errors).length === 0;
     if (hasNoErrors) {
-      console.log("data", data);
       const formattedData = formatUserForAdd(data);
-      console.log("formattedData", formattedData);
       setLoading(true);
-      axiosInstance.post(`${USER_API_URL}/add`, formattedData)
+      axiosInstance
+        .post(`${USER_API_URL}/add`, formattedData)
         .then((response) => {
           toast.success("Utilisateur ajouté avec succès");
           //refresh the page
           getClient(Number(watch(CC.CLIENT_ID)));
         })
         .catch((error) => {
-          console.log(error);
-          toast.error("Erreur lors de l'ajout de l'utilisateur");
+          // check if the response code is 409 then the user already exists with the same email
+          if (error.response.status === 409) {
+            toast.error("Un utilisateur existe déjà avec cet email");
+          } else {
+            toast.error("Erreur lors de l'ajout de l'utilisateur");
+          }
         })
         .finally(() => {
           setLoading(false);
@@ -109,23 +107,44 @@ function ClientUsers({ getClient }: ClientUsersProps) {
     const hasNoErrors = Object.keys(methods.formState.errors).length === 0;
     if (hasNoErrors) {
       const formattedData = formatUserForUpdate(data);
-      console.log("formattedData", formattedData);
       setLoading(true);
-      axiosInstance.put(`${USER_API_URL}/`, formattedData)
+      axiosInstance
+        .put(`${USER_API_URL}/`, formattedData)
         .then((response) => {
           toast.success("Utilisateur modifié avec succès");
           //refresh the page
           getClient(Number(watch(CC.CLIENT_ID)));
         })
         .catch((error) => {
-          console.log(error);
           toast.error("Erreur lors de la modification de l'utilisateur");
         })
         .finally(() => {
           setLoading(false);
         });
     }
-  }
+  };
+
+  const deleteUserClickHandler = () => {
+    // get user email from the client form
+    const { [UC.USER_EMAIL]: userEmail } = fields[0];
+
+    setLoading(true);
+    axiosInstance
+      .put(`${USER_API_URL}/delete`, {
+        username: userEmail,
+      })
+      .then((response) => {
+        toast.success("Utilisateur supprimé avec succès");
+        //refresh the page
+        getClient(Number(watch(CC.CLIENT_ID)));
+      })
+      .catch((error) => {
+        toast.error("Erreur lors de la suppression de l'utilisateur");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   if (loading) {
     return <Loading />;
@@ -168,6 +187,7 @@ function ClientUsers({ getClient }: ClientUsersProps) {
                     name={UC.USER_EMAIL}
                     label="Email"
                     placeholder="Email"
+                    disabled={!isNewUser}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -179,24 +199,31 @@ function ClientUsers({ getClient }: ClientUsersProps) {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={12} display={'flex'} justifyContent={'flex-end'}>
-              {
-                isNewUser ? (
+            <Grid item xs={12} display={"flex"} justifyContent={"flex-end"}>
+              {isNewUser ? (
+                <Button
+                  color="primary"
+                  onClick={methods.handleSubmit((data) =>
+                    addUserClickHandler(data)
+                  )}
+                >
+                  Ajouter l'utilisateur
+                </Button>
+              ) : (
+                <>
                   <Button
                     color="primary"
-                    onClick={methods.handleSubmit((data) => addUserClickHandler(data))}
-                  >
-                    Ajouter l'utilisateur
-                  </Button>
-                ) : (
-                  <Button
-                    color="primary"
-                    onClick={methods.handleSubmit((data) => updateUserClickHandler(data))}
+                    onClick={methods.handleSubmit((data) =>
+                      updateUserClickHandler(data)
+                    )}
                   >
                     Modifier l'utilisateur
                   </Button>
-                )
-              }
+                  <Button color="error" onClick={deleteUserClickHandler}>
+                    Supprimer l'utilisateur
+                  </Button>
+                </>
+              )}
             </Grid>
           </Grid>
         </Box>
