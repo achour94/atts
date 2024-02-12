@@ -56,6 +56,8 @@ const hasAllRoles = (roles) => roles.every((role) => {
     return _kc.tokenParsed.resource_access["atts-application"].roles.includes(role);
     });
 
+const getRoles = () => _kc.tokenParsed.resource_access["atts-application"].roles;
+
 const UserService = {
   initKeycloak,
   isInitialized,
@@ -67,7 +69,8 @@ const UserService = {
   updateToken,
   getUsername,
   hasAtLeastOneRole,
-  hasAllRoles
+  hasAllRoles,
+  getRoles
 };
 
 export default UserService;

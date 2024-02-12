@@ -7,6 +7,7 @@ const initialState = {
     isAuthenticated: false,
     isLoading: false,
     error: null,
+    roles: [],
 };
 
 const authSlice = createSlice({
@@ -27,6 +28,7 @@ const authSlice = createSlice({
             state.isAuthenticated = action.payload.isAuthenticated;
             state.user = action.payload.user;
             state.token = action.payload.token;
+            state.roles = action.payload.roles;
         },
         loginFailure(state, action) {
             state.isLoading = false;
@@ -36,6 +38,8 @@ const authSlice = createSlice({
             state.isAuthenticated = false;
             state.user = null;
             state.token = null;
+            state.roles = [];
+            state.error = null;
         },
     },
 });
@@ -47,10 +51,12 @@ export const initializeAuth = (dispatch) => {
     if (!UserService.isInitialized()) {
         dispatch(loginStart());
         UserService.initKeycloak(() => {
+            console.log(UserService.getTokenParsed())
             dispatch(loginSuccess({
                 isAuthenticated: UserService.isLoggedIn(),
                 user: UserService.getUsername(),
                 token: UserService.getToken(),
+                roles: UserService.getRoles(),
             }));
         }, (error) => {
             dispatch(loginFailure(error));
@@ -63,3 +69,4 @@ export default authSlice.reducer;
 export const selectCurrentUser = (state) => state.auth.user;
 export const selectCurrentToken = (state) => state.auth.token;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectUserRoles = (state) => state.auth.roles;
