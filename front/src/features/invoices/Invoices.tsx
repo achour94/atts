@@ -53,7 +53,7 @@ import { ColumnType as CT } from "../../lib/constants/utilsConstants";
 import StyledLink from "../../components/utils/Typography/StyledLink";
 import MuiTable from "../../components/MuiTable/MuiTable";
 import {
-  downloadZip,
+  downloadFile,
   formatNumberToEuro,
   formatTimestampToFrenchDate,
   getFiltersOptionsFromColumns,
@@ -284,7 +284,7 @@ function Invoices() {
       // }
     })
       .then((response) => {
-        downloadZip(response.data, "factures.zip");
+        downloadFile(response.data, "factures.zip");
       })
       .catch((error) => {
         console.error("Error exporting invoices:", error);
@@ -310,6 +310,26 @@ function Invoices() {
       .catch((error) => {
         console.error("Error sharing invoices:", error);
         toast.error("Erreur lors du partage des factures");
+      });
+  }
+
+  const deleteSelectedInvoicesHandler = () => {
+    axiosInstance.delete(`${INVOICE_API_URL}/${selectedInvoices.join(",")}`)
+      .then((response) => {
+        toast.success("Factures supprimées avec succès");
+        dispatch(
+          fetchInvoices({
+            pageSize: pagination.pageSize,
+            pageNumber: pagination.page,
+            criteria: filters,
+            sort: sort,
+            status: invoiceStatusFilter,
+          })
+        );
+      })
+      .catch((error) => {
+        console.error("Error deleting invoices:", error);
+        toast.error("Erreur lors de la suppression des factures");
       });
   }
 
@@ -345,6 +365,7 @@ function Invoices() {
       label: "Supprimer",
       action: () => {
         console.log("Supprimer");
+        deleteSelectedInvoicesHandler();
       },
       isInDividedGroup: true,
     },
