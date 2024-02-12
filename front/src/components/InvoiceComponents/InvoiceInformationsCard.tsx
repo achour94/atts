@@ -11,6 +11,8 @@ import { InvoiceConstants as IC } from "../../lib/constants/InvoiceConstants";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
+import useRole from "../../hooks/useRole";
+import { ROLES } from "../../lib/constants/utilsConstants";
 
 interface IInvoiceInfosProps {
   invoice: IInvoice;
@@ -18,7 +20,12 @@ interface IInvoiceInfosProps {
   onDownload: () => void;
 }
 
-function InvoiceInformationsCard({ invoice, onVisualize, onDownload }: IInvoiceInfosProps) {
+function InvoiceInformationsCard({
+  invoice,
+  onVisualize,
+  onDownload,
+}: IInvoiceInfosProps) {
+  const isAdminAllowed = useRole([ROLES.ADMIN]);
   return (
     <Box p={1}>
       <SecondaryTitle
@@ -26,10 +33,18 @@ function InvoiceInformationsCard({ invoice, onVisualize, onDownload }: IInvoiceI
         style={{ marginBottom: "2rem" }}
       />
       <Box mb={5}>
-        <MuiDate name={IC.INVOICE_STARTPERIOD} label={"Date de début"} />
+        <MuiDate
+          name={IC.INVOICE_STARTPERIOD}
+          label={"Date de début"}
+          disabled={isAdminAllowed}
+        />
       </Box>
       <Box mb={5}>
-        <MuiDate name={IC.INVOICE_ENDPERIOD} label={"Date de d'échéance"} />
+        <MuiDate
+          name={IC.INVOICE_ENDPERIOD}
+          label={"Date de d'échéance"}
+          disabled={isAdminAllowed}
+        />
       </Box>
       <Box mb={2}>
         <Grid
@@ -88,26 +103,28 @@ function InvoiceInformationsCard({ invoice, onVisualize, onDownload }: IInvoiceI
           </Grid>
         </Grid>
       </Box>
-      <Box mb={4}>
-        <Button
-          fullWidth
-          variant="contained"
-          startIcon={<SendOutlinedIcon />}
-          color={"primary"}
-          sx={{
-            borderRadius: "2rem",
-            px: "1.5rem",
-            py: "0.5rem",
-          }}
-          // onClick={() => goToClientDetails(client?.[CC.CLIENT_ID] as number)}
-        >
-          <Typography
-            sx={{ fontSize: "0.75rem", fontWeight: 700, fontStyle: "normal" }}
+      {isAdminAllowed && (
+        <Box mb={4}>
+          <Button
+            fullWidth
+            variant="contained"
+            startIcon={<SendOutlinedIcon />}
+            color={"primary"}
+            sx={{
+              borderRadius: "2rem",
+              px: "1.5rem",
+              py: "0.5rem",
+            }}
+            // onClick={() => goToClientDetails(client?.[CC.CLIENT_ID] as number)}
           >
-            Envoyer par mail
-          </Typography>
-        </Button>
-      </Box>
+            <Typography
+              sx={{ fontSize: "0.75rem", fontWeight: 700, fontStyle: "normal" }}
+            >
+              Envoyer par mail
+            </Typography>
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }

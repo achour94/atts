@@ -61,6 +61,7 @@ export interface ActionListItem {
   label: string;
   action: () => void;
   isInDividedGroup?: boolean;
+  isAllowed?: boolean;
 }
 
 interface ActionsListProps {
@@ -110,7 +111,7 @@ export default function ActionsListMenu({ items, disabled }: ActionsListProps) {
         onClose={handleClose}
       >
         {
-            items.filter(item => !item?.isInDividedGroup).map((item, index) => (
+            items.filter(item => (!item?.isInDividedGroup && item?.isAllowed)).map((item, index) => (
                 <MenuItem key={index} onClick={() => { item.action(); handleClose(); }}>
                     {item.icon}
                     {item.label}
@@ -119,7 +120,7 @@ export default function ActionsListMenu({ items, disabled }: ActionsListProps) {
         }
         <Divider sx={{ my: 0.5 }} />
         {
-            items.filter(item => item?.isInDividedGroup).map((item, index) => (
+            items.filter(item => item?.isInDividedGroup && item?.isAllowed).map((item, index) => (
                 <MenuItem key={index} onClick={() => { item.action(); handleClose(); }}>
                     {item.icon}
                     {item.label}

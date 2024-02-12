@@ -7,13 +7,17 @@ import { UserConstants as UC } from "../../lib/constants/UserConstants";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import { IUser } from "../../lib/interfaces/IUser";
+import useRole from "../../hooks/useRole";
+import { ROLES } from "../../lib/constants/utilsConstants";
 
 interface IClientInfosProps {
   client: IClient;
 }
 
 function ClientInformationsCard({ client }: IClientInfosProps) {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  const isAdminAllowed = useRole([ROLES.ADMIN]);
 
   const getFirstUserInfos = (users: IUser[]) => {
     if (users && users?.length > 0) {
@@ -29,7 +33,7 @@ function ClientInformationsCard({ client }: IClientInfosProps) {
       return user?.[UC.USER_EMAIL];
     }
     return "Email non renseigné";
-  }
+  };
 
   const getClientPhone = (users: IUser[]) => {
     if (users && users?.length > 0) {
@@ -37,15 +41,18 @@ function ClientInformationsCard({ client }: IClientInfosProps) {
       return user?.[UC.USER_PHONE];
     }
     return "Tél non renseigné";
-  }
+  };
 
   const goToClientDetails = (clientId: number) => {
-    navigate(`/client/${clientId}`)
-  }
+    navigate(`/client/${clientId}`);
+  };
 
   return (
     <Box p={1}>
-      <SecondaryTitle title="Informations client" style={{marginBottom: "2rem"}} />
+      <SecondaryTitle
+        title="Informations client"
+        style={{ marginBottom: "2rem" }}
+      />
       <Grid container mb={3}>
         <Grid item mr={2}>
           <Avatar />
@@ -97,27 +104,28 @@ function ClientInformationsCard({ client }: IClientInfosProps) {
           </Typography>
         </Grid>
       </Grid>
-      <Box mb={4}>
-
-      <Button
-        fullWidth
-        variant="contained"
-        startIcon={<ArrowBackIcon />}
-        color={"primary"}
-        sx={{
-          borderRadius: "2rem",
-          px: "1.5rem",
-          py: "0.5rem",
-        }}
-        onClick={() => goToClientDetails(client?.[CC.CLIENT_ID] as number)}
-      >
-        <Typography
-          sx={{ fontSize: "0.75rem", fontWeight: 700, fontStyle: "normal" }}
-        >
-          Aller à la fiche client
-        </Typography>
-      </Button>
-      </Box>
+      {isAdminAllowed && (
+        <Box mb={4}>
+          <Button
+            fullWidth
+            variant="contained"
+            startIcon={<ArrowBackIcon />}
+            color={"primary"}
+            sx={{
+              borderRadius: "2rem",
+              px: "1.5rem",
+              py: "0.5rem",
+            }}
+            onClick={() => goToClientDetails(client?.[CC.CLIENT_ID] as number)}
+          >
+            <Typography
+              sx={{ fontSize: "0.75rem", fontWeight: 700, fontStyle: "normal" }}
+            >
+              Aller à la fiche client
+            </Typography>
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }
