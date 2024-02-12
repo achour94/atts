@@ -224,7 +224,7 @@ export function getConsumptionTypeLabel(typeId: ConsumptionType): string {
  * @param blob - The blob containing the PDF data.
  * @param filename - The name of the file to be downloaded.
  */
-export const downloadPDF = (blob: Blob, filename: string): void => {
+export const downloadFile = (blob: Blob, filename: string): void => {
   // Create a URL for the blob
   const url = window.URL.createObjectURL(blob);
 
@@ -240,17 +240,17 @@ export const downloadPDF = (blob: Blob, filename: string): void => {
   a.remove();
 };
 
-export const downloadZip = (blob: Blob, filename: string): void => {
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href =
-    url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  a.remove();
-}
+// export const downloadZip = (blob: Blob, filename: string): void => {
+//   const url = window.URL.createObjectURL(blob);
+//   const a = document.createElement('a');
+//   a.href =
+//     url;
+//   a.download = filename;
+//   document.body.appendChild(a);
+//   a.click();
+//   window.URL.revokeObjectURL(url);
+//   a.remove();
+// }
 
 /** 
  * check if an invoice have consumptions of type CDR_SVA_A, CDR_SVA_B, CDR_SVA_D or CDR_SVA_G

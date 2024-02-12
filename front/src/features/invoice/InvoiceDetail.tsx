@@ -24,7 +24,7 @@ import {
 } from "../../lib/interfaces/IInvoice";
 import { toast } from "react-toastify";
 import {
-  downloadPDF,
+  downloadFile,
   formatDataToInvoiceForm,
   formatInvoiceData,
 } from "../../utils/utils";
@@ -249,7 +249,7 @@ function InvoiceDetail() {
       const fileName = contentDisposition
         ? contentDisposition.split(";")[1].split("=")[1]
         : `invoice_${id}.pdf`;
-      downloadPDF(response?.data, fileName);
+        downloadFile(response?.data, fileName);
     };
     if (id) generateInvoicePdf(parseInt(id), downloadCallback);
   }, []);
