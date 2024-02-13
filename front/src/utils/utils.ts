@@ -3,8 +3,9 @@ import { IFilterOptions, TableColumn } from "../lib/constants/utilsConstants";
 import { IClient, ISubscription } from "../lib/interfaces/IClient";
 import { ConsumptionType, InvoiceConstants as IC, InvoiceStatus } from "../lib/constants/InvoiceConstants";
 import { IConsumption, IInvoice, IInvoiceForm } from "../lib/interfaces/IInvoice";
-import { IUser } from "../lib/interfaces/IUser";
+import { IEmailTemplate, IUser } from "../lib/interfaces/IUser";
 import { UserConstants as UC } from "../lib/constants/UserConstants";
+import { EmailTemplateConstants as ET } from "../lib/constants/EmailTemplateConstants";
 
 export const formatClientsData = (data: any): IClient[] => {
   return data.map((row: any) => {
@@ -50,6 +51,14 @@ export const formatClientUsersData = (data: any): IUser[] => {
     return formatClientUserData(row);
   });
 };
+
+export const formatMailTemplateData = (data: any): IEmailTemplate => {
+  return {
+    [ET.EMAILTEMPLATE_ID]: data[ET.EMAILTEMPLATE_ID],
+    [ET.EMAILTEMPLATE_NAME]: data[ET.EMAILTEMPLATE_NAME],
+    [ET.EMAILTEMPLATE_CONTENT]: data[ET.EMAILTEMPLATE_CONTENT],
+  }
+}
 
 export const createEmptyClientUser = (): IUser => {
   return {

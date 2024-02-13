@@ -35,7 +35,7 @@ import { toast } from "react-toastify";
 import { userInfo } from "os";
 import { formatClientUserData } from "../../utils/utils";
 import { KeycloakProfile } from "keycloak-js";
-import { TemplateMail } from "./TemplateMail";
+import MailTemplate from "./TemplateEmail";
 
 // Email Template Schema
 export const emailTemplateSchema = yup.object({
@@ -96,6 +96,10 @@ function Profile() {
     setOpen(false);
   };
 
+  const handleModification = () => {
+    setModificationDisabled(!modificationDisabled)
+  }
+
   const getUser = (email: string): void => {
     setLoading(true);
     axiosInstance
@@ -113,6 +117,7 @@ function Profile() {
         setLoading(false);
       });
   };
+
 
   const updateUserInfo = () => {
     setLoading(true);
@@ -211,7 +216,7 @@ function Profile() {
                 color="primary"
                 startIcon={<Edit />}
                 label="Modifier"
-                onClick={() => setModificationDisabled(false)}
+                onClick={() => handleModification()}
               />
             </Stack>
           </Box>
@@ -251,6 +256,7 @@ function Profile() {
                   name={`${UC.USER_FIRSTNAME}`}
                   label="Prénom"
                   placeholder="Prénom"
+                  disabled={modificationDisabled}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -258,6 +264,7 @@ function Profile() {
                   name={`${UC.USER_LASTNAME}`}
                   label="Nom"
                   placeholder="Nom"
+                  disabled={modificationDisabled}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -265,6 +272,7 @@ function Profile() {
                   name={`${UC.USER_EMAIL}`}
                   label="Email"
                   placeholder="Email"
+                  disabled={modificationDisabled}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -272,6 +280,7 @@ function Profile() {
                   name={`${UC.USER_PHONE}`}
                   label="Numéro de téléphone"
                   placeholder="0033*********"
+                  disabled={modificationDisabled}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -281,6 +290,7 @@ function Profile() {
                   placeholder="Mot de passe"
                   type="password"
                   inputProps={resetPassword}
+                  disabled={modificationDisabled}
                 />
               </Grid>
             </Grid>
@@ -294,7 +304,7 @@ function Profile() {
                 onClick={updateUserInfo}
               />
             </Box>
-            <TemplateMail/>
+            <MailTemplate/>
           </Box>
         </Box>
       </Box>
