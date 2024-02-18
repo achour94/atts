@@ -70,17 +70,8 @@ function Clients() {
         //     }
         // },
     ], []);
+    
     const filtersOptions = useMemo(() => getFiltersOptionsFromColumns(columns), [columns]);
-    // const rows = [
-    //     ...Array(10).fill(null).map((_, index) => ({
-    //       checkmark: null, // Value for the checkbox; adapt as needed
-    //       reference: `REF00${index + 1}`,
-    //       name: `Client ${index + 1}`,
-    //       address: `123 Main St Apt ${index + 1}`,
-    //       defaultSubscription: `Subscription ${index + 1}`,
-    //       options: null, // Value for the custom options; adapt as needed
-    //     }))
-    //   ];
 
     const dispatch: ThunkDispatch<any, void, any> = useDispatch();
     const clients: IClient[] = useSelector(selectClients);

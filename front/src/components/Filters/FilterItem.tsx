@@ -22,11 +22,14 @@ import {
   FieldError,
   FieldValues,
   useFormContext,
+  useWatch,
 } from "react-hook-form";
 import MuiSelect from "../Form/MuiSelect";
 import MuiDatePicker from "../Form/MuiDatePicker";
+import { fi } from "date-fns/locale";
 
 interface IFilterItemProps {
+  filter: Filter;
   filtersOptions: IFilterOptions[];
   deleteFilter: (index: number) => void;
   index: number;
@@ -35,12 +38,11 @@ interface IFilterItemProps {
 function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
   const { watch, getValues, control } = useFormContext();
 
-  const columnValue = watch(`filters[${index}].column`);
-  const operatorValue = watch(`filters[${index}].operator`);
+  const filters = useWatch({ control, name: "filters" });
+  const filter = useWatch({ control, name: `filters.${index}` });
 
   const shouldDisableOperator = (column: string, operator: string) => {
     // check if we already have a filter with the same column and operator
-    const filters = getValues("filters");
     const filter = filters.find(
       (filter: Filter) =>
         filter.column === column && filter.operator === operator
@@ -50,7 +52,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
 
   const getColumnType = (): ColumnType => {
     const column = filtersOptions.find(
-      (filterOption) => filterOption.column === columnValue
+      (filterOption) => filterOption.column === filter.column
     );
     return column?.columnType || ColumnType.TEXT;
   };
@@ -69,7 +71,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
             {...field}
             error={!!error}
             helperText={error ? error.message : null}
-            disabled={operatorValue === ""}
+            disabled={filter?.operator === ""}
           />
         );
       case ColumnType.NUMBER:
@@ -85,7 +87,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
             {...field}
             error={!!error}
             helperText={error ? error.message : null}
-            disabled={operatorValue === ""}
+            disabled={filter?.operator === ""}
           />
         );
       case ColumnType.DATE:
@@ -94,7 +96,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
             field={field}
             error={error}
             label="Valeur"
-            disabled={operatorValue === ""}
+            disabled={filter?.operator === ""}
           />
         );
       case ColumnType.BOOLEAN:
@@ -106,7 +108,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
               id="demo-simple-select-helper"
               {...field}
               label="Valeur"
-              disabled={operatorValue === ""}
+              disabled={filter?.operator === ""}
               error={!!error}
               size="small"
               fullWidth
@@ -128,7 +130,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
             {...field}
             error={!!error}
             helperText={error ? error.message : null}
-            disabled={operatorValue === ""}
+            disabled={filter?.operator === ""}
           />
         );
     }
@@ -141,7 +143,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
         <Grid container spacing={2}>
           <Grid item xs={4}>
             <MuiSelect
-              name={`filters[${index}].column`}
+              name={`filters.${index}.column`}
               label="Colonne"
               placeholder="Colonne"
               size="small"
@@ -159,20 +161,20 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
           </Grid>
           <Grid item xs={4}>
             <MuiSelect
-              name={`filters[${index}].operator`}
+              name={`filters.${index}.operator`}
               label="Opérateur"
               placeholder="Opérateur"
-              disabled={columnValue === ""}
+              disabled={filter?.column === ""}
               size="small"
             >
               {filtersOptions
-                .find((filterOption) => filterOption.column === columnValue)
+                .find((filterOption) => filterOption.column === filter?.column)
                 ?.filterOperators.map((operator: FilterType, index: number) => {
                   return (
                     <MenuItem
                       key={index}
                       value={operator}
-                      disabled={shouldDisableOperator(columnValue, operator)}
+                      disabled={shouldDisableOperator(filter?.column, operator)}
                     >
                       {FilterTypeLabel[operator]}
                     </MenuItem>
@@ -182,7 +184,7 @@ function FilterItem({ filtersOptions, deleteFilter, index }: IFilterItemProps) {
           </Grid>
           <Grid item xs={4}>
             <Controller
-              name={`filters[${index}].value`}
+              name={`filters.${index}.value`}
               control={control}
               render={({ field, fieldState: { error } }) =>
                 getValueField(field, error)
