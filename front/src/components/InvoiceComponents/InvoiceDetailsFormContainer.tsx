@@ -37,7 +37,7 @@ function InvoiceDetailsFormContainer({ invoice }: InvoiceDetailsFormContainerPro
             />
           </Grid>
           <Grid item>
-            <MuiSwitch name={IC.INVOICE_PROFORMA} disabled={isAdminAllowed} />
+            <MuiSwitch name={IC.INVOICE_PROFORMA} disabled={!isAdminAllowed} />
           </Grid>
         </Grid>
       </Box>
