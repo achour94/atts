@@ -9,7 +9,7 @@ import { Box, Grid } from "@mui/material";
 import FilterItem from "./FilterItem";
 import { AddOutlined, FilterAltOutlined } from "@mui/icons-material";
 import { Filter, IFilterOptions } from "../../lib/constants/utilsConstants";
-import { SubmitHandler, FormProvider, useForm } from "react-hook-form";
+import { SubmitHandler, FormProvider, useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -46,6 +46,11 @@ export default function FilterButton({
     },
   });
 
+  const { fields, append, prepend, remove } = useFieldArray({
+    control: methods.control,
+    name: "filters",
+  });
+
   const handleToggle = () => {
     methods.reset({
       filters: filters as any,
@@ -57,20 +62,11 @@ export default function FilterButton({
   const watchedFilters = watch("filters"); // Watch the filters array
 
   const addFilterHandler = () => {
-    const oldFilters = watchedFilters || [];
-    setValue("filters", [
-      ...oldFilters,
-      { column: "", operator: "", value: "" },
-    ]);
+    append({ column: "", operator: "", value: "" });
   };
 
   const deleteFilterHandler = (index: number) => {
-    const oldFilters = watchedFilters || [];
-    const newFilters = oldFilters.filter((_, i) => i !== index);
-    setValue("filters", [...newFilters]);
-
-    // Trigger validation after updating the field
-    methods.trigger("filters");
+    remove(index);
   };
 
   const onSubmit: SubmitHandler<any> = (data) => {
@@ -87,9 +83,6 @@ export default function FilterButton({
     resetFilters();
     setOpen(false);
   };
-  useEffect(() => {
-    console.log("form values", methods.getValues());
-  }, [methods.getValues()]);
 
   return (
     <React.Fragment>
@@ -153,9 +146,10 @@ export default function FilterButton({
                       }}
                       spacing={1}
                     >
-                      {methods.getValues().filters?.map((filter, index) => (
-                        <Grid item key={index} mt={1}>
+                      {fields?.map((filter, index) => (
+                        <Grid item key={filter.id} mt={1}>
                           <FilterItem
+                            filter={filter as Filter}
                             filtersOptions={filtersOptions}
                             index={index}
                             deleteFilter={deleteFilterHandler}

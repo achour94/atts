@@ -5,6 +5,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ConfirmationPopup from "../utils/ConfirmationPopup";
+import { useFormContext } from "react-hook-form";
 
 interface Props {
   isAddMode?: boolean;
@@ -13,6 +14,8 @@ interface Props {
 
 function ClientActions({ isAddMode = false, onDelete }: Props) {
   const [openConfirmation, setOpenConfirmation] = useState(false);
+
+  const methods = useFormContext();
 
   const handleDelete = () => {
     setOpenConfirmation(true);
@@ -37,6 +40,7 @@ function ClientActions({ isAddMode = false, onDelete }: Props) {
               color="primary"
               startIcon={<EditIcon />}
               label="Modifier"
+              disabled={!methods.formState.isDirty}
             />
             <MuiButton
               color="error"
