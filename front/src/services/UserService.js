@@ -52,6 +52,8 @@ const updateToken = (successCallback) =>
 const getUsername = () => _kc.tokenParsed?.preferred_username;
 const getUserInfo = () => _kc.loadUserInfo();
 
+const getUserProfile = () => _kc.loadUserProfile();
+
 const hasAtLeastOneRole = (roles) => roles.some((role) => {
     return _kc.tokenParsed && _kc.tokenParsed.resource_access["atts-application"].roles.includes(role);
     });
@@ -75,7 +77,8 @@ const UserService = {
   hasAtLeastOneRole,
   hasAllRoles,
   getUserInfo,
-  getRoles
+  getRoles,
+  getUserProfile
 };
 
 export default UserService;

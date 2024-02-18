@@ -42,7 +42,7 @@ const MailTemplate = () => {
       })
       .catch((error) => {
         console.log(error);
-        toast.error("Error get user information");
+        toast.error("Erreur lors de la récupération des templates d'email");
       });
   };
 

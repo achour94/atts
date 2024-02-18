@@ -67,9 +67,9 @@ function Profile() {
 
   //get connected user informations
   useEffect(() => {
-    UserService.getUserInfo()
+    UserService.getUserProfile()
       .then((userInfo) => setUserInfosKeyCloak(userInfo))
-      .catch(() => toast.error("erreur getting infos from keycloak"));
+      .catch(() => toast.error("Une erreur s'est produite lors de la récupération des informations de l'utilisateur"));
   }, []);
 
   const [open, setOpen] = useState(false);
@@ -111,7 +111,7 @@ function Profile() {
       })
       .catch((error) => {
         console.log(error);
-        toast.error("Error get user information");
+        toast.error("Une erreur s'est produite lors de la récupération des informations de l'utilisateur");
       })
       .finally(() => {
         setLoading(false);
@@ -144,8 +144,8 @@ function Profile() {
   };
 
   useEffect(() => {
-    if (userInfosKeyCloak?.email) {
-      getUser(userInfosKeyCloak?.email);
+    if (userInfosKeyCloak?.username) {
+      getUser(userInfosKeyCloak?.username);
     }
   }, [userInfosKeyCloak]);
 
