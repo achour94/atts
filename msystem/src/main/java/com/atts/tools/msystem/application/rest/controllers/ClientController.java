@@ -5,6 +5,7 @@ import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
 import com.atts.tools.msystem.common.exceptions.types.NotFoundElementException;
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.pageable.RequestPage;
+import com.atts.tools.msystem.domain.model.types.ClientReference;
 import com.atts.tools.msystem.domain.ports.in.usecases.ManageClientUseCase;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientCriteriaPort;
 import com.atts.tools.msystem.domain.ports.out.datastore.ClientStoragePort;
@@ -60,8 +61,14 @@ public class ClientController {
     }
 
     @PutMapping
-    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Client> updateClient(@RequestBody Client client) throws IlegalRequestException {
         return ResponseEntity.ok(manageClientUseCase.update(client));
     }
+
+    @GetMapping("/exists/{clientReference}")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<Boolean> clientWithReferenceExists(@PathVariable String clientReference) {
+        return ResponseEntity.ok(clientStoragePort.findBy(new ClientReference(clientReference)).isPresent());
+    }
+
 }

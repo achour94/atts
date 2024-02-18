@@ -8,12 +8,16 @@ import { IInvoice } from "../../lib/interfaces/IInvoice";
 import { InvoiceConstants as IC, InvoiceStatus } from "../../lib/constants/InvoiceConstants";
 import { ClientConstants as CC } from "../../lib/constants/ClientConstants";
 import InvoiceConsumptions from "./InvoiceConsumptions";
+import { ROLES } from "../../lib/constants/utilsConstants";
+import useRole from "../../hooks/useRole";
 
 interface InvoiceDetailsFormContainerProps {
     invoice: IInvoice | undefined;
 }
 
 function InvoiceDetailsFormContainer({ invoice }: InvoiceDetailsFormContainerProps) {
+  const isAdminAllowed = useRole([ROLES.ADMIN]);
+
   return (
     <Box>
       <Box mb={3}>
@@ -33,7 +37,7 @@ function InvoiceDetailsFormContainer({ invoice }: InvoiceDetailsFormContainerPro
             />
           </Grid>
           <Grid item>
-            <MuiSwitch name={IC.INVOICE_PROFORMA} />
+            <MuiSwitch name={IC.INVOICE_PROFORMA} disabled={isAdminAllowed} />
           </Grid>
         </Grid>
       </Box>

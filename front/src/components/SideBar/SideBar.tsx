@@ -11,6 +11,8 @@ import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import ToggleButton from './ToggleButton/ToggleButton';
+import { ROLES } from '../../lib/constants/utilsConstants';
+
 
 
 const menuItems: IMenuElement[] = [
@@ -22,17 +24,20 @@ const menuItems: IMenuElement[] = [
     {
         label: "Mes clients",
         icon: <PeopleAltOutlinedIcon />,
-        path: "/clients"
+        path: "/clients",
+        allowedRoles: [ROLES.ADMIN]
     },
     {
         label: "Mes factures",
         icon: <DescriptionOutlinedIcon />,
-        path: "/invoices"
+        path: "/invoices",
+        allowedRoles: [ROLES.ADMIN, ROLES.CLIENT]
     },
     {
         label: "Historique",
         icon: <HistoryOutlinedIcon />,
-        path: "/history"
+        path: "/history",
+        allowedRoles: [ROLES.ADMIN]
     },
 ]
 
@@ -40,15 +45,16 @@ const profileItems: IMenuElement[] = [
     {
         label: "Profile",
         icon: <AccountCircleOutlinedIcon />,
-        path: "/profile"
+        path: "/profile",
+        allowedRoles: [ROLES.ADMIN, ROLES.CLIENT]
     },
     {
         label: "Se déconnecter",
         icon: <LogoutOutlinedIcon />,
-        path: "/logout"
+        path: "/logout",
+        allowedRoles: [ROLES.ADMIN, ROLES.CLIENT]
     },
 ]
-
 function SideBar() {
 
     const theme = useTheme();
@@ -88,14 +94,14 @@ function SideBar() {
                 <Box sx={{ flexGrow: 1 }} >
                     <Menu menuItemStyles={menuItemStyles}>
                         {menuItems.map((item, index) => (
-                            <MenuElement label={item.label} icon={item.icon} path={item.path} key={index} />
+                            <MenuElement label={item.label} icon={item.icon} path={item.path} key={index} allowedRoles={item.allowedRoles} />
                         ))}
                     </Menu>
                 </Box>
                 <Box sx={{ marginBottom: 5 }}>
                     <Menu menuItemStyles={menuItemStyles} >
                         {profileItems.map((item, index) => (
-                            <MenuElement label={item.label} icon={item.icon} path={item.path} key={index} />
+                            <MenuElement label={item.label} icon={item.icon} path={item.path} key={index} allowedRoles={item.allowedRoles} />
                         ))}
                     </Menu>
                 </Box>

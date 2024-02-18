@@ -1,6 +1,6 @@
 import Keycloak from "keycloak-js";
 
-const _kc = new Keycloak("/keycloak.json");
+const _kc = new Keycloak('/keycloak.json');
 _kc.onTokenExpired = () => {
   _kc
     .updateToken(1)
@@ -18,20 +18,18 @@ let isKeycloakInitialized = false; // This variable will track the initializatio
  * @param onAuthenticatedCallback
  */
 const initKeycloak = (onAuthenticatedCallback, onErrorCallback) => {
-  _kc
-    .init({
-      onLoad: "check-sso",
-      silentCheckSsoRedirectUri:
-        window.location.origin + "/silent-check-sso.html",
-      pkceMethod: "S256",
-    })
+  _kc.init({
+    onLoad: 'check-sso',
+    silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+    pkceMethod: 'S256',
+  })
     .then((authenticated) => {
       isKeycloakInitialized = true;
-      onAuthenticatedCallback();
+        onAuthenticatedCallback();
     })
-    .catch((error) => {
-      onErrorCallback(error);
-    });
+    .catch( (error) => {
+        onErrorCallback(error);
+    })
 };
 
 const isInitialized = () => isKeycloakInitialized;
@@ -47,25 +45,22 @@ const getTokenParsed = () => _kc.tokenParsed;
 const isLoggedIn = () => !!_kc.token;
 
 const updateToken = (successCallback) =>
-  _kc.updateToken(5).then(successCallback).catch(doLogin);
+  _kc.updateToken(5)
+    .then(successCallback)
+    .catch(doLogin);
 
 const getUsername = () => _kc.tokenParsed?.preferred_username;
 const getUserInfo = () => _kc.loadUserInfo();
 
-const hasAtLeastOneRole = (roles) =>
-  roles.some((role) => {
-    return (
-      _kc.tokenParsed &&
-      _kc.tokenParsed.resource_access["atts-application"].roles.includes(role)
-    );
-  });
+const hasAtLeastOneRole = (roles) => roles.some((role) => {
+    return _kc.tokenParsed && _kc.tokenParsed.resource_access["atts-application"].roles.includes(role);
+    });
 
-const hasAllRoles = (roles) =>
-  roles.every((role) => {
-    return _kc.tokenParsed.resource_access["atts-application"].roles.includes(
-      role
-    );
-  });
+const hasAllRoles = (roles) => roles.every((role) => {
+    return _kc.tokenParsed.resource_access["atts-application"].roles.includes(role);
+    });
+
+const getRoles = () => _kc.tokenParsed.resource_access["atts-application"].roles;
 
 const UserService = {
   initKeycloak,
@@ -80,6 +75,7 @@ const UserService = {
   hasAtLeastOneRole,
   hasAllRoles,
   getUserInfo,
+  getRoles
 };
 
 export default UserService;

@@ -52,6 +52,7 @@ public class Transformer {
     public UserEntity transformToUserEntityWithRel(User user,
         boolean addClient, boolean withEmailTemplate) {
         UserEntity userEntity = new UserEntity();
+        userEntity.setId(user.getId());
         userEntity.setEmail(user.getEmail());
         if (addClient) {
             userEntity.setClient(transformToClientEntityWithoutUser(user.getClient()));
@@ -144,6 +145,7 @@ public class Transformer {
                 .htAmount(entity.getHtAmount())
                 .ttcAmount(entity.getTtcAmount())
                 .proforma(entity.getProforma() == 1)
+                .specialNumbers(entity.getSpecialNumbers() == 1)
                 .tva(entity.getTva())
                 .status(InvoiceStatus.convert(entity.getStatus()))
                 .fileUri(entity.getFileUri())
@@ -323,6 +325,7 @@ public class Transformer {
         invoiceEntity.setHtAmount(invoice.getHtAmount());
         invoiceEntity.setTtcAmount(invoice.getTtcAmount());
         invoiceEntity.setProforma((byte) (invoice.getProforma() ? 1 : 0));
+        invoiceEntity.setSpecialNumbers((byte) (invoice.getSpecialNumbers() ? 1 : 0));
         invoiceEntity.setFileUri(invoice.getFileUri());
         invoiceEntity.setTva(invoice.getTva());
         invoiceEntity.setId(invoice.getId());

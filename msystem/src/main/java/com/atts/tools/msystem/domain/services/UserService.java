@@ -60,10 +60,11 @@ public class UserService implements UserManagementUseCase {
                 throw new RuntimeException(e);
             }
         } else {
-            user.setClient(client);
-            user.setId(
-                client.getUsers().stream().filter(us -> us.getEmail().equals(user.getEmail())).findAny().get().getId());
-            return userStoragePort.save(user);
+            User userToUpdate = client.getUsers().stream().filter(us -> us.getEmail().equals(user.getEmail())).findAny().get();
+            userToUpdate.setLastName(user.getLastName());
+            userToUpdate.setFirstName(user.getLastName());
+            userToUpdate.setPhoneNumber(user.getPhoneNumber());
+            return userStoragePort.save(userToUpdate);
         }
     }
 

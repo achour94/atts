@@ -1,6 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../services/axios";
-import { Box, Button, Checkbox, Grid, Input } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Grid,
+  Input,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import { ThunkDispatch } from "@reduxjs/toolkit";
@@ -25,11 +33,13 @@ import {
   deselectInvoice,
   getIsInvoiceSelected,
   getIsAllInvoicesSelected,
+  INVOICE_API_URL,
 } from "./invoiceSlice";
 import {
   FetchStatus,
   Filter,
   FilterType,
+  ROLES,
   SortDirection,
   TableColumn,
 } from "../../lib/constants/utilsConstants";
@@ -44,6 +54,7 @@ import { ColumnType as CT } from "../../lib/constants/utilsConstants";
 import StyledLink from "../../components/utils/Typography/StyledLink";
 import MuiTable from "../../components/MuiTable/MuiTable";
 import {
+  downloadFile,
   formatNumberToEuro,
   formatTimestampToFrenchDate,
   getFiltersOptionsFromColumns,
@@ -63,6 +74,7 @@ import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutli
 import FolderZipOutlinedIcon from "@mui/icons-material/FolderZipOutlined";
 import AttachEmailOutlinedIcon from "@mui/icons-material/AttachEmailOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import useRole from "../../hooks/useRole";
 
 function Invoices() {
   const dispatch: ThunkDispatch<any, void, any> = useDispatch();
@@ -76,6 +88,7 @@ function Invoices() {
   const selectedInvoices = useSelector(getSelectedInvoices);
   // const isAllInvoicesSelected = useSelector(getIsAllInvoicesSelected);
   // const isInvoiceSelected = useSelector(state => getIsInvoiceSelected());
+  const isAdminAllowed = useRole([ROLES.ADMIN]);
 
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
@@ -177,7 +190,17 @@ function Invoices() {
         renderCell: (row: IInvoice) => {
           return (
             <StyledLink to={`/client/${row?.client?.clientId}`}>
-              {row.client.name}
+              <Tooltip title={row.client.name} placement="top">
+                <Typography
+                  variant="body1"
+                  noWrap
+                  sx={{
+                    maxWidth: "200px",
+                  }}
+                >
+                  {row.client.name}
+                </Typography>
+              </Tooltip>
             </StyledLink>
           );
         },
@@ -256,22 +279,86 @@ function Invoices() {
     [isInvoiceSelected, isAllInvoicesSelected]
   );
 
+  const exportZipHandler = () => {
+    axiosInstance
+      .get(`${INVOICE_API_URL}/zip/${selectedInvoices.join(",")}`, {
+        responseType: "blob",
+        // params: {
+        //   invoiceIds: selectedInvoices.join(",")
+        // }
+      })
+      .then((response) => {
+        downloadFile(response.data, "factures.zip");
+      })
+      .catch((error) => {
+        console.error("Error exporting invoices:", error);
+        toast.error("Erreur lors de l'export des factures");
+      });
+  };
+
+  const shareSelectedInvoicesHandler = () => {
+    axiosInstance
+      .put(`${INVOICE_API_URL}/share/${selectedInvoices.join(",")}`)
+      .then((response) => {
+        console.log(response);
+        toast.success("Factures partagées avec succès");
+        dispatch(
+          fetchInvoices({
+            pageSize: pagination.pageSize,
+            pageNumber: pagination.page,
+            criteria: filters,
+            sort: sort,
+            status: invoiceStatusFilter,
+          })
+        );
+      })
+      .catch((error) => {
+        console.error("Error sharing invoices:", error);
+        toast.error("Erreur lors du partage des factures");
+      });
+  };
+
+  const deleteSelectedInvoicesHandler = () => {
+    axiosInstance
+      .delete(`${INVOICE_API_URL}/${selectedInvoices.join(",")}`)
+      .then((response) => {
+        toast.success("Factures supprimées avec succès");
+        dispatch(
+          fetchInvoices({
+            pageSize: pagination.pageSize,
+            pageNumber: pagination.page,
+            criteria: filters,
+            sort: sort,
+            status: invoiceStatusFilter,
+          })
+        );
+      })
+      .catch((error) => {
+        console.error("Error deleting invoices:", error);
+        toast.error("Erreur lors de la suppression des factures");
+      });
+  };
+
   const actionsListMenuItems: ActionListItem[] = [
     {
       icon: <CheckCircleOutlineOutlinedIcon />,
       label: "Partager au client",
       action: () => {
         console.log("Partager au client");
+        shareSelectedInvoicesHandler();
       },
       isInDividedGroup: false,
+      isAllowed: isAdminAllowed,
     },
     {
       icon: <FolderZipOutlinedIcon />,
       label: "Exporter en Zip",
       action: () => {
         console.log("Exporter en Zip");
+        exportZipHandler();
       },
       isInDividedGroup: false,
+      isAllowed: true
     },
     {
       icon: <AttachEmailOutlinedIcon />,
@@ -280,14 +367,17 @@ function Invoices() {
         console.log("Envoyer par email");
       },
       isInDividedGroup: false,
+      isAllowed: isAdminAllowed,
     },
     {
       icon: <DeleteOutlinedIcon />,
       label: "Supprimer",
       action: () => {
         console.log("Supprimer");
+        deleteSelectedInvoicesHandler();
       },
       isInDividedGroup: true,
+      isAllowed: isAdminAllowed,
     },
   ];
 
@@ -296,11 +386,7 @@ function Invoices() {
   }
 
   function isAllInvoicesSelected() {
-    console.log(
-      "isAllInvoicesSelected",
-      selectedInvoices.length === invoices.length
-    );
-    return selectedInvoices.length === invoices.length;
+    return invoices.length > 0 && selectedInvoices.length === invoices.length;
   }
 
   function toggleSelectAllInvoices(event: React.ChangeEvent<HTMLInputElement>) {
@@ -415,16 +501,13 @@ function Invoices() {
           <Grid item flex={1}>
             <PageTitle title="Mes factures" />
           </Grid>
-          <Grid item>
-            {/* <Input type="file" onChange={handleFileChange} />
-            <Button variant="contained" color="primary" onClick={handleUpload}>
-              Upload File
-            </Button> */}
-            <Button onClick={() => setUploadDialogOpen(true)}>
-              Importer des factures
-            </Button>
-            {/* <MuiButton startIcon={<AddOutlinedIcon />} label="Ajouter un client" color="primary" onClick={() => addClientClickHandler()} /> */}
-          </Grid>
+          {isAdminAllowed && (
+            <Grid item>
+              <Button onClick={() => setUploadDialogOpen(true)}>
+                Importer des factures
+              </Button>
+            </Grid>
+          )}
         </Grid>
         <Grid
           container
@@ -447,7 +530,10 @@ function Invoices() {
             />
           </Grid>
           <Grid item>
-            <ActionsListMenu items={actionsListMenuItems} />
+            <ActionsListMenu
+              items={actionsListMenuItems}
+              disabled={selectedInvoices.length === 0}
+            />
           </Grid>
         </Grid>
         <Grid mt={2}>

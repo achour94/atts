@@ -16,9 +16,7 @@ export interface IClient {
     [CC.CLIENT_CLIENTREFERENCE]: string;
     [CC.CLIENT_DEFAULTSUBSCRIPTION]: number;
     [CC.CLIENT_DIVERSESUBSCRIPTION]: number;
-    [CC.CLIENT_EMAIL]: string;
     [CC.CLIENT_NAME]: string;
-    [CC.CLIENT_PHONE]: string;
     [CC.CLIENT_POSTALCODE]: string;
     [CC.CLIENT_SUBSCRIPTIONS]: any[];
     [CC.CLIENT_USERS]?: IUser[];

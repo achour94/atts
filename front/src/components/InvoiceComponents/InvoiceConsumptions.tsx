@@ -13,14 +13,23 @@ import {
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { ClientConstants as CC } from "../../lib/constants/ClientConstants";
-import { ConsumptionType, InvoiceConstants as IC } from "../../lib/constants/InvoiceConstants";
+import {
+  ConsumptionType,
+  InvoiceConstants as IC,
+} from "../../lib/constants/InvoiceConstants";
 import { IClient, ISubscription } from "../../lib/interfaces/IClient";
 import { ActionMenu } from "../utils/ActionMenu";
 import { IConsumption, IInvoice } from "../../lib/interfaces/IInvoice";
 import SecondaryTitle from "../utils/Typography/SecondaryTitle";
 import AddConsumptionDialog from "./AddConsumptionDialog";
-import { formatNumberToEuro, formatSeconds, getConsumptionTypeLabel } from "../../utils/utils";
+import {
+  formatNumberToEuro,
+  formatSeconds,
+  getConsumptionTypeLabel,
+} from "../../utils/utils";
 import EditConsumptionDialog from "./EditConsumptionDialog";
+import { ROLES } from "../../lib/constants/utilsConstants";
+import useRole from "../../hooks/useRole";
 
 const headCellStyle = {
   fontSize: "1rem",
@@ -48,9 +57,9 @@ function InvoiceConsumptions() {
   const [consumptionToEdit, setConsumptionToEdit] = useState<IConsumption>(
     {} as IConsumption
   );
-  const [consumptionIndex, setConsumptionIndex] = useState<number | null>(
-    null
-  );
+  const [consumptionIndex, setConsumptionIndex] = useState<number | null>(null);
+
+  const isAdminAllowed = useRole([ROLES.ADMIN]);
 
   // Handle opening the modal
   const handleOpenAddModal = () => {
@@ -63,33 +72,31 @@ function InvoiceConsumptions() {
   };
 
   // Handle adding a new consumption
-    const handleAddConsumption = (consumption: IConsumption) => {
-      const consumptionToAdd = {
-        ...consumption,
-        [IC.CONSUMPTION_STARTDATE]: invoice?.[IC.INVOICE_STARTPERIOD],
-        [IC.CONSUMPTION_ENDDATE]: invoice?.[IC.INVOICE_ENDPERIOD],
-      };
-      console.log('consumption to add', consumptionToAdd);
-      console.log('invoice', invoice);
-      append(consumptionToAdd);
-      handleCloseAddModal();
+  const handleAddConsumption = (consumption: IConsumption) => {
+    const consumptionToAdd = {
+      ...consumption,
+      [IC.CONSUMPTION_STARTDATE]: invoice?.[IC.INVOICE_STARTPERIOD],
+      [IC.CONSUMPTION_ENDDATE]: invoice?.[IC.INVOICE_ENDPERIOD],
     };
+    console.log("consumption to add", consumptionToAdd);
+    console.log("invoice", invoice);
+    append(consumptionToAdd);
+    handleCloseAddModal();
+  };
 
-    const handleUpdateConsumption = (
-      consumption: IConsumption
-    ) => {
-      console.log(consumption);
-      if (consumptionIndex !== null) {
-        update(consumptionIndex, consumption);
-        setOpenEditModal(false);
-      }
-    };
-
-    const handleCloseEditModal = () => {
-      setConsumptionIndex(null);
+  const handleUpdateConsumption = (consumption: IConsumption) => {
+    console.log(consumption);
+    if (consumptionIndex !== null) {
+      update(consumptionIndex, consumption);
       setOpenEditModal(false);
-      setConsumptionToEdit({} as IConsumption);
     }
+  };
+
+  const handleCloseEditModal = () => {
+    setConsumptionIndex(null);
+    setOpenEditModal(false);
+    setConsumptionToEdit({} as IConsumption);
+  };
 
   const editActionClickHandler = (index: number, consumption: IConsumption) => {
     console.log("Edit action clicked");
@@ -120,7 +127,12 @@ function InvoiceConsumptions() {
 
   return (
     <Box>
-      <Grid container justifyContent={"space-between"} alignItems="center" sx={{mt: 4,}} >
+      <Grid
+        container
+        justifyContent={"space-between"}
+        alignItems="center"
+        sx={{ mt: 4 }}
+      >
         <Grid item>
           <SecondaryTitle title={"Consommations"} style={{ marginBottom: 0 }} />
         </Grid>
@@ -212,144 +224,158 @@ function InvoiceConsumptions() {
                   }}
                 >
                   <Typography variant="body1" sx={headCellStyle}>
-                    Options
+                    Actions
                   </Typography>
                 </Grid>
               </Grid>
             </Box>
           </ListItem>
-          <Box sx={{
-            maxHeight: "300px",
-            overflow: "auto"
-          }} >
-          {fields.map((consumption, index) => (
-            <ListItem
-              key={index}
-              sx={{
-                mb: 2,
-                border: "1px solid #EAEEF4",
-                borderRadius: "8px",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-                "&:last-child": {
-                  mb: 0,
-                },
-              }}
-            >
-              <Box
+          <Box
+            sx={{
+              maxHeight: "300px",
+              overflow: "auto",
+            }}
+          >
+            {fields.map((consumption, index) => (
+              <ListItem
+                key={index}
                 sx={{
-                  display: "flex",
-                  width: "100%",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  mb: 2,
+                  border: "1px solid #EAEEF4",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
+                  "&:last-child": {
+                    mb: 0,
+                  },
                 }}
               >
-                <Grid container>
-                  <Grid
-                    item
-                    flexGrow={1}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "start",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                      {getConsumptionTypeLabel(consumption?.[IC.CONSUMPTION_TYPE] as ConsumptionType)}
-                    </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    width: "100%",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Grid container>
+                    <Grid
+                      item
+                      flexGrow={1}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "start",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                        {getConsumptionTypeLabel(
+                          consumption?.[IC.CONSUMPTION_TYPE] as ConsumptionType
+                        )}
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={2}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="body1">
+                        {consumption?.[IC.CONSUMPTION_COUNT]}
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={2}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="body1">
+                        {formatSeconds(consumption?.[IC.CONSUMPTION_DURATION])}
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={2}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="body1">
+                        {formatNumberToEuro(
+                          consumption?.[IC.CONSUMPTION_HTAMOUNT]
+                        )}
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={2}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "end",
+                        alignItems: "center",
+                      }}
+                    >
+                      {isAdminAllowed && (
+                        <ActionMenu
+                          items={[
+                            {
+                              label: "Modifier",
+                              action: () =>
+                                editActionClickHandler(index, consumption),
+                            },
+                            {
+                              label: "Supprimer",
+                              action: () => deleteActionClickHandler(index),
+                            },
+                          ]}
+                        />
+                      )}
+                    </Grid>
                   </Grid>
-                  <Grid
-                    item
-                    xs={2}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography variant="body1">
-                      {consumption?.[IC.CONSUMPTION_COUNT]}
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={2}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography variant="body1">
-                      {formatSeconds(consumption?.[IC.CONSUMPTION_DURATION])}
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={2}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography variant="body1">
-                      {formatNumberToEuro(consumption?.[IC.CONSUMPTION_HTAMOUNT])}
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={2}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "end",
-                      alignItems: "center",
-                    }}
-                  >
-                    <ActionMenu
-                      items={[
-                        {
-                          label: "Modifier",
-                          action: () =>
-                            editActionClickHandler(index, consumption),
-                        },
-                        {
-                          label: "Supprimer",
-                          action: () => deleteActionClickHandler(index),
-                        },
-                      ]}
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
-            </ListItem>
-          ))}
-
+                </Box>
+              </ListItem>
+            ))}
           </Box>
         </List>
       </Paper>
       <Box>
         <Grid container justifyContent={"flex-end"}>
           <Grid item>
-            <Box sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-end",
-              mt: 2,
-              mr: 2
-            }}>
-              <Typography sx={{
-                color: "#868DA6",
-                fontSize: "0.625rem",
-                fontStyle: "normal",
-                fontWeight: "400"
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                mt: 2,
+                mr: 2,
               }}
-              >TOTAL HT</Typography>
-              <Typography sx={{
-                color: "#EE7F01",
-                fontSize: "1.5rem",
-                fontStyle: "normal",
-                fontWeight: "700"
-              }}>
+            >
+              <Typography
+                sx={{
+                  color: "#868DA6",
+                  fontSize: "0.625rem",
+                  fontStyle: "normal",
+                  fontWeight: "400",
+                }}
+              >
+                TOTAL HT
+              </Typography>
+              <Typography
+                sx={{
+                  color: "#EE7F01",
+                  fontSize: "1.5rem",
+                  fontStyle: "normal",
+                  fontWeight: "700",
+                }}
+              >
                 {formatNumberToEuro(calculateTotalHTAmount())}
               </Typography>
             </Box>

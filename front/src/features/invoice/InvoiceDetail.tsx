@@ -24,7 +24,7 @@ import {
 } from "../../lib/interfaces/IInvoice";
 import { toast } from "react-toastify";
 import {
-  downloadPDF,
+  downloadFile,
   formatDataToInvoiceForm,
   formatInvoiceData,
 } from "../../utils/utils";
@@ -37,6 +37,8 @@ import { IClient } from "../../lib/interfaces/IClient";
 import InvoiceInformationsCard from "../../components/InvoiceComponents/InvoiceInformationsCard";
 import ConfirmationPopup from "../../components/utils/ConfirmationPopup";
 import PDFDialog from "../../components/utils/PDFDialog";
+import useRole from "../../hooks/useRole";
+import { ROLES } from "../../lib/constants/utilsConstants";
 
 //styled box Container
 const StyledBoxContainer = styled(Box)(({ theme }) => ({
@@ -120,6 +122,8 @@ function InvoiceDetail() {
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [pdfFileName, setPdfFileName] = useState("");
   const [pdfData, setPdfData] = useState<Uint8Array | null>(null);
+
+  const isAdminAllowed = useRole([ROLES.ADMIN]);
 
   const goBack = () => {
     navigate("/invoices");
@@ -249,7 +253,7 @@ function InvoiceDetail() {
       const fileName = contentDisposition
         ? contentDisposition.split(";")[1].split("=")[1]
         : `invoice_${id}.pdf`;
-      downloadPDF(response?.data, fileName);
+      downloadFile(response?.data, fileName);
     };
     if (id) generateInvoicePdf(parseInt(id), downloadCallback);
   }, []);
@@ -310,26 +314,28 @@ function InvoiceDetail() {
                       <ArrowBackIos />
                     </IconButton>
                   </Grid>
-                  <Grid item>
-                    <Stack
-                      direction="row"
-                      spacing={2}
-                      justifyContent={"flex-end"}
-                    >
-                      <MuiButton
-                        type="submit"
-                        color="primary"
-                        startIcon={<EditIcon />}
-                        label="Modifier"
-                      />
-                      <MuiButton
-                        color="error"
-                        startIcon={<DeleteIcon />}
-                        label="Supprimer"
-                        onClick={() => setOpenConfirmation(true)}
-                      />
-                    </Stack>
-                  </Grid>
+                  {isAdminAllowed && (
+                    <Grid item>
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        justifyContent={"flex-end"}
+                      >
+                        <MuiButton
+                          type="submit"
+                          color="primary"
+                          startIcon={<EditIcon />}
+                          label="Modifier"
+                        />
+                        <MuiButton
+                          color="error"
+                          startIcon={<DeleteIcon />}
+                          label="Supprimer"
+                          onClick={() => setOpenConfirmation(true)}
+                        />
+                      </Stack>
+                    </Grid>
+                  )}
                 </Grid>
               </StyledBoxContainer>
             </Grid>

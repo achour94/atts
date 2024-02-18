@@ -71,3 +71,8 @@ export type Filter = {
     operator: FilterType | null;
     value: string | number | boolean;
 };
+
+export const enum ROLES {
+    ADMIN = "admin",
+    CLIENT = "client",
+  }

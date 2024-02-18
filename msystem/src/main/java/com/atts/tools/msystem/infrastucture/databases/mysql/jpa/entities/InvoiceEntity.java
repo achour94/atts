@@ -65,6 +65,9 @@ public class InvoiceEntity implements DBEntity {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "special_numbers")
+    private Byte specialNumbers;
+
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)

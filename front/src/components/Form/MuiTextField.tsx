@@ -1,4 +1,4 @@
-import { Box, Button, InputBaseProps, TextField, Typography } from '@mui/material'
+import { Box, TextField, Typography } from '@mui/material'
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form';
 
@@ -11,7 +11,7 @@ interface TextFieldProps {
     inputProps?: InputBaseProps;
 }
 
-function MuiTextField({name, label, placeholder, type, disabled = false, inputProps}: TextFieldProps) {
+function MuiTextField({name, label, placeholder}: TextFieldProps) {
     const { control } = useFormContext();
   return (
     <Box sx={{

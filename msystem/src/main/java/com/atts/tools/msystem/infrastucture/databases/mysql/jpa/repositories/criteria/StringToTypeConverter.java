@@ -31,8 +31,14 @@ public class StringToTypeConverter {
             return toInteger(value);
         } else if (clazz.equals(Instant.class)) {
             return toLocalDate(value);
+        } else if (clazz.equals(Byte.class)) {
+            return toByte(value);
         }
         return null;
+    }
+
+    private static Byte toByte(String value) {
+        return (byte) (Boolean.parseBoolean(value) ? 1 : 0);
     }
 
 }

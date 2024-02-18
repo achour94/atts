@@ -15,4 +15,6 @@ public interface ManageInvoicesUseCase {
     InvoiceFile getFile(Integer invoiceId) throws IlegalRequestException;
     void sendInvoices(List<InvoiceAndTemplate> invoiceIds) throws IlegalRequestException;
     void deleteInvoices(List<Integer> invoiceIds) throws NotFoundElementException;
+    void shareInvoices(List<Integer> invoiceIds);
+    InvoiceFile generateZipWithInvoices(List<Integer> invoiceIds);
 }

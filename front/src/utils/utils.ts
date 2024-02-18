@@ -21,10 +21,8 @@ export const formatClientData = (data: any): IClient => {
     [CC.CLIENT_CLIENTREFERENCE]: data[CC.CLIENT_CLIENTREFERENCE],
     [CC.CLIENT_DEFAULTSUBSCRIPTION]: data[CC.CLIENT_DEFAULTSUBSCRIPTION],
     [CC.CLIENT_DIVERSESUBSCRIPTION]: data[CC.CLIENT_DIVERSESUBSCRIPTION],
-    [CC.CLIENT_EMAIL]: data[CC.CLIENT_EMAIL],
     [CC.CLIENT_ID]: data[CC.CLIENT_ID],
     [CC.CLIENT_NAME]: data[CC.CLIENT_NAME],
-    [CC.CLIENT_PHONE]: data[CC.CLIENT_PHONE],
     [CC.CLIENT_POSTALCODE]: data[CC.CLIENT_POSTALCODE] || null,
     [CC.CLIENT_SUBSCRIPTIONS]: formatClientSubscriptionsData(
       data[CC.CLIENT_SUBSCRIPTIONS]
@@ -46,7 +44,7 @@ export const formatClientUserData = (data: any): IUser => {
 }
 
 export const formatClientUsersData = (data: any): IUser[] => {
-  if (!data || data.length === 0) return [createEmptyClientUser()];
+  // if (!data || data.length === 0) return [createEmptyClientUser()];
   return data.map((row: any) => {
     return formatClientUserData(row);
   });
@@ -235,7 +233,7 @@ export function getConsumptionTypeLabel(typeId: ConsumptionType): string {
  * @param blob - The blob containing the PDF data.
  * @param filename - The name of the file to be downloaded.
  */
-export const downloadPDF = (blob: Blob, filename: string): void => {
+export const downloadFile = (blob: Blob, filename: string): void => {
   // Create a URL for the blob
   const url = window.URL.createObjectURL(blob);
 
@@ -250,6 +248,18 @@ export const downloadPDF = (blob: Blob, filename: string): void => {
   window.URL.revokeObjectURL(url);
   a.remove();
 };
+
+// export const downloadZip = (blob: Blob, filename: string): void => {
+//   const url = window.URL.createObjectURL(blob);
+//   const a = document.createElement('a');
+//   a.href =
+//     url;
+//   a.download = filename;
+//   document.body.appendChild(a);
+//   a.click();
+//   window.URL.revokeObjectURL(url);
+//   a.remove();
+// }
 
 /** 
  * check if an invoice have consumptions of type CDR_SVA_A, CDR_SVA_B, CDR_SVA_D or CDR_SVA_G
