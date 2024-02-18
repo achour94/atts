@@ -214,6 +214,19 @@ function InvoiceDetail() {
       });
   }, []);
 
+  const shareInvoice = () => {
+    axiosInstance
+      .put(`${INVOICE_API_URL}/share/${id}`)
+      .then((response) => {
+        toast.success("Factures partagées avec succès");
+        if(id) getInvoice(parseInt(id));
+      })
+      .catch((error) => {
+        console.error("Error sharing invoices:", error);
+        toast.error("Erreur lors du partage des factures");
+      });
+  };
+
   const updateInvoice = useCallback((data: IInvoiceForm): void => {
     setLoading(true);
     axiosInstance
@@ -292,6 +305,8 @@ function InvoiceDetail() {
     }
   };
 
+  console.log("isDirty", methods.formState.isDirty);
+
   return (
     <Box
       sx={{
@@ -326,6 +341,7 @@ function InvoiceDetail() {
                           color="primary"
                           startIcon={<EditIcon />}
                           label="Modifier"
+                          disabled={loading || !isAdminAllowed || !methods.formState.isDirty || methods.formState.isSubmitting}
                         />
                         <MuiButton
                           color="error"
@@ -375,6 +391,7 @@ function InvoiceDetail() {
                       invoice={invoice as IInvoice}
                       onVisualize={visualiseInvoiceHandler}
                       onDownload={downloadInvoiceHandler}
+                      onShare={shareInvoice}
                     />
                   </StyledBoxContainer>
                 </Grid>
