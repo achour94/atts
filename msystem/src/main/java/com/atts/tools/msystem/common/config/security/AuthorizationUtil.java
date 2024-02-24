@@ -29,4 +29,10 @@ public class AuthorizationUtil {
             .getCredentials()).getClaims()
             .get("preferred_username");
     }
+
+    public String getCurrentUserEmail() {
+        return (String) ((Jwt) SecurityContextHolder.getContext().getAuthentication()
+                .getCredentials()).getClaims()
+                .get("email");
+    }
 }

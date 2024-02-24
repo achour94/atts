@@ -304,7 +304,7 @@ function Profile() {
                 onClick={updateUserInfo}
               />
             </Box>
-            <MailTemplate/>
+            <MailTemplate emailTemplatesProps={methods.getValues([UC.USER_EMAILTEMPLATES])[0]}/>
           </Box>
         </Box>
       </Box>

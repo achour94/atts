@@ -39,7 +39,7 @@ export const formatClientUserData = (data: any): IUser => {
     [UC.USER_EMAIL]: data[UC.USER_EMAIL],
     // [UC.USER_ROLES]: data[UC.USER_ROLES],
     [UC.USER_PHONE]: data[UC.USER_PHONE],
-    // [UC.USER_EMAILTEMPLATES]: data[UC.USER_EMAILTEMPLATES],
+    [UC.USER_EMAILTEMPLATES]: data[UC.USER_EMAILTEMPLATES],
   }
 }
 

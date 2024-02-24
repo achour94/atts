@@ -17,17 +17,39 @@ import { formatMailTemplateData } from "../../utils/utils";
 import { IEmailTemplate } from "../../lib/interfaces/IUser";
 import { EmailTemplateConstants as ETC } from "../../lib/constants/EmailTemplateConstants";
 import { toast } from "react-toastify";
+import MuiConfirmDialog from "../../components/Form/MuiDialog/MuiConfirmationDialog";
 
-const MailTemplate = () => {
+interface MailTemplateProps {
+  emailTemplatesProps: IEmailTemplate[];
+}
+
+const MailTemplate: React.FC<MailTemplateProps> = ({ emailTemplatesProps }) => {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-  const [emailTemplates, setEmailTemplates] = useState<IEmailTemplate[]>();
-  const [emailTemplate, setEmailTemplate] = useState<IEmailTemplate| null>();
+  const [emailTemplates, setEmailTemplates] =
+    useState<IEmailTemplate[]>(emailTemplatesProps);
+  const [emailTemplate, setEmailTemplate] = useState<IEmailTemplate | null>();
+  const [idEmailTemplateToDelete, setIdEmailTemplateToDelete] = useState<
+    number | null
+  >();
+  const [confirmationDialogOpen, setConfirmationDialogOpen] =
+    useState<boolean>(false);
+  const [isCreateEmailTemplate, setIsCreateEmailTemplate] =
+    useState<boolean>(false);
 
   const onDialogClose = () => {
     setDialogOpen(false);
     setEmailTemplate(null);
   };
 
+  const onConfirmationDialogClose = () => {
+    setConfirmationDialogOpen(false);
+    setIdEmailTemplateToDelete(null);
+  };
+
+  useEffect(
+    () => setEmailTemplates(emailTemplatesProps),
+    [emailTemplatesProps]
+  );
   const geEmailTemplates = (): void => {
     axiosInstance
       .get(`${USER_API_URL}/emailtemplates`)
@@ -37,7 +59,6 @@ const MailTemplate = () => {
             formatMailTemplateData
           );
           setEmailTemplates(emailTemplateResponse);
-          console.log("zzzzzz", emailTemplateResponse);
         }
       })
       .catch((error) => {
@@ -46,9 +67,26 @@ const MailTemplate = () => {
       });
   };
 
-  useEffect(() => {
+  const deleteEmailTemplate = () => {
+    const apiUrl = USER_API_URL + "/emailtemplate/" + idEmailTemplateToDelete;
+
+    axiosInstance
+      .delete(apiUrl)
+      .then(() => {
+        toast.success("template email supprimé avec succès !");
+      })
+      .catch((error) => {
+        toast.error(
+          "Une erreur s'est produite lors de la suppression du template email"
+        );
+      });
+  };
+
+  const handleDelete = () => {
+    setConfirmationDialogOpen(false);
+    deleteEmailTemplate();
     geEmailTemplates();
-  }, []);
+  };
 
   return (
     <div>
@@ -72,10 +110,15 @@ const MailTemplate = () => {
                   onClick={(event) => {
                     event.stopPropagation();
                     setEmailTemplate({
-                      [ETC.EMAILTEMPLATE_NAME]: emailTemplate.name,
-                      [ETC.EMAILTEMPLATE_CONTENT]:emailTemplate.content})
+                      [ETC.EMAILTEMPLATE_ID]:
+                        emailTemplate[ETC.EMAILTEMPLATE_ID],
+                      [ETC.EMAILTEMPLATE_NAME]:
+                        emailTemplate[ETC.EMAILTEMPLATE_NAME],
+                      [ETC.EMAILTEMPLATE_CONTENT]:
+                        emailTemplate[ETC.EMAILTEMPLATE_CONTENT],
+                    });
                     setDialogOpen(true);
-                    
+                    setIsCreateEmailTemplate(false);
                   }}
                 >
                   <EditIcon />
@@ -85,6 +128,10 @@ const MailTemplate = () => {
                   size="large"
                   onClick={(event) => {
                     event.stopPropagation();
+                    setIdEmailTemplateToDelete(
+                      emailTemplate[ETC.EMAILTEMPLATE_ID]
+                    );
+                    setConfirmationDialogOpen(true);
                   }}
                 >
                   <DeleteIcon />
@@ -103,16 +150,28 @@ const MailTemplate = () => {
           </Accordion>
         );
       })}
-       <EmailTemplateDialog
-        name={emailTemplate?.name}
-        content={emailTemplate?.content}
+      <EmailTemplateDialog
+        emailTemplateId={emailTemplate?.[ETC.EMAILTEMPLATE_ID]}
+        name={emailTemplate?.[ETC.EMAILTEMPLATE_NAME]}
+        content={emailTemplate?.[ETC.EMAILTEMPLATE_CONTENT]}
         open={dialogOpen}
+        isCreate={isCreateEmailTemplate}
         onClose={onDialogClose}
+      />
+      <MuiConfirmDialog
+        open={confirmationDialogOpen}
+        onClose={onConfirmationDialogClose}
+        onConfirm={handleDelete}
+        title={"Confirmer la suppression du template"}
+        message={"Êtes-vous sûr de vouloir supprimer ce template de mail ?"}
       />
       <Button
         startIcon={<AddIcon />}
         variant="text"
-        onClick={() => setDialogOpen(true)}
+        onClick={() => {
+          setIsCreateEmailTemplate(true);
+          setDialogOpen(true);
+        }}
       >
         Ajouter un template
       </Button>

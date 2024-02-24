@@ -11,30 +11,96 @@ import {
 import { EditorState, ContentState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import { IEmailTemplate } from "../../lib/interfaces/IUser";
+import { USER_API_URL } from "../../lib/constants/UserConstants";
+import axiosInstance from "../../services/axios";
+import { toast } from "react-toastify";
+import { convertToRaw } from "draft-js";
+/* import draftToHtml from 'draftjs-to-html';
+import _ from 'lodash'; */
+import { EmailTemplateConstants as ETC } from "../../lib/constants/EmailTemplateConstants";
 
 interface EmailTemplateDialogProps {
-  name?: string;
-  content?: string;
+  emailTemplateId: number | undefined;
+  name: string | undefined;
+  content: string | undefined;
   open: boolean;
+  isCreate: boolean;
   onClose: () => void;
 }
 
 const EmailTemplateDialog: React.FC<EmailTemplateDialogProps> = ({
-  name = "",
-  content = "",
+  emailTemplateId,
+  name,
+  content,
   open,
+  isCreate,
   onClose,
 }) => {
-  const [titre, setTitre] = useState<string>("");
+  const [emailName, setEmailName] = useState<string>(name || "");
   const [emailContent, setEmailContent] = useState<EditorState>(
     EditorState.createEmpty()
   );
 
   useEffect(() => {
-    const contentState = ContentState.createFromText(content);
+    setEmailName(name || "");
+    const contentState = ContentState.createFromText(content || "");
     const newEditorState = EditorState.createWithContent(contentState);
     setEmailContent(newEditorState);
-  }, [content]);
+  }, [name, content]);
+
+  const updateEmailTempalte = () => {
+    /*  const rawContentState = convertToRaw(emailContent.getCurrentContent());
+    const html = draftToHtml(rawContentState);
+    const escapedHtml = _.escape(content); */
+
+    const apiUrl = USER_API_URL + "/emailtemplate";
+    const requestBody = {
+      [ETC.EMAILTEMPLATE_ID]: emailTemplateId,
+      [ETC.EMAILTEMPLATE_NAME]: emailName,
+      [ETC.EMAILTEMPLATE_CONTENT]: emailContent
+        .getCurrentContent()
+        .getPlainText(),
+    };
+
+    axiosInstance
+      .put(apiUrl, requestBody)
+      .then(() => {
+        toast.success("template email changé avec succès !");
+      })
+      .catch((error) => {
+        toast.error(
+          "Une erreur s'est produite lors de la modification du template email"
+        );
+      });
+  };
+
+  const createEmailTemplate = () => {
+    /*  const rawContentState = convertToRaw(emailContent.getCurrentContent());
+    const html = draftToHtml(rawContentState);
+    const escapedHtml = _.escape(content); */
+
+    const apiUrl = USER_API_URL + "/emailtemplate";
+    const requestBody = {
+      [ETC.EMAILTEMPLATE_ID]: emailTemplateId,
+      [ETC.EMAILTEMPLATE_NAME]: emailName,
+      [ETC.EMAILTEMPLATE_CONTENT]: emailContent
+        .getCurrentContent()
+        .getPlainText(),
+      user: { userId: 36 }, // TODO get userID
+    };
+
+    axiosInstance
+      .post(apiUrl, requestBody)
+      .then(() => {
+        toast.success("template email cree avec succès !");
+      })
+      .catch((error) => {
+        toast.error(
+          "Une erreur s'est produite lors de la creation du template email"
+        );
+      });
+  };
 
   /*  onSubmit 
   
@@ -57,8 +123,8 @@ const escapedHtml = escapeHtmlFunction(html);*/
           label="Titre du template"
           type="text"
           fullWidth
-          value={name}
-          onChange={(e) => setTitre(e.target.value)}
+          value={emailName}
+          onChange={(e) => setEmailName(e.target.value)}
         />
         <Editor
           editorState={emailContent}
@@ -110,7 +176,7 @@ const escapedHtml = escapeHtmlFunction(html);*/
         </Button>
         <Button
           onClick={() => {
-            /* handle save logic */
+            isCreate ? createEmailTemplate() : updateEmailTempalte();
           }}
           color="primary"
         >
