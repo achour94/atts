@@ -25,14 +25,16 @@ import TruncatedText from "../utils/TrancatedText";
 interface ImportDialogProps {
   open: boolean;
   onClose: () => void;
+  getInvoices: () => void;
 }
 
 export default function UploadInvoicesDialog({
   open,
   onClose,
+  getInvoices,
 }: ImportDialogProps) {
   const [creationDate, setCreationDate] = useState<Dayjs | null>(
-    dayjs("2022-04-17")
+    null
   );
   const [reset, setReset] = useState(false);
   const [proforma, setProforma] = useState(false);
@@ -60,7 +62,8 @@ export default function UploadInvoicesDialog({
   const handleSubmit = () => {
     const formData = new FormData();
     formData.append("file", file!);
-    formData.append("creationDate", creationDate!.format("YYYY-MM-DD"));
+    const creationDateValue = creationDate ? creationDate.format("YYYY-MM-DD") : "";
+    formData.append("creationDate", creationDateValue);
     formData.append("reset", reset ? "true" : "false");
     formData.append("proforma", proforma ? "true" : "false");
     setLoading(true);
@@ -70,6 +73,7 @@ export default function UploadInvoicesDialog({
         },
         }).then(() => {
             setLoading(false);
+            getInvoices();
             onClose();
             toast.success("Import réussi");
             }

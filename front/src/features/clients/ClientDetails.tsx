@@ -206,6 +206,7 @@ function ClientDetails() {
     axiosInstance
       .post(`${CLIENT_API_URL}`, client)
       .then((response) => {
+        goBack();
         toast.success("Client ajouté avec succès");
       })
       .catch((error) => {
