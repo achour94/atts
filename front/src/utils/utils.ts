@@ -1,10 +1,24 @@
 import { ClientConstants as CC } from "../lib/constants/ClientConstants";
 import { IFilterOptions, TableColumn } from "../lib/constants/utilsConstants";
 import { IClient, ISubscription } from "../lib/interfaces/IClient";
-import { ConsumptionType, InvoiceConstants as IC, InvoiceStatus } from "../lib/constants/InvoiceConstants";
-import { IConsumption, IInvoice, IInvoiceForm } from "../lib/interfaces/IInvoice";
-import { IUser } from "../lib/interfaces/IUser";
+import {
+  ConsumptionType,
+  InvoiceConstants as IC,
+  InvoiceStatus,
+} from "../lib/constants/InvoiceConstants";
+import {
+  IConsumption,
+  IInvoice,
+  IInvoiceForm,
+} from "../lib/interfaces/IInvoice";
+import { IEmailTemplate, IUser } from "../lib/interfaces/IUser";
 import { UserConstants as UC } from "../lib/constants/UserConstants";
+import { EmailTemplateConstants as ET } from "../lib/constants/EmailTemplateConstants";
+import { EditorState, ContentState } from "draft-js";
+import htmlToDraft from "html-to-draftjs";
+import draftToHtml from "draftjs-to-html";
+import { convertToRaw } from "draft-js";
+import DOMPurify from "dompurify";
 
 export const formatClientsData = (data: any): IClient[] => {
   return data.map((row: any) => {
@@ -38,9 +52,9 @@ export const formatClientUserData = (data: any): IUser => {
     [UC.USER_EMAIL]: data[UC.USER_EMAIL],
     // [UC.USER_ROLES]: data[UC.USER_ROLES],
     [UC.USER_PHONE]: data[UC.USER_PHONE],
-    // [UC.USER_EMAILTEMPLATES]: data[UC.USER_EMAILTEMPLATES],
-  }
-}
+    [UC.USER_EMAILTEMPLATES]: data[UC.USER_EMAILTEMPLATES],
+  };
+};
 
 export const formatClientUsersData = (data: any): IUser[] => {
   // if (!data || data.length === 0) return [createEmptyClientUser()];
@@ -49,15 +63,22 @@ export const formatClientUsersData = (data: any): IUser[] => {
   });
 };
 
+export const formatMailTemplateData = (data: any): IEmailTemplate => {
+  return {
+    [ET.EMAILTEMPLATE_ID]: data[ET.EMAILTEMPLATE_ID],
+    [ET.EMAILTEMPLATE_NAME]: data[ET.EMAILTEMPLATE_NAME],
+    [ET.EMAILTEMPLATE_CONTENT]: data[ET.EMAILTEMPLATE_CONTENT],
+  };
+};
+
 export const createEmptyClientUser = (): IUser => {
   return {
-    [UC.USER_FIRSTNAME]: '',
-    [UC.USER_LASTNAME]: '',
-    [UC.USER_EMAIL]: '',
-    [UC.USER_PHONE]: '',
-  }
-}
-
+    [UC.USER_FIRSTNAME]: "",
+    [UC.USER_LASTNAME]: "",
+    [UC.USER_EMAIL]: "",
+    [UC.USER_PHONE]: "",
+  };
+};
 
 export const formatClientSubscriptionData = (data: any): ISubscription => {
   return {
@@ -142,7 +163,34 @@ export const formatInvoicesData = (data: any): IInvoice[] => {
   });
 };
 
-export function formatTimestampToFrenchDate(timestamp: number, monthStyle: "2-digit" | "numeric" | "long" | "short" | "narrow" | undefined = 'short'): string {
+export const convertTextToEditorState = (
+  content: string
+) => {
+  const blocksFromHtml = htmlToDraft(content);
+  if (blocksFromHtml) {
+    const { contentBlocks, entityMap } = blocksFromHtml;
+    const contentState = ContentState.createFromBlockArray(contentBlocks, entityMap);
+    return EditorState.createWithContent(contentState);
+  }
+  return EditorState.createEmpty();
+};
+
+export const convertEditorStateToText = (emailContent : EditorState) => {
+  const contentState = emailContent.getCurrentContent();
+  const htmlContent = draftToHtml(convertToRaw(contentState));
+  return DOMPurify.sanitize(htmlContent);
+}
+
+export function formatTimestampToFrenchDate(
+  timestamp: number,
+  monthStyle:
+    | "2-digit"
+    | "numeric"
+    | "long"
+    | "short"
+    | "narrow"
+    | undefined = "short"
+): string {
   const date = new Date(timestamp);
   const options: Intl.DateTimeFormatOptions = {
     day: "2-digit",
@@ -164,7 +212,7 @@ export function formatTimestampToFrenchDate(timestamp: number, monthStyle: "2-di
 }
 
 export function formatNumberToEuro(value: number, digits: number = 2): string {
-  return `${value.toFixed(digits).replace('.', ',')} €`;
+  return `${value.toFixed(digits).replace(".", ",")} €`;
 }
 
 export function formatSeconds(seconds: number): string {
@@ -175,47 +223,47 @@ export function formatSeconds(seconds: number): string {
   return `${hours}h ${minutes}m ${remainingSeconds}s`;
 }
 
-export function getInvoiceStatusLabel (status: InvoiceStatus): string {
+export function getInvoiceStatusLabel(status: InvoiceStatus): string {
   switch (status) {
     case InvoiceStatus.DRAFT:
-      return 'Brouillon';
+      return "Brouillon";
     case InvoiceStatus.SHARED:
-      return 'Partagée';
+      return "Partagée";
     default:
-      return '';
+      return "";
   }
 }
 
 // Returns a tuple containing the background color and the text color [backgroundColor, textColor]
-export function getInvoiceStatusColor (status: InvoiceStatus): [string, string] {
+export function getInvoiceStatusColor(status: InvoiceStatus): [string, string] {
   switch (status) {
     case InvoiceStatus.DRAFT:
-      return ['#FFE8CE', '#EE7F01'];
+      return ["#FFE8CE", "#EE7F01"];
     case InvoiceStatus.SHARED:
-      return ['#E1FFDC', '#07A104'];
+      return ["#E1FFDC", "#07A104"];
     default:
-      return ['', ''];
+      return ["", ""];
   }
 }
 
 export function getConsumptionTypeLabel(typeId: ConsumptionType): string {
   switch (typeId) {
-      case ConsumptionType.CDR_MOBILES:
-          return "CDR Mobiles";
-      case ConsumptionType.CDR_NATIONAUX:
-          return "CDR Nationaux";
-      case ConsumptionType.CDR_INTERNATIONAUX:
-          return "CDR Internationaux";
-      case ConsumptionType.CDR_SVA_A:
-          return "CDR SVA A";
-      case ConsumptionType.CDR_SVA_B:
-          return "CDR SVA B";
-      case ConsumptionType.CDR_SVA_D:
-          return "CDR SVA D";
-      case ConsumptionType.CDR_SVA_G:
-          return "CDR_SVA_G";
-      default:
-          return "Unknown Type";
+    case ConsumptionType.CDR_MOBILES:
+      return "CDR Mobiles";
+    case ConsumptionType.CDR_NATIONAUX:
+      return "CDR Nationaux";
+    case ConsumptionType.CDR_INTERNATIONAUX:
+      return "CDR Internationaux";
+    case ConsumptionType.CDR_SVA_A:
+      return "CDR SVA A";
+    case ConsumptionType.CDR_SVA_B:
+      return "CDR SVA B";
+    case ConsumptionType.CDR_SVA_D:
+      return "CDR SVA D";
+    case ConsumptionType.CDR_SVA_G:
+      return "CDR_SVA_G";
+    default:
+      return "Unknown Type";
   }
 }
 
@@ -229,7 +277,7 @@ export const downloadFile = (blob: Blob, filename: string): void => {
   const url = window.URL.createObjectURL(blob);
 
   // Create a temporary link element
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = filename;
 
@@ -252,16 +300,26 @@ export const downloadFile = (blob: Blob, filename: string): void => {
 //   a.remove();
 // }
 
-/** 
+/**
  * check if an invoice have consumptions of type CDR_SVA_A, CDR_SVA_B, CDR_SVA_D or CDR_SVA_G
  * and if it's the case, calculate the total amount of these consumptions and check if it's greater than 0
  * @param invoice - The invoice to check
  * @returns true if the invoice has SVA consumptions and the total amount is greater than 0, false otherwise
  * */
 export const hasSVAConsumptions = (invoice: IInvoice): boolean => {
-  const svaConsumptions = invoice?.[IC.INVOICE_CONSUMPTIONS]?.filter(consumption => {
-    return [ConsumptionType.CDR_SVA_A, ConsumptionType.CDR_SVA_B, ConsumptionType.CDR_SVA_D, ConsumptionType.CDR_SVA_G].includes(consumption?.[IC.CONSUMPTION_TYPE] as ConsumptionType);
-  });
-  const totalSVAConsumptionsAmount = svaConsumptions.reduce((acc, consumption) => acc + consumption?.[IC.CONSUMPTION_HTAMOUNT], 0);
+  const svaConsumptions = invoice?.[IC.INVOICE_CONSUMPTIONS]?.filter(
+    (consumption) => {
+      return [
+        ConsumptionType.CDR_SVA_A,
+        ConsumptionType.CDR_SVA_B,
+        ConsumptionType.CDR_SVA_D,
+        ConsumptionType.CDR_SVA_G,
+      ].includes(consumption?.[IC.CONSUMPTION_TYPE] as ConsumptionType);
+    }
+  );
+  const totalSVAConsumptionsAmount = svaConsumptions.reduce(
+    (acc, consumption) => acc + consumption?.[IC.CONSUMPTION_HTAMOUNT],
+    0
+  );
   return totalSVAConsumptionsAmount > 0;
-}
+};

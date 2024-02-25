@@ -2,10 +2,13 @@ import Keycloak from "keycloak-js";
 
 const _kc = new Keycloak('/keycloak.json');
 _kc.onTokenExpired = () => {
-    _kc.updateToken(1).then(() => {
-        console.log("token was refereshed!");
-    }).catch(console.error);
-}
+  _kc
+    .updateToken(1)
+    .then(() => {
+      console.log("token was refereshed!");
+    })
+    .catch(console.error);
+};
 
 let isKeycloakInitialized = false; // This variable will track the initialization status
 
@@ -47,6 +50,9 @@ const updateToken = (successCallback) =>
     .catch(doLogin);
 
 const getUsername = () => _kc.tokenParsed?.preferred_username;
+const getUserInfo = () => _kc.loadUserInfo();
+
+const getUserProfile = () => _kc.loadUserProfile();
 
 const hasAtLeastOneRole = (roles) => roles.some((role) => {
     return _kc.tokenParsed && _kc.tokenParsed.resource_access["atts-application"].roles.includes(role);
@@ -70,7 +76,9 @@ const UserService = {
   getUsername,
   hasAtLeastOneRole,
   hasAllRoles,
-  getRoles
+  getUserInfo,
+  getRoles,
+  getUserProfile
 };
 
 export default UserService;

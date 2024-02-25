@@ -68,7 +68,7 @@ public class UserController {
     }
 
     @GetMapping("/{email}")
-    public User getUser(String email) {
+    public User getUser(@PathVariable String email) {
         return userStoragePort.findUserByUsername(email);
     }
 
@@ -90,10 +90,10 @@ public class UserController {
         return ResponseEntity.ok(userManagementUseCase.createEmailTemplate(emailTemplate));
     }
 
-    @GetMapping("/emailtemplate")
+    @GetMapping("/emailtemplates")
     public ResponseEntity<List<EmailTemplate>> getEmailTemplates() {
         return ResponseEntity.ok(
-            userStoragePort.findUserByUsername(authorizationUtil.getCurrentUserUsername()).getEmailTemplates());
+            userStoragePort.findUserByUsername(authorizationUtil.getCurrentUserEmail()).getEmailTemplates());
     }
 
     @PutMapping("/emailtemplate")

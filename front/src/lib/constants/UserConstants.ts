@@ -8,6 +8,8 @@ export enum UserConstants {
   USER_EMAILTEMPLATES = 'emailTemplates',
   USER_PASSWORD = 'password',
 }
+
+export const USER_API_URL = "/api/user";
   
 
 

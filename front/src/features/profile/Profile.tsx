@@ -1,19 +1,48 @@
-import { Avatar, Box, Stack } from "@mui/material";
-import React from "react";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Avatar,
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
 import MuiButton from "../../components/Form/MuiButton";
-import EditIcon from "@mui/icons-material/Edit";
+import { Edit, Close, ExpandCircleDownOutlined } from "@mui/icons-material";
 import ClientAvatarCoverImage from "../../assets/images/ClientAvatarCover.png";
-import { UserConstants as UC } from "../../lib/constants/UserConstants";
+import {
+  UserConstants as UC,
+  USER_API_URL,
+} from "../../lib/constants/UserConstants";
 import { EmailTemplateConstants as ETC } from "../../lib/constants/EmailTemplateConstants";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import UserService from "../../services/UserService";
 import { IEmailTemplate, IUser } from "../../lib/interfaces/IUser";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
+import MuiTextField from "../../components/Form/MuiTextField";
+import ChangePasswordForm from "./ChangePasswordForm";
+import axiosInstance from "../../services/axios";
+import { toast } from "react-toastify";
+import { userInfo } from "os";
+import { formatClientUserData } from "../../utils/utils";
+import { KeycloakProfile } from "keycloak-js";
+import MailTemplate from "./TemplateEmail";
 
 // Email Template Schema
 export const emailTemplateSchema = yup.object({
-  [ETC.EMAILTEMPLATE_ID]: yup.number().optional().typeError("L'ID doit être un nombre"),
+  [ETC.EMAILTEMPLATE_ID]: yup
+    .number()
+    .optional()
+    .typeError("L'ID doit être un nombre"),
   [ETC.EMAILTEMPLATE_NAME]: yup.string().required("Le nom est requis"),
   [ETC.EMAILTEMPLATE_CONTENT]: yup.string().required("Le contenu est requis"),
 });
@@ -23,24 +52,39 @@ export const userSchema = yup.object({
   [UC.USER_ID]: yup.number().optional().typeError("L'ID doit être un nombre"),
   [UC.USER_FIRSTNAME]: yup.string().required("Le prénom est requis"),
   [UC.USER_LASTNAME]: yup.string().required("Le nom est requis"),
-  [UC.USER_EMAIL]: yup.string().email("Doit être un email valide").required("L'email est requis"),
+  [UC.USER_EMAIL]: yup
+    .string()
+    .email("Doit être un email valide")
+    .required("L'email est requis"),
   [UC.USER_PHONE]: yup.string().required("Le téléphone est requis"),
   [UC.USER_PASSWORD]: yup.string().required("Le mot de passe est requis"),
   [UC.USER_EMAILTEMPLATES]: yup.array().of(emailTemplateSchema),
 });
 
 function Profile() {
+  const [userInfosKeyCloak, setUserInfosKeyCloak] =
+    useState<KeycloakProfile | null>(null);
 
   //get connected user informations
-  const user = UserService.getTokenParsed();
-  console.log(user);
+  useEffect(() => {
+    UserService.getUserProfile()
+      .then((userInfo) => setUserInfosKeyCloak(userInfo))
+      .catch(() =>
+        toast.error(
+          "Une erreur s'est produite lors de la récupération des informations de l'utilisateur"
+        )
+      );
+  }, []);
 
+  const [open, setOpen] = useState(false);
+  const [modificationDisabled, setModificationDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
   const initialValues = {
     [UC.USER_ID]: undefined,
-    [UC.USER_FIRSTNAME]: '',
-    [UC.USER_LASTNAME]: '',
-    [UC.USER_EMAIL]: '',
-    [UC.USER_PHONE]: '',
+    [UC.USER_FIRSTNAME]: "",
+    [UC.USER_LASTNAME]: "",
+    [UC.USER_EMAIL]: "",
+    [UC.USER_PHONE]: "",
     [UC.USER_PASSWORD]: "",
     [UC.USER_EMAILTEMPLATES]: [] as IEmailTemplate[],
   };
@@ -50,59 +94,233 @@ function Profile() {
     defaultValues: initialValues,
   });
 
-  return (
-    <Box
-      sx={{
-        backgroundColor: "#FFFFFF",
-        borderRadius: "0.75rem",
-        border: "1px solid #EAEEF4",
-        width: "100%",
-        height: "fit-content",
-        p: 2,
-        mt: 2,
-      }}
-    >
-      <Box>
-        <Box>
-          <Stack direction="row" spacing={2} justifyContent={"flex-end"}>
-            <MuiButton
-              type="submit"
-              color="primary"
-              startIcon={<EditIcon />}
-              label="Modifier"
-            />
-          </Stack>
-        </Box>
+  const { watch } = methods;
 
-        <Box>
-          <Stack marginTop="1.25rem">
-            <Box
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleModification = () => {
+    setModificationDisabled(!modificationDisabled);
+  };
+
+  const fetchUser = (email: string): void => {
+    setLoading(true);
+    axiosInstance
+      .get(`${USER_API_URL}/${email}`)
+      .then((response) => {
+        const user: IUser = formatClientUserData(response.data);
+
+        methods.reset(user);
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error(
+          "Une erreur s'est produite lors de la récupération des informations de l'utilisateur"
+        );
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const updateUserInfo = () => {
+    setLoading(true);
+
+    const requestBody = {
+      [UC.USER_FIRSTNAME]: watch()?.[UC.USER_FIRSTNAME],
+      [UC.USER_LASTNAME]: watch()?.[UC.USER_LASTNAME],
+      [UC.USER_EMAIL]: watch()?.[UC.USER_EMAIL],
+      [UC.USER_PHONE]: watch()?.[UC.USER_PHONE],
+    };
+
+    axiosInstance
+      .put(USER_API_URL + "/", requestBody)
+      .then(() => {
+        toast.success("Les informations ont été modifié avec succès !");
+      })
+      .catch((error) => {})
+      .finally(() => {
+        setLoading(false);
+        setModificationDisabled(true);
+      });
+  };
+
+  useEffect(() => {
+    if (userInfosKeyCloak?.email) {
+      fetchUser(userInfosKeyCloak?.email);
+    }
+  }, [userInfosKeyCloak]);
+
+  const resetPassword = {
+    endAdornment: (
+      <div>
+        <Button
+          sx={{
+            height: "100%",
+            width: "250px",
+            borderRadius: 0,
+            boxShadow: "none",
+            color: "orange",
+          }}
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          CHANGER LE MOT DE PASSE
+        </Button>
+
+        {/* TODO Move it in resetPasswordDialog component*/}
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">
+            <IconButton
+              aria-label="close"
+              onClick={handleClose}
               sx={{
-                display: "flex",
-                alignItems: "center",
-                backgroundImage: `url(${ClientAvatarCoverImage})`,
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                borderRadius: "0.5rem",
-                width: "100%",
-                height: "7.8125rem",
+                position: "absolute",
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
               }}
             >
-              <Avatar
-                alt="User avatar"
-                // src="https://material-ui.com/static/images/avatar/1.jpg"
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <ChangePasswordForm />
+          </DialogContent>
+        </Dialog>
+      </div>
+    ),
+  };
+
+  return (
+    <FormProvider {...methods}>
+      <Box
+        sx={{
+          backgroundColor: "#FFFFFF",
+          borderRadius: "0.75rem",
+          border: "1px solid #EAEEF4",
+          width: "100%",
+          height: "fit-content",
+          p: 2,
+          mt: 2,
+        }}
+      >
+        <Box>
+          <Box>
+            <Stack direction="row" spacing={2} justifyContent={"flex-end"}>
+              <MuiButton
+                type="submit"
+                color="primary"
+                startIcon={<Edit />}
+                label="Modifier"
+                onClick={() => handleModification()}
+              />
+            </Stack>
+          </Box>
+
+          <Box>
+            <Stack marginTop="1.25rem">
+              <Box
                 sx={{
-                  height: "6.25rem",
-                  width: "6.25rem",
-                  ml: "1.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  backgroundImage: `url(${ClientAvatarCoverImage})`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  borderRadius: "0.5rem",
+                  width: "100%",
+                  height: "7.8125rem",
                 }}
+              >
+                <Avatar
+                  alt="User avatar"
+                  // src="https://material-ui.com/static/images/avatar/1.jpg"
+                  sx={{
+                    height: "6.25rem",
+                    width: "6.25rem",
+                    ml: "1.5rem",
+                  }}
+                />
+              </Box>
+            </Stack>
+          </Box>
+
+          <Box sx={{ width: "100%", margin: "auto", marginTop: "10px" }}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <MuiTextField
+                  name={`${UC.USER_FIRSTNAME}`}
+                  label="Prénom"
+                  placeholder="Prénom"
+                  disabled={modificationDisabled}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <MuiTextField
+                  name={`${UC.USER_LASTNAME}`}
+                  label="Nom"
+                  placeholder="Nom"
+                  disabled={modificationDisabled}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <MuiTextField
+                  name={`${UC.USER_EMAIL}`}
+                  label="Email"
+                  placeholder="Email"
+                  disabled={true}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <MuiTextField
+                  name={`${UC.USER_PHONE}`}
+                  label="Numéro de téléphone"
+                  placeholder="0033*********"
+                  disabled={modificationDisabled}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <MuiTextField
+                  name={`${UC.USER_PASSWORD}`}
+                  label="Mot de passe"
+                  placeholder="Mot de passe"
+                  type="password"
+                  inputProps={resetPassword}
+                  disabled={true}
+                />
+              </Grid>
+            </Grid>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+              <Box>
+                <Stack sx={{ display: modificationDisabled ? "none" : "inline-flex" }} direction="row" spacing={2} justifyContent={"flex-end"}>
+                  <MuiButton
+                    type="submit"
+                    color="primary"
+                    label="Valider"
+                    onClick={updateUserInfo}
+                  />
+                </Stack>
+              </Box>
+            </Box>
+            <Box sx={{ margin: "20px" }}>
+              <MailTemplate
+                emailTemplatesProps={
+                  methods.getValues([UC.USER_EMAILTEMPLATES])[0]
+                }
+                userId={watch()?.[UC.USER_ID]}
               />
             </Box>
-          </Stack>
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </FormProvider>
   );
 }
 
