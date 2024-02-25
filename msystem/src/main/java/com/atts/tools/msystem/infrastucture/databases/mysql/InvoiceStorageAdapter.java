@@ -2,6 +2,7 @@ package com.atts.tools.msystem.infrastucture.databases.mysql;
 
 import com.atts.tools.msystem.domain.model.Client;
 import com.atts.tools.msystem.domain.model.Invoice;
+import com.atts.tools.msystem.domain.model.enums.InvoiceStatus;
 import com.atts.tools.msystem.domain.ports.out.datastore.InvoiceStoragePort;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.ConsumptionEntity;
 import com.atts.tools.msystem.infrastucture.databases.mysql.jpa.entities.InvoiceEntity;
@@ -70,6 +71,14 @@ public class InvoiceStorageAdapter implements InvoiceStoragePort {
     public void delete(Collection<Invoice> invoices) {
         invoiceRepository.deleteAllById(invoices.stream().map(Invoice::getId).collect(Collectors.toList()));
     }
+
+
+    @Override
+    public List<Invoice> findAllInvoicesByStatus(InvoiceStatus status) {
+        return invoiceRepository.findAllByStatus(status.name()).stream().map(transformer::transformToInvoice)
+            .collect(Collectors.toList());
+    }
+
 
     @Override
     public void delete(List<Integer> invoiceIds) {
