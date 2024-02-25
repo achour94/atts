@@ -133,7 +133,6 @@ public class InvoicesController {
     }
 
     @PutMapping("/email")
-    @PreAuthorize("hasRole('admin')")
     public void sendInvoice(@RequestBody SendInvoiceByMailRequest request) throws IlegalRequestException {
         manageInvoicesUseCase.sendInvoices(request.getInvoices());
     }
@@ -142,4 +141,11 @@ public class InvoicesController {
     public void deleteInvoices(@PathVariable List<Integer> invoiceIds) throws NotFoundElementException {
         manageInvoicesUseCase.deleteInvoices(invoiceIds);
     }
+
+    @DeleteMapping("/draft")
+    @PreAuthorize("hasRole('admin')")
+    public void deleteDraftInvoices() {
+        manageInvoicesUseCase.deleteDraftInvoices();
+    }
+
 }

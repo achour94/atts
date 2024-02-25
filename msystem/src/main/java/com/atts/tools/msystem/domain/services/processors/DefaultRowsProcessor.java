@@ -67,7 +67,7 @@ public class DefaultRowsProcessor {
         public static Date startPeriod(List<Object> row) throws ProcessException {
             try {
                 Date date = (Date) row.get(13);
-                return date == null ? Date.valueOf(LocalDate.now().minusMonths(1).withDayOfMonth(1)) : date;
+                return date == null ? InvoiceConstants.defaultStartPeriod() : date;
             } catch (IndexOutOfBoundsException err) {
                 throw new ProcessException("start period column doesn't exist");
             }
@@ -76,7 +76,7 @@ public class DefaultRowsProcessor {
         public static Date endPeriod(List<Object> row) throws ProcessException {
             try {
                 Date date = (Date) row.get(14);
-                return date == null ? Date.valueOf(LocalDate.now().withDayOfMonth(1).minusDays(1)) : date;
+                return date == null ? InvoiceConstants.defaultEndPeriod() : date;
             } catch (IndexOutOfBoundsException err) {
                 throw new ProcessException("end period column doesn't exist");
             }

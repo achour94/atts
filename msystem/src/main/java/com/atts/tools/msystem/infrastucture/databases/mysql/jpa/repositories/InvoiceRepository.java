@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Integer> {
     Set<InvoiceEntity> findAllByClientReference(String clientReference);
+    Set<InvoiceEntity> findAllByStatus(String status);
 }

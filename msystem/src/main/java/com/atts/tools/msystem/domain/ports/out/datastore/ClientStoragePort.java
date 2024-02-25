@@ -5,6 +5,7 @@ import com.atts.tools.msystem.domain.model.types.ClientReference;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ClientStoragePort {
     Optional<Client> findBy(ClientReference clientReference);
@@ -14,4 +15,5 @@ public interface ClientStoragePort {
     Client save(Client client);
     void delete(Client client);
     void delete(Collection<Client> clients);
+    List<Client> findAllClientsThatAreNotInTheList(Collection<ClientReference> references);
 }

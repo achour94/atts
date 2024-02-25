@@ -58,6 +58,12 @@ public class ClientStorageAdapter implements ClientStoragePort {
     }
 
     @Override
+    public List<Client> findAllClientsThatAreNotInTheList(Collection<ClientReference> references) {
+        return clientRepository.findAllByReferenceIsNotIn(references.stream().map(ClientReference::reference).collect(
+            Collectors.toList())).stream().map(transformer::transformToClient).collect(Collectors.toList());
+    }
+
+    @Override
     public void delete(Client client) {
         clientRepository.delete(transformer.transformToClientEntity(client));
     }

@@ -42,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -86,13 +87,42 @@ public class InvoiceService implements ManageInvoicesUseCase {
     public void generateInvoices(List<List<Object>> rows, String fileName, GenerationConfig config) {
         ClientsResults extractResults = defaultRowsProcessor.process(rows);
         List<Invoice> invoices = convertToInvoices(extractResults.getClientsSummary(), config);
-
+        invoices.addAll(Objects.requireNonNull(buildInvoicesWithoutConsumptionsForClients(
+            clientStoragePort.findAllClientsThatAreNotInTheList(extractResults.getClientsSummary().keySet()), config)));
         invoiceStoragePort.save(invoices);
         logStoragePort.save(extractResults.getErrors().stream().map(processError -> Log.builder()
             .level(SecurityLevel.ERROR).source(LogSource.INVOICE_FILE_PROCESSING).message(
                 String.format("In file %s at line %s is the following error %s", fileName, processError.lineNr(),
                     processError.message())).build()).collect(Collectors.toList()));
 
+    }
+
+    private List<Invoice> buildInvoicesWithoutConsumptionsForClients(List<Client> clients, GenerationConfig config) {
+        return
+            clients.stream().map(client -> {
+                Date creationDate = null;
+                if (config.getCreationDate() != null) {
+                    creationDate = Date.valueOf(config.getCreationDate());
+                }
+                Boolean proforma = config.getProforma() == null ? InvoiceConstants.DEFAULT_PROFORMA : config.getProforma();
+
+                Invoice invoice = Invoice.builder().status(InvoiceStatus.DRAFT)
+                    .proforma(proforma).client(client)
+                    .creationDate(creationDate)
+                    .consumptions(Collections.emptyList()).tva(InvoiceConstants.TVA)
+                    .ttcAmount(computeAmountForClient(client))
+                    .specialNumbers(false)
+                    .startPeriod(InvoiceConstants.defaultStartPeriod())
+                    .endPeriod(InvoiceConstants.defaultEndPeriod())
+                    .build();
+
+                Double totalHtAmount = computeAmountForClient(invoice.getClient());
+                Double ttcTotalAmount = totalHtAmount * (1 + invoice.getTva() / 100);
+                invoice.setTtcAmount(Math.keep2Digits(ttcTotalAmount));
+                invoice.setHtAmount(Math.keep2Digits(totalHtAmount));
+
+                return invoice;
+            }).collect(Collectors.toList());
     }
 
     @Override
@@ -181,6 +211,12 @@ public class InvoiceService implements ManageInvoicesUseCase {
     public void deleteInvoices(List<Integer> invoiceIds) throws NotFoundElementException {
         //TODO additional checks
         invoiceStoragePort.delete(invoiceIds);
+    }
+
+    @Override
+    @InfoLog(source = LogSource.INVOICE, messageTemplate = "All draft invoices were deleted")
+    public void deleteDraftInvoices() {
+        invoiceStoragePort.delete(invoiceStoragePort.findAllInvoicesByStatus(InvoiceStatus.DRAFT));
     }
 
     @Override
@@ -310,9 +346,13 @@ public class InvoiceService implements ManageInvoicesUseCase {
     }
 
     private Double computeAmountForClient(Client client) {
-        return client.getDefaultSubscription() + client.getDiverseSubscription() +
+        Double result = client.getDefaultSubscription() +
             +subscriptionStoragePort.findBy(client.getClientReference()).stream().map(Subscription::getPrice).reduce(
                 Double::sum).orElse(0.0);
+        if (client.getActiveDiverse()) {
+            result += client.getDiverseSubscription();
+        }
+        return result;
     }
 
 }
