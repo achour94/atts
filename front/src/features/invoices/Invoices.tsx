@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../services/axios";
 import {
   Box,
@@ -43,6 +43,7 @@ import {
   SortDirection,
   TableColumn,
 } from "../../lib/constants/utilsConstants";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
 import PageTitle from "../../components/utils/Typography/PageTitle";
 import MuiButton from "../../components/Form/MuiButton";
@@ -75,6 +76,7 @@ import FolderZipOutlinedIcon from "@mui/icons-material/FolderZipOutlined";
 import AttachEmailOutlinedIcon from "@mui/icons-material/AttachEmailOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import useRole from "../../hooks/useRole";
+import ConfirmationPopup from "../../components/utils/ConfirmationPopup";
 
 function Invoices() {
   const dispatch: ThunkDispatch<any, void, any> = useDispatch();
@@ -90,6 +92,7 @@ function Invoices() {
   // const isInvoiceSelected = useSelector(state => getIsInvoiceSelected());
   const isAdminAllowed = useRole([ROLES.ADMIN]);
 
+  const [openConfirmation, setOpenConfirmation] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   const invoicesColumns: TableColumn[] = useMemo(
@@ -302,15 +305,7 @@ function Invoices() {
       .then((response) => {
         console.log(response);
         toast.success("Factures partagées avec succès");
-        dispatch(
-          fetchInvoices({
-            pageSize: pagination.pageSize,
-            pageNumber: pagination.page,
-            criteria: filters,
-            sort: sort,
-            status: invoiceStatusFilter,
-          })
-        );
+        getInvoices();
       })
       .catch((error) => {
         console.error("Error sharing invoices:", error);
@@ -323,15 +318,7 @@ function Invoices() {
       .delete(`${INVOICE_API_URL}/${selectedInvoices.join(",")}`)
       .then((response) => {
         toast.success("Factures supprimées avec succès");
-        dispatch(
-          fetchInvoices({
-            pageSize: pagination.pageSize,
-            pageNumber: pagination.page,
-            criteria: filters,
-            sort: sort,
-            status: invoiceStatusFilter,
-          })
-        );
+        getInvoices();
       })
       .catch((error) => {
         console.error("Error deleting invoices:", error);
@@ -358,7 +345,7 @@ function Invoices() {
         exportZipHandler();
       },
       isInDividedGroup: false,
-      isAllowed: true
+      isAllowed: true,
     },
     {
       icon: <AttachEmailOutlinedIcon />,
@@ -436,7 +423,7 @@ function Invoices() {
     dispatch(deselectAllInvoices());
   };
 
-  useEffect(() => {
+  const getInvoices = useCallback(() => {
     dispatch(
       fetchInvoices({
         pageSize: pagination.pageSize,
@@ -449,10 +436,40 @@ function Invoices() {
   }, [dispatch, pagination, filters, sort, invoiceStatusFilter]);
 
   useEffect(() => {
+    getInvoices();
+  }, [getInvoices]);
+
+  useEffect(() => {
     if (error) {
       toast.error(error);
     }
   }, [error]);
+
+  const deleteDraftInvoices = useCallback(() => {
+    axiosInstance
+      .delete(`${INVOICE_API_URL}/draft`)
+      .then(() => {
+        toast.success("Brouillons supprimés avec succès");
+        getInvoices();
+      })
+      .catch((error) => {
+        console.error("Error deleting draft invoices:", error);
+        toast.error("Erreur lors de la suppression des brouillons");
+      });
+  }, [getInvoices]);
+
+  const handleDelete = () => {
+    setOpenConfirmation(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteDraftInvoices();
+    setOpenConfirmation(false);
+  };
+
+  const handleCloseConfirmation = () => {
+    setOpenConfirmation(false);
+  };
 
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -502,11 +519,22 @@ function Invoices() {
             <PageTitle title="Mes factures" />
           </Grid>
           {isAdminAllowed && (
-            <Grid item>
-              <Button onClick={() => setUploadDialogOpen(true)}>
-                Importer des factures
-              </Button>
-            </Grid>
+            <>
+              <Grid item>
+                <Button onClick={() => setUploadDialogOpen(true)}>
+                  Importer des factures
+                </Button>
+              </Grid>
+              <Grid item ml={1}>
+                <MuiButton
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  label="Supprimer"
+                  onClick={handleDelete}
+                  disabled={invoices?.length === 0}
+                />
+              </Grid>
+            </>
           )}
         </Grid>
         <Grid
@@ -553,6 +581,16 @@ function Invoices() {
         <UploadInvoicesDialog
           open={uploadDialogOpen}
           onClose={() => setUploadDialogOpen(false)}
+          getInvoices={getInvoices}
+        />
+      )}
+      {openConfirmation && (
+        <ConfirmationPopup
+          open={openConfirmation}
+          title="Supprimer les brouillons"
+          message="Êtes-vous sûr de vouloir supprimer tous les brouillons?"
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCloseConfirmation}
         />
       )}
     </Box>
