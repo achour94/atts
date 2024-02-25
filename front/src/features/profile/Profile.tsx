@@ -69,7 +69,11 @@ function Profile() {
   useEffect(() => {
     UserService.getUserProfile()
       .then((userInfo) => setUserInfosKeyCloak(userInfo))
-      .catch(() => toast.error("Une erreur s'est produite lors de la récupération des informations de l'utilisateur"));
+      .catch(() =>
+        toast.error(
+          "Une erreur s'est produite lors de la récupération des informations de l'utilisateur"
+        )
+      );
   }, []);
 
   const [open, setOpen] = useState(false);
@@ -90,17 +94,17 @@ function Profile() {
     defaultValues: initialValues,
   });
 
-  const watchAllFields = methods.watch();
+  const { watch } = methods;
 
   const handleClose = () => {
     setOpen(false);
   };
 
   const handleModification = () => {
-    setModificationDisabled(!modificationDisabled)
-  }
+    setModificationDisabled(!modificationDisabled);
+  };
 
-  const getUser = (email: string): void => {
+  const fetchUser = (email: string): void => {
     setLoading(true);
     axiosInstance
       .get(`${USER_API_URL}/${email}`)
@@ -111,32 +115,31 @@ function Profile() {
       })
       .catch((error) => {
         console.log(error);
-        toast.error("Une erreur s'est produite lors de la récupération des informations de l'utilisateur");
+        toast.error(
+          "Une erreur s'est produite lors de la récupération des informations de l'utilisateur"
+        );
       })
       .finally(() => {
         setLoading(false);
       });
   };
 
-
   const updateUserInfo = () => {
     setLoading(true);
 
     const requestBody = {
-      [UC.USER_FIRSTNAME]: watchAllFields?.[UC.USER_FIRSTNAME],
-      [UC.USER_LASTNAME]: watchAllFields?.[UC.USER_LASTNAME],
-      [UC.USER_EMAIL]: watchAllFields?.[UC.USER_EMAIL],
-      [UC.USER_PHONE]: watchAllFields?.[UC.USER_PHONE],
+      [UC.USER_FIRSTNAME]: watch()?.[UC.USER_FIRSTNAME],
+      [UC.USER_LASTNAME]: watch()?.[UC.USER_LASTNAME],
+      [UC.USER_EMAIL]: watch()?.[UC.USER_EMAIL],
+      [UC.USER_PHONE]: watch()?.[UC.USER_PHONE],
     };
 
     axiosInstance
-      .put(USER_API_URL + '/', requestBody)
+      .put(USER_API_URL + "/", requestBody)
       .then(() => {
         toast.success("Les informations ont été modifié avec succès !");
       })
-      .catch((error) => {
-        
-      })
+      .catch((error) => {})
       .finally(() => {
         setLoading(false);
         setModificationDisabled(true);
@@ -144,8 +147,8 @@ function Profile() {
   };
 
   useEffect(() => {
-    if (userInfosKeyCloak?.username) {
-      getUser(userInfosKeyCloak?.username);
+    if (userInfosKeyCloak?.email) {
+      fetchUser(userInfosKeyCloak?.email);
     }
   }, [userInfosKeyCloak]);
 
@@ -272,7 +275,7 @@ function Profile() {
                   name={`${UC.USER_EMAIL}`}
                   label="Email"
                   placeholder="Email"
-                  disabled={modificationDisabled}
+                  disabled={true}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -290,21 +293,30 @@ function Profile() {
                   placeholder="Mot de passe"
                   type="password"
                   inputProps={resetPassword}
-                  disabled={modificationDisabled}
+                  disabled={true}
                 />
               </Grid>
             </Grid>
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-              <MuiButton
-                sx={{ display: modificationDisabled ? 'none' : 'inline-flex' }}
-                label="Valider"
-                type="submit"
-                variant="contained"
-                color="primary"
-                onClick={updateUserInfo}
+              <Box>
+                <Stack sx={{ display: modificationDisabled ? "none" : "inline-flex" }} direction="row" spacing={2} justifyContent={"flex-end"}>
+                  <MuiButton
+                    type="submit"
+                    color="primary"
+                    label="Valider"
+                    onClick={updateUserInfo}
+                  />
+                </Stack>
+              </Box>
+            </Box>
+            <Box sx={{ margin: "20px" }}>
+              <MailTemplate
+                emailTemplatesProps={
+                  methods.getValues([UC.USER_EMAILTEMPLATES])[0]
+                }
+                userId={watch()?.[UC.USER_ID]}
               />
             </Box>
-            <MailTemplate emailTemplatesProps={methods.getValues([UC.USER_EMAILTEMPLATES])[0]}/>
           </Box>
         </Box>
       </Box>

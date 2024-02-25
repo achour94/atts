@@ -6,67 +6,65 @@ import {
   TextField,
   Button,
   DialogActions,
-  IconButton,
 } from "@mui/material";
-import { EditorState, ContentState } from "draft-js";
+import { EditorState } from "draft-js";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import { IEmailTemplate } from "../../lib/interfaces/IUser";
 import { USER_API_URL } from "../../lib/constants/UserConstants";
 import axiosInstance from "../../services/axios";
 import { toast } from "react-toastify";
-import { convertToRaw } from "draft-js";
-/* import draftToHtml from 'draftjs-to-html';
-import _ from 'lodash'; */
 import { EmailTemplateConstants as ETC } from "../../lib/constants/EmailTemplateConstants";
+import {
+  convertEditorStateToText,
+  convertTextToEditorState,
+} from "../../utils/utils";
 
 interface EmailTemplateDialogProps {
   emailTemplateId: number | undefined;
   name: string | undefined;
   content: string | undefined;
+  userId: number | undefined;
   open: boolean;
   isCreate: boolean;
   onClose: () => void;
+  fetchEmailTemplates: () => void;
 }
 
 const EmailTemplateDialog: React.FC<EmailTemplateDialogProps> = ({
   emailTemplateId,
   name,
   content,
+  userId,
   open,
   isCreate,
   onClose,
+  fetchEmailTemplates,
 }) => {
-  const [emailName, setEmailName] = useState<string>(name || "");
+  const [emailName, setEmailName] = useState<string | undefined>(name || "");
   const [emailContent, setEmailContent] = useState<EditorState>(
     EditorState.createEmpty()
   );
 
   useEffect(() => {
     setEmailName(name || "");
-    const contentState = ContentState.createFromText(content || "");
-    const newEditorState = EditorState.createWithContent(contentState);
-    setEmailContent(newEditorState);
+    setEmailContent(convertTextToEditorState(content || ""));
   }, [name, content]);
 
   const updateEmailTempalte = () => {
-    /*  const rawContentState = convertToRaw(emailContent.getCurrentContent());
-    const html = draftToHtml(rawContentState);
-    const escapedHtml = _.escape(content); */
-
     const apiUrl = USER_API_URL + "/emailtemplate";
     const requestBody = {
       [ETC.EMAILTEMPLATE_ID]: emailTemplateId,
       [ETC.EMAILTEMPLATE_NAME]: emailName,
-      [ETC.EMAILTEMPLATE_CONTENT]: emailContent
-        .getCurrentContent()
-        .getPlainText(),
+      [ETC.EMAILTEMPLATE_CONTENT]: convertEditorStateToText(emailContent),
+      user: { userId: userId },
     };
 
     axiosInstance
       .put(apiUrl, requestBody)
       .then(() => {
         toast.success("template email changé avec succès !");
+        hundleClose();
+        fetchEmailTemplates();
       })
       .catch((error) => {
         toast.error(
@@ -75,25 +73,28 @@ const EmailTemplateDialog: React.FC<EmailTemplateDialogProps> = ({
       });
   };
 
+  const hundleClose = () => {
+    onClose();
+    setEmailName(undefined);
+    setEmailContent(EditorState.createEmpty());
+  };
+
   const createEmailTemplate = () => {
-    /*  const rawContentState = convertToRaw(emailContent.getCurrentContent());
-    const html = draftToHtml(rawContentState);
-    const escapedHtml = _.escape(content); */
 
     const apiUrl = USER_API_URL + "/emailtemplate";
     const requestBody = {
       [ETC.EMAILTEMPLATE_ID]: emailTemplateId,
       [ETC.EMAILTEMPLATE_NAME]: emailName,
-      [ETC.EMAILTEMPLATE_CONTENT]: emailContent
-        .getCurrentContent()
-        .getPlainText(),
-      user: { userId: 36 }, // TODO get userID
+      [ETC.EMAILTEMPLATE_CONTENT]: convertEditorStateToText(emailContent),
+      user: { userId: userId },
     };
 
     axiosInstance
       .post(apiUrl, requestBody)
       .then(() => {
         toast.success("template email cree avec succès !");
+        hundleClose();
+        fetchEmailTemplates();
       })
       .catch((error) => {
         toast.error(
@@ -101,14 +102,6 @@ const EmailTemplateDialog: React.FC<EmailTemplateDialogProps> = ({
         );
       });
   };
-
-  /*  onSubmit 
-  
-const rawContentState = convertToRaw(emailContent.getCurrentContent());
-const html = draftToHtml(rawContentState);
-
-
-const escapedHtml = escapeHtmlFunction(html);*/
 
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
@@ -171,7 +164,7 @@ const escapedHtml = escapeHtmlFunction(html);*/
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={hundleClose} color="primary">
           Annuler
         </Button>
         <Button

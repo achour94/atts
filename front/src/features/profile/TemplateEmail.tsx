@@ -9,21 +9,29 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
-import { Box, Stack, TextField } from "@mui/material";
+import { Box } from "@mui/material";
 import EmailTemplateDialog from "./EmailTemplateDialog";
 import axiosInstance from "../../services/axios";
 import { USER_API_URL } from "../../lib/constants/UserConstants";
-import { formatMailTemplateData } from "../../utils/utils";
+import {
+  convertTextToEditorState,
+  formatMailTemplateData,
+} from "../../utils/utils";
 import { IEmailTemplate } from "../../lib/interfaces/IUser";
 import { EmailTemplateConstants as ETC } from "../../lib/constants/EmailTemplateConstants";
 import { toast } from "react-toastify";
 import MuiConfirmDialog from "../../components/Form/MuiDialog/MuiConfirmationDialog";
+import { Editor } from "react-draft-wysiwyg";
 
 interface MailTemplateProps {
   emailTemplatesProps: IEmailTemplate[];
+  userId: number | undefined;
 }
 
-const MailTemplate: React.FC<MailTemplateProps> = ({ emailTemplatesProps }) => {
+const MailTemplate: React.FC<MailTemplateProps> = ({
+  emailTemplatesProps,
+  userId,
+}) => {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [emailTemplates, setEmailTemplates] =
     useState<IEmailTemplate[]>(emailTemplatesProps);
@@ -50,7 +58,7 @@ const MailTemplate: React.FC<MailTemplateProps> = ({ emailTemplatesProps }) => {
     () => setEmailTemplates(emailTemplatesProps),
     [emailTemplatesProps]
   );
-  const geEmailTemplates = (): void => {
+  const fetchEmailTemplates = (): void => {
     axiosInstance
       .get(`${USER_API_URL}/emailtemplates`)
       .then((response) => {
@@ -74,6 +82,7 @@ const MailTemplate: React.FC<MailTemplateProps> = ({ emailTemplatesProps }) => {
       .delete(apiUrl)
       .then(() => {
         toast.success("template email supprimé avec succès !");
+        fetchEmailTemplates();
       })
       .catch((error) => {
         toast.error(
@@ -85,14 +94,13 @@ const MailTemplate: React.FC<MailTemplateProps> = ({ emailTemplatesProps }) => {
   const handleDelete = () => {
     setConfirmationDialogOpen(false);
     deleteEmailTemplate();
-    geEmailTemplates();
   };
 
   return (
-    <div>
-      {emailTemplates?.map((emailTemplate) => {
+    <>
+      {emailTemplates?.map((emailTemplate, key) => {
         return (
-          <Accordion sx={{ backgroundColor: "white" }}>
+          <Accordion key={key} sx={{ backgroundColor: "white" }}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1a-content"
@@ -139,12 +147,10 @@ const MailTemplate: React.FC<MailTemplateProps> = ({ emailTemplatesProps }) => {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                variant="outlined"
-                value={emailTemplate.content}
+              <Editor
+                editorState={convertTextToEditorState(emailTemplate.content)}
+                readOnly={true}
+                toolbarHidden={true}
               />
             </AccordionDetails>
           </Accordion>
@@ -154,9 +160,11 @@ const MailTemplate: React.FC<MailTemplateProps> = ({ emailTemplatesProps }) => {
         emailTemplateId={emailTemplate?.[ETC.EMAILTEMPLATE_ID]}
         name={emailTemplate?.[ETC.EMAILTEMPLATE_NAME]}
         content={emailTemplate?.[ETC.EMAILTEMPLATE_CONTENT]}
+        userId={userId}
         open={dialogOpen}
         isCreate={isCreateEmailTemplate}
         onClose={onDialogClose}
+        fetchEmailTemplates={fetchEmailTemplates}
       />
       <MuiConfirmDialog
         open={confirmationDialogOpen}
@@ -165,17 +173,21 @@ const MailTemplate: React.FC<MailTemplateProps> = ({ emailTemplatesProps }) => {
         title={"Confirmer la suppression du template"}
         message={"Êtes-vous sûr de vouloir supprimer ce template de mail ?"}
       />
-      <Button
-        startIcon={<AddIcon />}
-        variant="text"
-        onClick={() => {
-          setIsCreateEmailTemplate(true);
-          setDialogOpen(true);
-        }}
-      >
-        Ajouter un template
-      </Button>
-    </div>
+
+      <Accordion sx={{ backgroundColor: "white" }} expanded={false}>
+        <Button
+          sx={{ margin: "10px" }}
+          startIcon={<AddIcon />}
+          variant="text"
+          onClick={() => {
+            setIsCreateEmailTemplate(true);
+            setDialogOpen(true);
+          }}
+        >
+          Ajouter un template
+        </Button>
+      </Accordion>
+    </>
   );
 };
 
