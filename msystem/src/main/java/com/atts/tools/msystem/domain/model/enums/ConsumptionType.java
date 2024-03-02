@@ -33,8 +33,8 @@ public enum ConsumptionType {
     }
 
     public static Boolean isResetableConsumption(ConsumptionType consumptionType) {
-        return CDR_internationaux.equals(consumptionType) || CDR_NATIONAUX.equals(consumptionType)
-            || CDR_MOBILES.equals(consumptionType);
+        return CDR_SVA_A.equals(consumptionType) || CDR_SVA_B.equals(consumptionType)
+            || CDR_SVA_D.equals(consumptionType) || CDR_SVA_G.equals(consumptionType);
     }
 
 }

@@ -104,7 +104,8 @@ public class InvoiceService implements ManageInvoicesUseCase {
                 if (config.getCreationDate() != null) {
                     creationDate = Date.valueOf(config.getCreationDate());
                 }
-                Boolean proforma = config.getProforma() == null ? InvoiceConstants.DEFAULT_PROFORMA : config.getProforma();
+                Boolean proforma =
+                    config.getProforma() == null ? InvoiceConstants.DEFAULT_PROFORMA : config.getProforma();
 
                 Invoice invoice = Invoice.builder().status(InvoiceStatus.DRAFT)
                     .proforma(proforma).client(client)
@@ -158,8 +159,28 @@ public class InvoiceService implements ManageInvoicesUseCase {
             .toList();
 
         consumptionStoragePort.delete(consumptionsToDelete);
-        updateInvoiceBasedOnConsumptions(invoice);
+        updateInvoiceBasedOnConsumptionsAndClient(invoice, invoice.getClient());
+        updateStartEndDateConsumptionsOrInvoice(invoice);
         invoiceStoragePort.save(invoice);
+    }
+
+    private void updateStartEndDateConsumptionsOrInvoice(Invoice invoice) {
+        boolean invoiceHasStartAndEndPeriod = invoice.getStartPeriod() != null && invoice.getEndPeriod() != null;
+        Date startDate = null;
+        Date endDate = null;
+        for (Consumption consumption : invoice.getConsumptions()) {
+            if (invoiceHasStartAndEndPeriod) {
+                consumption.setStartDate(invoice.getStartPeriod());
+                consumption.setEndDate(invoice.getEndPeriod());
+            } else {
+                startDate = minDate(startDate, consumption.getStartDate());
+                endDate = maxDate(endDate, consumption.getEndDate());
+            }
+        }
+        if (!invoiceHasStartAndEndPeriod) {
+            invoice.setStartPeriod(startDate);
+            invoice.setEndPeriod(endDate);
+        }
     }
 
     @Override
@@ -289,36 +310,29 @@ public class InvoiceService implements ManageInvoicesUseCase {
                 .creationDate(creationDate)
                 .consumptions(summary.getConsumptions()).tva(summary.getTva()).consumptions(summary.getConsumptions())
                 .build();
-            updateInvoiceBasedOnConsumptions(invoice);
+            updateStartEndDateConsumptionsOrInvoice(invoice);
+            updateInvoiceBasedOnConsumptionsAndClient(invoice, invoice.getClient());
             return invoice;
         }).collect(Collectors.toList());
         clientStoragePort.save(clients);
         return results;
     }
 
-    private void updateInvoiceBasedOnConsumptions(Invoice invoice) {
-        Date minStartDate = null;
-        Date maxEndDate = null;
+    public void updateInvoiceBasedOnConsumptionsAndClient(Invoice invoice, Client client) {
         Double totalHtAmount = 0.0;
         Double totalSvaConsumptionsHtAmount = 0.0;
         for (Consumption consumption : invoice.getConsumptions()) {
-            minStartDate = minDate(minStartDate, consumption.getStartDate());
-            maxEndDate = maxDate(maxEndDate, consumption.getEndDate());
             totalHtAmount += consumption.getHtAmount();
             if (consumption.getType().getLabel().contains("SVA")) {
                 totalSvaConsumptionsHtAmount += consumption.getHtAmount();
             }
         }
-        totalHtAmount += computeAmountForClient(invoice.getClient());
-//        totalHtAmount += invoice.getClient().getDefaultSubscription();
-//        totalHtAmount += invoice.getClient().getDiverseSubscription();
+        totalHtAmount += computeAmountForClient(client);
 
         Double ttcTotalAmount = totalHtAmount * (1 + invoice.getTva() / 100);
 
         invoice.setTtcAmount(Math.keep2Digits(ttcTotalAmount));
         invoice.setHtAmount(Math.keep2Digits(totalHtAmount));
-        invoice.setStartPeriod(minStartDate);
-        invoice.setEndPeriod(maxEndDate);
         invoice.setSpecialNumbers(totalSvaConsumptionsHtAmount > 0.0);
     }
 
