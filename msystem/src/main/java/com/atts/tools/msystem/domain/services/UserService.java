@@ -1,5 +1,6 @@
 package com.atts.tools.msystem.domain.services;
 
+import com.atts.tools.msystem.application.rest.request.user.UpdateEmailTemplateRequest;
 import com.atts.tools.msystem.common.annotations.UseCase;
 import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
 import com.atts.tools.msystem.common.exceptions.types.IlegalRequestException;
@@ -88,14 +89,17 @@ public class UserService implements UserManagementUseCase {
     }
 
     @Override
-    public EmailTemplate updateEmailTemplate(EmailTemplate emailTemplate) throws IlegalRequestException {
-        if (emailTemplate.getId() == null) {
+    public EmailTemplate updateEmailTemplate(UpdateEmailTemplateRequest emailTemplate) throws IlegalRequestException {
+        if (emailTemplate.getEmailTemplateId() == null) {
             throw new IlegalRequestException("You cannot update an email template without an id!");
         }
-        if (emailTemplateStoragePort.findById(emailTemplate.getId()).isEmpty()) {
+        if (emailTemplateStoragePort.findById(emailTemplate.getEmailTemplateId()).isEmpty()) {
             throw new IlegalRequestException("You cannot update an email template that doesn't exist!");
         }
-        return emailTemplateStoragePort.save(emailTemplate);
+        EmailTemplate emailTemplateToUpdate = EmailTemplate.builder().id(emailTemplate.getEmailTemplateId())
+            .content(emailTemplate.getContent()).name(emailTemplate.getName()).user(userStoragePort.findUserByUsername(
+                emailTemplate.getUserEmail())).build();
+        return emailTemplateStoragePort.save(emailTemplateToUpdate);
     }
 
     @Override

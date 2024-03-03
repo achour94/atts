@@ -1,9 +1,6 @@
 package com.atts.tools.msystem.application.rest.controllers;
 
-import com.atts.tools.msystem.application.rest.request.user.AddUserRequest;
-import com.atts.tools.msystem.application.rest.request.user.DeleteUserRequest;
-import com.atts.tools.msystem.application.rest.request.user.PasswordUpdateRequest;
-import com.atts.tools.msystem.application.rest.request.user.UpdateUserRequest;
+import com.atts.tools.msystem.application.rest.request.user.*;
 import com.atts.tools.msystem.application.rest.response.user.AddEmailTemplateRequest;
 import com.atts.tools.msystem.application.rest.response.user.AddUserResponse;
 import com.atts.tools.msystem.common.config.security.AuthorizationUtil;
@@ -101,14 +98,14 @@ public class UserController {
     }
 
     @PutMapping("/emailtemplate")
-    @PreAuthorize("@securityService.hasPermission('EMAIL_TEMPLATE', #emailTemplate)")
-    public ResponseEntity<EmailTemplate> updateEmailTemplate(@Valid @RequestBody EmailTemplate emailTemplate)
+//    @PreAuthorize("@securityService.hasPermission('EMAIL_TEMPLATE', #emailTemplate)")
+    public ResponseEntity<EmailTemplate> updateEmailTemplate(@Valid @RequestBody UpdateEmailTemplateRequest emailTemplate)
         throws IlegalRequestException {
         return ResponseEntity.ok(userManagementUseCase.updateEmailTemplate(emailTemplate));
     }
 
     @DeleteMapping("/emailtemplate/{emailTemplateId}")
-    @PreAuthorize("@securityService.hasPermission('EMAIL_TEMPLATE', #emailTemplateId)")
+//    @PreAuthorize("@securityService.hasPermission('EMAIL_TEMPLATE', #emailTemplateId)")
     public void deleteEmailTemplate(@PathVariable Integer emailTemplateId) {
         userManagementUseCase.deleteEmailTemplate(emailTemplateId);
     }

@@ -29,7 +29,7 @@ function MuiTextField({name, label, placeholder, type, inputProps, disabled}: Te
                         variant="outlined"
                         placeholder={placeholder}
                         sx={{
-                            mt: "0.75rem",
+                            mt: "0.5rem",
                             '& .MuiOutlinedInput-root': {
                                 '& fieldset': {
                                     borderColor: '#EAEEF4', // Default border color
