@@ -9,5 +9,7 @@ import lombok.Setter;
 @Setter
 public class SendInvoiceByMailRequest {
 
-    List<InvoiceAndTemplate> invoices;
+    List<Integer> invoiceIds;
+
+    String emailContent;
 }

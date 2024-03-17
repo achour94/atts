@@ -13,7 +13,7 @@ public interface ManageInvoicesUseCase {
     InvoiceFile generateFile(Integer invoiceId);
     void update(Invoice invoice) throws IlegalRequestException;
     InvoiceFile getFile(Integer invoiceId) throws IlegalRequestException;
-    void sendInvoices(List<InvoiceAndTemplate> invoiceIds) throws IlegalRequestException;
+    void sendInvoices(List<Integer> invoiceIds, String emailContent) throws IlegalRequestException;
     void deleteInvoices(List<Integer> invoiceIds) throws NotFoundElementException;
     void deleteDraftInvoices();
     void shareInvoices(List<Integer> invoiceIds);

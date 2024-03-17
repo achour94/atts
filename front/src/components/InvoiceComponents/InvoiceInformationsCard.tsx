@@ -23,6 +23,7 @@ interface IInvoiceInfosProps {
   onVisualize: () => void;
   onDownload: () => void;
   onShare: () => void;
+  onSend: () => void;
 }
 
 function InvoiceInformationsCard({
@@ -30,6 +31,7 @@ function InvoiceInformationsCard({
   onVisualize,
   onDownload,
   onShare,
+  onSend,
 }: IInvoiceInfosProps) {
   const methods = useFormContext();
   const isAdminAllowed = useRole([ROLES.ADMIN]);
@@ -142,7 +144,7 @@ function InvoiceInformationsCard({
                   px: "0.5rem",
                   py: "0.5rem",
                 }}
-                // onClick={() => goToClientDetails(client?.[CC.CLIENT_ID] as number)}
+                onClick={onSend}
                 disabled={
                   methods.formState.isSubmitting ||
                   methods.formState.isDirty ||

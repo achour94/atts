@@ -134,7 +134,7 @@ public class InvoicesController {
 
     @PutMapping("/email")
     public void sendInvoice(@RequestBody SendInvoiceByMailRequest request) throws IlegalRequestException {
-        manageInvoicesUseCase.sendInvoices(request.getInvoices());
+        manageInvoicesUseCase.sendInvoices(request.getInvoiceIds(), request.getEmailContent());
     }
 
     @DeleteMapping("/{invoiceIds}")

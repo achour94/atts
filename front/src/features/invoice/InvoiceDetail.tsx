@@ -39,6 +39,7 @@ import ConfirmationPopup from "../../components/utils/ConfirmationPopup";
 import PDFDialog from "../../components/utils/PDFDialog";
 import useRole from "../../hooks/useRole";
 import { ROLES } from "../../lib/constants/utilsConstants";
+import SendInvoiceEmailModal from "../../components/InvoiceComponents/SendInvoiceEmailModal";
 
 //styled box Container
 const StyledBoxContainer = styled(Box)(({ theme }) => ({
@@ -122,6 +123,7 @@ function InvoiceDetail() {
   const [openPdfDialog, setOpenPdfDialog] = useState(false);
   const [pdfFileName, setPdfFileName] = useState("");
   const [pdfData, setPdfData] = useState<Uint8Array | null>(null);
+  const [openSendDialog, setOpenSendDialog] = useState(false);
 
   const isAdminAllowed = useRole([ROLES.ADMIN]);
 
@@ -219,12 +221,16 @@ function InvoiceDetail() {
       .put(`${INVOICE_API_URL}/share/${id}`)
       .then((response) => {
         toast.success("Factures partagées avec succès");
-        if(id) getInvoice(parseInt(id));
+        if (id) getInvoice(parseInt(id));
       })
       .catch((error) => {
         console.error("Error sharing invoices:", error);
         toast.error("Erreur lors du partage des factures");
       });
+  };
+
+  const openSendDialogHandler = () => {
+    setOpenSendDialog(true);
   };
 
   const updateInvoice = useCallback((data: IInvoiceForm): void => {
@@ -341,7 +347,12 @@ function InvoiceDetail() {
                           color="primary"
                           startIcon={<EditIcon />}
                           label="Modifier"
-                          disabled={loading || !isAdminAllowed || !methods.formState.isDirty || methods.formState.isSubmitting}
+                          disabled={
+                            loading ||
+                            !isAdminAllowed ||
+                            !methods.formState.isDirty ||
+                            methods.formState.isSubmitting
+                          }
                         />
                         <MuiButton
                           color="error"
@@ -392,6 +403,7 @@ function InvoiceDetail() {
                       onVisualize={visualiseInvoiceHandler}
                       onDownload={downloadInvoiceHandler}
                       onShare={shareInvoice}
+                      onSend={openSendDialogHandler}
                     />
                   </StyledBoxContainer>
                 </Grid>
@@ -408,6 +420,14 @@ function InvoiceDetail() {
         onConfirm={() => deleteInvoice(parseInt(id as string))}
         onCancel={() => setOpenConfirmation(false)}
       />
+
+      {openSendDialog && (
+        <SendInvoiceEmailModal
+          open={openSendDialog}
+          onClose={() => setOpenSendDialog(false)}
+          invoiceIds={[parseInt(id as string)]}
+        />
+      )}
     </Box>
   );
 }

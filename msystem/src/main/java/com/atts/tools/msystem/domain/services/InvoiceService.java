@@ -197,31 +197,24 @@ public class InvoiceService implements ManageInvoicesUseCase {
     }
 
     @Override
-    public void sendInvoices(List<InvoiceAndTemplate> invoiceAndTemplates) throws IlegalRequestException {
-        for (InvoiceAndTemplate invoiceAndTemplate : invoiceAndTemplates) {
-            Invoice invoice = invoiceStoragePort.findById(invoiceAndTemplate.getInvoiceId()).orElse(null);
+    public void sendInvoices(List<Integer> invoiceIds, String emailContent) throws IlegalRequestException {
+        for (Integer invoiceId : invoiceIds) {
+            Invoice invoice = invoiceStoragePort.findById(invoiceId).orElse(null);
             if (invoice != null) {
                 InvoiceFile invoiceFile = getFile(invoice.getId());
-                List<String> emails = invoice.getClient().getUsers().stream().map(User::getEmail)
-                    .filter(Objects::nonNull).toList();
-                AtomicReference<String> emailContent = new AtomicReference<>(EmailTemplate.DEFAULT_TEMPLATE_INVOICE);
-                if (invoiceAndTemplate.getTemplateId() != null) {
-                    User user = userStoragePort.findUserByUsername(authorizationUtil.getCurrentUserUsername());
-                    if (user == null) {
-                        throw new IlegalRequestException("You cannot use a template with an unknown user by app!");
-                    }
-                    user.getEmailTemplates().stream()
-                        .filter(emailTemplate -> invoiceAndTemplate.getTemplateId().equals(emailTemplate.getId()))
-                        .findAny().ifPresent((template) -> {
-                            emailContent.set(template.getContent());
-                        });
+                List<String> emails = invoice.getClient().getUsers().stream()
+                        .map(User::getEmail)
+                        .filter(Objects::nonNull)
+                        .toList();
 
-                }
+                // Use the provided email content directly instead of fetching from template
+                String finalEmailContent = emailContent;
+
                 for (String email : emails) {
-                    emailPort.sendInvoice(emailContent.get(), invoiceFile, email);
+                    emailPort.sendInvoice(finalEmailContent, invoiceFile, email);
                 }
             } else {
-                //DO NOTHING
+                // Handle the case where the invoice is not found. You could log a warning or throw an exception.
             }
         }
     }

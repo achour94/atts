@@ -94,7 +94,7 @@ public class UserController {
     @GetMapping("/emailtemplates")
     public ResponseEntity<List<EmailTemplate>> getEmailTemplates() {
         return ResponseEntity.ok(
-            userStoragePort.findUserByUsername(authorizationUtil.getCurrentUserEmail()).getEmailTemplates());
+            userStoragePort.findUserByUsername(authorizationUtil.getCurrentUserUsername()).getEmailTemplates());
     }
 
     @PutMapping("/emailtemplate")
