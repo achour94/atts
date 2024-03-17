@@ -22,6 +22,7 @@ import RequireAuth from "./features/auth/RequireAuth";
 import NotAllowed from "./components/NotAllowed";
 import { ROLES } from "./lib/constants/utilsConstants";
 import useRole from "./hooks/useRole";
+import History from "./features/history/History";
 
 
 
@@ -50,6 +51,7 @@ function App() {
               <Route element={<RequireAuth allowedRoles={[ROLES.ADMIN]} />}>
                 <Route path="clients" element={<Clients />} />
                 <Route path="client/:id" element={<ClientDetails />} />
+                <Route path="history" element={<History />} />
               </Route>
               <Route path="/logout" element={<Logout />} />
               <Route path="invoices" element={<Invoices />} />
