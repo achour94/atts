@@ -25,4 +25,9 @@ public class LogStorageAdapter implements LogStoragePort {
     public void save(Collection<Log> logs) {
         logRepository.saveAll(logs.stream().map(transformer::transformToLogEntity).collect(Collectors.toList()));
     }
+
+    @Override
+    public void deleteAll() {
+        logRepository.deleteAll();
+    }
 }

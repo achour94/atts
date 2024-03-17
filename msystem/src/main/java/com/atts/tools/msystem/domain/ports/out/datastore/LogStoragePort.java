@@ -6,4 +6,7 @@ import java.util.Collection;
 public interface LogStoragePort {
     Log save(Log log);
     void save(Collection<Log> logs);
+
+    // delete all logs
+    void deleteAll();
 }

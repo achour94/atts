@@ -1,21 +1,6 @@
-import {
-  Box,
-  Checkbox,
-  Grid,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@mui/material";
-import React, { useEffect, useMemo } from "react";
-import MuiButton from "../../components/Form/MuiButton";
+import { Box, Grid } from "@mui/material";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PageTitle from "../../components/utils/Typography/PageTitle";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import MuiTable from "../../components/MuiTable/MuiTable";
 import {
   FetchStatus,
   Filter,
@@ -23,99 +8,90 @@ import {
   SortDirection,
   TableColumn,
 } from "../../lib/constants/utilsConstants";
-import PlaylistAddCheckOutlinedIcon from "@mui/icons-material/PlaylistAddCheckOutlined";
-import axios from "../../services/axios";
+import { ColumnType as CT } from "../../lib/constants/utilsConstants";
+import { HistoryConstants as HC } from "../../lib/constants/HistoryConstants";
+import { IHistory } from "../../lib/interfaces/IHistory";
+import {
+  formatTimestampToFrenchDate,
+  getFiltersOptionsFromColumns,
+} from "../../utils/utils";
+import { ThunkDispatch } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchClients,
-  selectClients,
+  HISTORY_API_URL,
+  fetchHistory,
   selectError,
   selectFilters,
+  selectHistory,
   selectPagination,
   selectSort,
   selectStatus,
   setFilters,
   setPagination,
   setSort,
-} from "./clientSlice";
-import { ThunkDispatch } from "redux-thunk";
-import { ClientConstants as CC } from "../../lib/constants/ClientConstants";
+} from "./historySlice";
 import { toast } from "react-toastify";
 import FilterButton from "../../components/Filters/FilterButton";
-import { ColumnType as CT } from "../../lib/constants/utilsConstants";
-import { getFiltersOptionsFromColumns } from "../../utils/utils";
-import { Link, useNavigate } from "react-router-dom";
-import StyledLink from "../../components/utils/Typography/StyledLink";
-import { IClient } from "../../lib/interfaces/IClient";
-import DeleteModifyOptions from "../../components/utils/DeleteModifyOptions";
+import MuiTable from "../../components/MuiTable/MuiTable";
+import axiosInstance from "../../services/axios";
+import MuiButton from "../../components/Form/MuiButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ConfirmationPopup from "../../components/utils/ConfirmationPopup";
 
-function Clients() {
+function History() {
   const columns: TableColumn[] = useMemo(
     () => [
-      // {
-      //     field: "checkmark",
-      //     renderHeader: () => {
-      //         return <PlaylistAddCheckOutlinedIcon />;
-      //     },
-      //     renderCell: (value: any) => {
-      //         return <Checkbox sx={{padding: 0}} />;
-      //     },
-      // },
       {
-        field: CC.CLIENT_CLIENTREFERENCE,
-        label: "Référence",
-        columnType: CT.TEXT,
-        filterOperators: [
-          FilterType.EQUALS,
-          FilterType.CONTAINS,
-          FilterType.STARTS_WITH,
-          FilterType.ENDS_WITH,
-        ],
+        field: HC.HISTORY_CREATEDAT,
+        label: "Date",
+        columnType: CT.DATE,
+        filterOperators: [FilterType.EQUALS, FilterType.MIN, FilterType.MAX],
         isSortable: true,
-      },
-      {
-        field: CC.CLIENT_NAME,
-        label: "Nom",
-        columnType: CT.TEXT,
-        filterOperators: [
-          FilterType.EQUALS,
-          FilterType.CONTAINS,
-          FilterType.STARTS_WITH,
-          FilterType.ENDS_WITH,
-        ],
-        isSortable: true,
-        renderCell: (row: IClient) => {
+        renderCell: (row: IHistory) => {
           return (
-            <StyledLink to={`/client/${row.clientId}`}>{row.name}</StyledLink>
+            <Box>
+              {row[HC.HISTORY_CREATEDAT] &&
+                formatTimestampToFrenchDate(+row[HC.HISTORY_CREATEDAT] * 1000)}
+            </Box>
           );
         },
       },
       {
-        field: CC.CLIENT_ADDRESS,
-        label: "Adresse",
+        field: HC.HISTORY_SOURCE,
+        label: "Source",
         columnType: CT.TEXT,
+        isSortable: true,
         filterOperators: [
           FilterType.EQUALS,
           FilterType.CONTAINS,
           FilterType.STARTS_WITH,
           FilterType.ENDS_WITH,
         ],
-        isSortable: true,
       },
       {
-        field: CC.CLIENT_DEFAULTSUBSCRIPTION,
-        label: "Abonnement par défaut",
-        columnType: CT.NUMBER,
-        filterOperators: [FilterType.EQUALS, FilterType.MIN, FilterType.MAX],
+        field: HC.HISTORY_LEVEL,
+        label: "Niveau",
+        columnType: CT.TEXT,
         isSortable: true,
+        filterOperators: [
+          FilterType.EQUALS,
+          FilterType.CONTAINS,
+          FilterType.STARTS_WITH,
+          FilterType.ENDS_WITH,
+        ],
       },
-      // {
-      //     field: "options",
-      //     label: "Options",
-      //     renderCell: (value: any) => {
-      //         return <DeleteModifyOptions onDelete={() => {}} onModify={() => {}} />
-      //     }
-      // },
+      {
+        field: HC.HISTORY_MESSAGE,
+        label: "Message",
+        columnType: CT.TEXT,
+        isSortable: true,
+        filterOperators: [
+          FilterType.EQUALS,
+          FilterType.CONTAINS,
+          FilterType.STARTS_WITH,
+          FilterType.ENDS_WITH,
+        ],
+      },
     ],
     []
   );
@@ -126,13 +102,14 @@ function Clients() {
   );
 
   const dispatch: ThunkDispatch<any, void, any> = useDispatch();
-  const clients: IClient[] = useSelector(selectClients);
+  const history: IHistory[] = useSelector(selectHistory);
   const status: FetchStatus = useSelector(selectStatus);
   const error = useSelector(selectError);
   const filters = useSelector(selectFilters);
   const pagination = useSelector(selectPagination);
   const sort = useSelector(selectSort);
-  const navigate = useNavigate();
+
+  const [openConfirmation, setOpenConfirmation] = useState(false);
 
   const applyFiltersHandler = (filters: Filter[]) => {
     dispatch(setFilters(filters));
@@ -143,7 +120,6 @@ function Clients() {
   };
 
   const onSortHandler = (sortBy: string, sortDirection: SortDirection) => {
-    console.log(sortBy, sortDirection);
     dispatch(setSort({ sortBy, sortDirection }));
   };
 
@@ -157,7 +133,7 @@ function Clients() {
 
   useEffect(() => {
     dispatch(
-      fetchClients({
+      fetchHistory({
         pageSize: pagination.pageSize,
         pageNumber: pagination.page,
         criteria: filters,
@@ -172,9 +148,35 @@ function Clients() {
     }
   }, [error]);
 
-  const addClientClickHandler = () => {
-    //navigate to /client/add
-    navigate("/client/add");
+  const deleteAll = useCallback(() => {
+    axiosInstance
+      .delete(HISTORY_API_URL)
+      .then(() => {
+        dispatch(
+          fetchHistory({
+            pageSize: pagination.pageSize,
+            pageNumber: pagination.page,
+            criteria: filters,
+            sort: sort,
+          })
+        );
+      })
+      .catch((error) => {
+        toast.error(error);
+      });
+  }, [dispatch, pagination, filters, sort]);
+
+  const handleDelete = () => {
+    setOpenConfirmation(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteAll();
+    setOpenConfirmation(false);
+  };
+
+  const handleCloseConfirmation = () => {
+    setOpenConfirmation(false);
   };
 
   return (
@@ -194,14 +196,15 @@ function Clients() {
           }}
         >
           <Grid item flex={1}>
-            <PageTitle title="Mes Clients" />
+            <PageTitle title="Historique" />
           </Grid>
           <Grid item>
             <MuiButton
-              startIcon={<AddOutlinedIcon />}
-              label="Ajouter un client"
-              color="primary"
-              onClick={() => addClientClickHandler()}
+              color="error"
+              startIcon={<DeleteIcon />}
+              label="Supprimer"
+              onClick={handleDelete}
+              disabled={history?.length === 0}
             />
           </Grid>
         </Grid>
@@ -226,7 +229,7 @@ function Clients() {
         <Grid mt={2}>
           <MuiTable
             columns={columns}
-            rows={clients}
+            rows={history}
             status={status}
             sort={sort || null}
             onSort={onSortHandler}
@@ -236,8 +239,17 @@ function Clients() {
           />
         </Grid>
       </Box>
+      {openConfirmation && (
+        <ConfirmationPopup
+          open={openConfirmation}
+          title="Supprimer l'historique"
+          message="Êtes-vous sûr de vouloir supprimer tout l'historique ?"
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCloseConfirmation}
+        />
+      )}
     </Box>
   );
 }
 
-export default Clients;
+export default History;
