@@ -77,6 +77,7 @@ import AttachEmailOutlinedIcon from "@mui/icons-material/AttachEmailOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import useRole from "../../hooks/useRole";
 import ConfirmationPopup from "../../components/utils/ConfirmationPopup";
+import SendInvoiceEmailModal from "../../components/InvoiceComponents/SendInvoiceEmailModal";
 
 function Invoices() {
   const dispatch: ThunkDispatch<any, void, any> = useDispatch();
@@ -94,6 +95,7 @@ function Invoices() {
 
   const [openConfirmation, setOpenConfirmation] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [openSendDialog, setOpenSendDialog] = useState(false);
 
   const invoicesColumns: TableColumn[] = useMemo(
     () => [
@@ -351,7 +353,7 @@ function Invoices() {
       icon: <AttachEmailOutlinedIcon />,
       label: "Envoyer par email",
       action: () => {
-        console.log("Envoyer par email");
+        setOpenSendDialog(true);
       },
       isInDividedGroup: false,
       isAllowed: isAdminAllowed,
@@ -593,6 +595,15 @@ function Invoices() {
           onCancel={handleCloseConfirmation}
         />
       )}
+      {
+        openSendDialog && (
+          <SendInvoiceEmailModal
+            open={openSendDialog}
+            onClose={() => setOpenSendDialog(false)}
+            invoiceIds={selectedInvoices}
+          />
+        )
+      }
     </Box>
   );
 }
