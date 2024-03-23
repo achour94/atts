@@ -1,6 +1,15 @@
 import Keycloak from "keycloak-js";
 
-const _kc = new Keycloak('/keycloak.json');
+const keycloakConfig = {
+  realm: process.env.REACT_APP_KEYCLOAK_REALM,
+  url: process.env.REACT_APP_KEYCLOAK_URL,
+  clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID,
+  sslRequired: "external",
+  publicClient: true,
+  confidentialPort: 0,
+};
+
+const _kc = new Keycloak(keycloakConfig);
 _kc.onTokenExpired = () => {
   _kc
     .updateToken(1)
@@ -18,18 +27,20 @@ let isKeycloakInitialized = false; // This variable will track the initializatio
  * @param onAuthenticatedCallback
  */
 const initKeycloak = (onAuthenticatedCallback, onErrorCallback) => {
-  _kc.init({
-    onLoad: 'check-sso',
-    silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
-    pkceMethod: 'S256',
-  })
+  _kc
+    .init({
+      onLoad: "check-sso",
+      silentCheckSsoRedirectUri:
+        window.location.origin + "/silent-check-sso.html",
+      pkceMethod: "S256",
+    })
     .then((authenticated) => {
       isKeycloakInitialized = true;
-        onAuthenticatedCallback();
+      onAuthenticatedCallback();
     })
-    .catch( (error) => {
-        onErrorCallback(error);
-    })
+    .catch((error) => {
+      onErrorCallback(error);
+    });
 };
 
 const isInitialized = () => isKeycloakInitialized;
@@ -45,24 +56,44 @@ const getTokenParsed = () => _kc.tokenParsed;
 const isLoggedIn = () => !!_kc.token;
 
 const updateToken = (successCallback) =>
-  _kc.updateToken(5)
-    .then(successCallback)
-    .catch(doLogin);
+  _kc.updateToken(5).then(successCallback).catch(doLogin);
 
 const getUsername = () => _kc.tokenParsed?.preferred_username;
 const getUserInfo = () => _kc.loadUserInfo();
 
 const getUserProfile = () => _kc.loadUserProfile();
 
-const hasAtLeastOneRole = (roles) => roles.some((role) => {
-    return _kc.tokenParsed && _kc.tokenParsed.resource_access["atts-application"].roles.includes(role);
-    });
+const hasAtLeastOneRole = (roles) => {
+  const resourceName = process.env.REACT_APP_KEYCLOAK_RESOURCE;
+  return roles.some((role) => {
+    return (
+      _kc.tokenParsed &&
+      _kc.tokenParsed.resource_access[resourceName] &&
+      _kc.tokenParsed.resource_access[resourceName].roles.includes(role)
+    );
+  });
+};
 
-const hasAllRoles = (roles) => roles.every((role) => {
-    return _kc.tokenParsed.resource_access["atts-application"].roles.includes(role);
-    });
+const hasAllRoles = (roles) => {
+  const resourceName = process.env.REACT_APP_KEYCLOAK_RESOURCE;
+  return roles.every((role) => {
+    return (
+      _kc.tokenParsed &&
+      _kc.tokenParsed.resource_access[resourceName] &&
+      _kc.tokenParsed.resource_access[resourceName].roles.includes(role)
+    );
+  });
+};
 
-const getRoles = () => _kc.tokenParsed.resource_access["atts-application"].roles;
+const getRoles = () => {
+  const resourceName = process.env.REACT_APP_KEYCLOAK_RESOURCE;
+  return (
+    (_kc.tokenParsed &&
+      _kc.tokenParsed.resource_access[resourceName] &&
+      _kc.tokenParsed.resource_access[resourceName].roles) ||
+    []
+  );
+};
 
 const UserService = {
   initKeycloak,
@@ -78,7 +109,7 @@ const UserService = {
   hasAllRoles,
   getUserInfo,
   getRoles,
-  getUserProfile
+  getUserProfile,
 };
 
 export default UserService;
